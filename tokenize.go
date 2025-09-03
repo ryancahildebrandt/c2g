@@ -37,7 +37,7 @@ func UnigramTokenize(e Expression, t *tokenizer.Tokenizer) []Expression {
 	var (
 		res     string
 		builder strings.Builder
-		out     []Expression      //     = []Expression{"<SOS>"}
+		out     []Expression
 		stream  *tokenizer.Stream = t.ParseString(e)
 	)
 
@@ -61,7 +61,7 @@ func UnigramTokenize(e Expression, t *tokenizer.Tokenizer) []Expression {
 		}
 	}
 	builder, out = flushBuilder(builder, out)
-	// out = append(out, "<EOS>")
+
 	return out
 }
 

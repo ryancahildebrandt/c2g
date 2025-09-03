@@ -7,81 +7,57 @@ package main
 
 import (
 	"bufio"
+	"context"
 	"fmt"
 	"log"
 	"os"
-	"slices"
-	"strings"
 	"time"
+
+	"github.com/urfave/cli/v3"
 )
 
 func main() {
-	start := time.Now()
-	t := NewUnigramTokenizer()
-	file, err := os.Open("./data/20000-Utterances-Training-dataset-for-chatbots-virtual-assistant-Bitext-sample.csv")
+	log.SetFlags(log.LstdFlags | log.Lshortfile)
+	app := &cli.Command{
+		Name:                  "c2g",
+		Usage:                 "Condense natural language expressions to a context free grammar",
+		UsageText:             "c2g [COMMAND] [OPTIONS] example.txt",
+		EnableShellCompletion: true,
+		Suggest:               true,
+		Before:                prepareContext,
+		Flags: []cli.Flag{
+			&inFile,
+			&outFile,
+		},
+		Action: func(ctx context.Context, cmd *cli.Command) error {
+			start := time.Now()
+			infile := cmd.String("inFile")
+			file, err := os.Open(infile)
+			if err != nil {
+				log.Fatal(err)
+			}
+			defer file.Close()
+
+			t := NewUnigramTokenizer()
+			scanner := bufio.NewScanner(file)
+			texts := ReadTexts(scanner)
+			corpus := NewCorpus(texts)
+			corpus.transitions = NewTransitions(corpus, t)
+			corpus.ngrams = ToNgrams(corpus.texts, t, corpus.transitions)
+			corpus.texts = SplitTriplets(corpus.texts, corpus.ngrams)
+			triplets := ToTripletMap(corpus.texts)
+			rules := ToRules(triplets)
+			for _, r := range rules {
+				fmt.Println(r.print("_"))
+			}
+			fmt.Println(time.Since(start))
+
+			return nil
+		},
+	}
+
+	err := app.Run(context.Background(), os.Args)
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer file.Close()
-
-	scanner := bufio.NewScanner(file)
-	corpus := Corpus{}
-	for scanner.Scan() {
-		if scanner.Text() != "" {
-			text := scanner.Text()
-			corpus.texts = append(corpus.texts, Sentence{text, []Ngram{}})
-		}
-	}
-	corpus.transitions = NewTransitions(corpus, t)
-	ngram_map := make(map[Expression]Ngram)
-	for _, c := range corpus.texts {
-		tokens := UnigramTokenize(c.text, t)
-		for _, ng := range NgramTokenize(tokens, corpus.transitions, 0.1) {
-			_, ok := ngram_map[ng]
-			if !ok {
-				ngram_map[ng] = Ngram{ng, len(strings.Split(ng, " ")) - 1, 0}
-			}
-			ngram_map[ng] = Ngram{ng, ngram_map[ng].len, ngram_map[ng].count + 1}
-		}
-	}
-	ng := []Ngram{}
-	for _, v := range ngram_map {
-		ng = append(ng, v)
-	}
-	slices.SortFunc(ng, func(a, b Ngram) int {
-		switch {
-		case a.len == b.len:
-			return b.count - a.count
-		default:
-			return b.len - a.len
-		}
-	})
-
-	tmp := corpus.texts
-	for j, ngram := range ng {
-		if j == 200 {
-			break
-		}
-		var rule Rule = NewRule(ngram)
-		for i := 0; i < len(tmp); i++ {
-			c := tmp[i]
-			p, s, found := strings.Cut(c.text, rule.root.text)
-			if found {
-				if p != "" {
-					if !slices.Contains(rule.pre, p) {
-						rule.pre = append(rule.pre, p)
-					}
-				}
-				if s != "" {
-					if !slices.Contains(rule.suf, s) {
-						rule.suf = append(rule.suf, s)
-					}
-				}
-				tmp = slices.Delete(corpus.texts, i, i+1)
-			}
-		}
-		fmt.Println(j, rule.print(fmt.Sprint(j)))
-	}
-
-	fmt.Println(time.Since(start))
 }

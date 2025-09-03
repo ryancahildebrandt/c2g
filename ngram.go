@@ -9,12 +9,14 @@ import (
 	"slices"
 	"strings"
 
-	"gonum.org/v1/gonum/floats"
 	"github.com/bzick/tokenizer"
+	"gonum.org/v1/gonum/floats"
 )
 
-type TransitionProbabilities map[Expression]float64
-type Transitions map[Expression]TransitionProbabilities
+type (
+	TransitionProbabilities map[Expression]float64
+	Transitions             map[Expression]TransitionProbabilities
+)
 
 type Ngram struct {
 	text  Expression
@@ -78,6 +80,7 @@ func (t Transitions) normalize() Transitions {
 	for k, v := range t {
 		out[k] = probabilityNorm(v)
 	}
+
 	return out
 }
 

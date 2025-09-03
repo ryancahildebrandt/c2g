@@ -5,8 +5,10 @@
 
 package main
 
+type TripletMap = map[string]map[string][]string // map[pre][root][[]suf]
+
 type Grammar struct {
-	Rules   map[string]Rule
+	Rules map[string]Rule
 }
 
 func NewGrammar() Grammar {

@@ -8,34 +8,26 @@ package main
 import (
 	"testing"
 
-	"github.com/bzick/tokenizer"
 	"github.com/stretchr/testify/assert"
 )
 
-func Test_corpusToTokens(t *testing.T) {
-	var tok = NewUnigramTokenizer()
-	var emp [][]Expression
+func TestSplitTriplets(t *testing.T) {
+	var emp []Sentence
 
 	type args struct {
-		c Corpus
-		t *tokenizer.Tokenizer
+		s []Sentence
+		n []Ngram
 	}
 	tests := []struct {
 		name string
 		args args
-		want [][]Expression
-	}{	
-		{name: "", args: args{c: NewCorpus([]Expression{}), t: tok}, want: emp},
-		{name: "", args: args{c: NewCorpus([]Expression{"", ""}), t: tok}, want: emp},
-		{name: "", args: args{c: NewCorpus([]Expression{"", "", "", "", "", ""}), t: tok}, want: emp},
-		{name: "", args: args{c: NewCorpus([]Expression{"  ", " "}), t: tok}, want: emp},
-		{name: "", args: args{c: NewCorpus([]Expression{".", ",", ".", "", ".", ""}), t: tok}, want: [][]Expression{{"."}, {","}, {"."}, {"."}}},
-		{name: "", args: args{c: NewCorpus([]Expression{"abc", "abc", "d e f", "g.h,i"}), t: tok}, want: [][]Expression{{"abc"}, {"abc"}, {"d", "e", "f"}, {"g", ".", "h", ",", "i"}}},
-		{name: "", args: args{c: NewCorpus([]Expression{"abc abc", "d e e f", "g .", ". h", "h ,"}), t: tok}, want: [][]Expression{{"abc", "abc"}, {"d", "e", "e", "f"}, {"g", "."}, {".", "h"}, {"h", ","}}},
+		want []Sentence
+	}{
+		{name: "", args: args{s: []Sentence{}, n: []Ngram{}}, want: emp}, // TODO: Add test cases
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			assert.Equalf(t, tt.want, corpusToTokens(tt.args.c, tt.args.t), "corpusToTokens(%v, %v)", tt.args.c, tt.args.t)
+			assert.Equal(t, tt.want, SplitTriplets(tt.args.s, tt.args.n))
 		})
 	}
 }

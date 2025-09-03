@@ -14,8 +14,8 @@ import (
 )
 
 func TestToBigrams(t *testing.T) {
-	var tok = NewUnigramTokenizer()
-	var emp = [][]Expression{{"", ""}}
+	tok := NewUnigramTokenizer()
+	emp := [][]Expression{{"", ""}}
 
 	type args struct {
 		e []Expression
@@ -68,7 +68,7 @@ func TestValidateTokenizerString(t *testing.T) {
 }
 
 func TestUnigramTokenize(t *testing.T) {
-	var tok = NewUnigramTokenizer()
+	tok := NewUnigramTokenizer()
 	var emp []Expression
 
 	type args struct {

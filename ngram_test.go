@@ -8,14 +8,14 @@ package main
 import (
 	"testing"
 
-	"github.com/stretchr/testify/assert"
 	"github.com/bzick/tokenizer"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestNewTransitions(t *testing.T) {
 	var emp Transitions = Transitions{}
 	var tok *tokenizer.Tokenizer = NewUnigramTokenizer()
-	
+
 	type args struct {
 		c Corpus
 	}
@@ -28,7 +28,7 @@ func TestNewTransitions(t *testing.T) {
 		{name: "", args: args{c: NewCorpus([]Expression{"", ""})}, want: emp},
 		{name: "", args: args{c: NewCorpus([]Expression{"", "", "", "", "", ""})}, want: emp},
 		{name: "", args: args{c: NewCorpus([]Expression{".", ",", ".", "", ".", ""})}, want: Transitions{".": TransitionProbabilities{"": 1.0}, ",": TransitionProbabilities{"": 1.0}}},
-		{name: "", args: args{c: NewCorpus([]Expression{"abc abc", "d e e f", "g .", ". h", "h ,"})}, want: Transitions{"abc": TransitionProbabilities{"abc": 1}, "d": TransitionProbabilities{"e": 1}, "e": TransitionProbabilities{"e": 0.5, "f": 0.5}, "g": TransitionProbabilities{".": 1}, ".": TransitionProbabilities{"h": 1},"h": TransitionProbabilities{",": 1}}},
+		{name: "", args: args{c: NewCorpus([]Expression{"abc abc", "d e e f", "g .", ". h", "h ,"})}, want: Transitions{"abc": TransitionProbabilities{"abc": 1}, "d": TransitionProbabilities{"e": 1}, "e": TransitionProbabilities{"e": 0.5, "f": 0.5}, "g": TransitionProbabilities{".": 1}, ".": TransitionProbabilities{"h": 1}, "h": TransitionProbabilities{",": 1}}},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -61,7 +61,7 @@ func Test_probabilityNorm(t *testing.T) {
 
 func TestNgramTokenize(t *testing.T) {
 	var emp []Expression
-	var transitions = Transitions{
+	transitions := Transitions{
 		"a": TransitionProbabilities{},
 		"b": TransitionProbabilities{"a": 0.1, "b": 0.6, "c": 0.2, "d": 0.7, "e": 0.3, "f": 0.8},
 		"c": TransitionProbabilities{"a": 0.2, "b": 0.7, "c": 0.3, "d": 0.8, "e": 0.4, "f": 0.9},
