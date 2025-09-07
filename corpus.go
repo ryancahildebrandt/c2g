@@ -13,12 +13,14 @@ import (
 	"github.com/bzick/tokenizer"
 )
 
+type Triplet = []Expression
+
 type Sentence struct {
 	text Expression
 	pre  Expression
 	root Expression
 	suf  Expression
-	seg  []Expression
+	seg  Triplet
 }
 
 type Corpus struct {
@@ -31,7 +33,8 @@ func ReadTexts(s *bufio.Scanner) []Expression {
 	var e []Expression
 
 	for s.Scan() {
-		e = append(e, strings.TrimSpace(s.Text()))
+		// e = append(e, strings.TrimSpace(s.Text()))
+		e = append(e, s.Text())
 	}
 
 	return e
@@ -43,6 +46,7 @@ func ToNgrams(s []Sentence, t *tokenizer.Tokenizer, tr Transitions) []Ngram {
 
 	for i, sent := range s {
 		tokens := UnigramTokenize(sent.text, t)
+		sent.text = strings.Join(tokens, " ")
 		sent.seg = NgramTokenize(tokens, tr, 0.1)
 		for _, ng := range sent.seg {
 			_, ok := m[ng]
@@ -90,8 +94,6 @@ func SplitTriplets(s []Sentence, n []Ngram) []Sentence {
 
 		if i == -1 {
 			sent.root = sent.text
-			sent.pre = ""
-			sent.suf = ""
 			ss = append(ss, sent)
 			continue
 		}
@@ -107,28 +109,15 @@ func SplitTriplets(s []Sentence, n []Ngram) []Sentence {
 	return ss
 }
 
-func ToTripletMap(s []Sentence) TripletMap {
-	var t = make(TripletMap)
-	for _, sent := range s {
-		_, ok := t[sent.pre]
-		if !ok {
-			t[sent.pre] = make(map[string][]string)
-		}
-		t[sent.pre][sent.root] = append(t[sent.pre][sent.root], sent.suf)
-	}
-
-	return t
-}
-
-func ToRules(t TripletMap) []Rule {
+func ToRules(s []Sentence) []Rule {
 	var r []Rule
 	var rule Rule
 
-	for k, v := range t {
-		for kk, vv := range v {
-			rule = NewRule(Ngram{kk, len(strings.Split(kk, " ")) - 1, 0})
-			rule.pre = append(rule.pre, k)
-			rule.suf = append(rule.suf, vv...)
+	for _, sent := range s {
+		rule = NewRule(sent.root)
+		rule.pre = []Expression{sent.pre}
+		rule.suf = []Expression{sent.suf}
+		if !rule.isEmpty() {
 			r = append(r, rule)
 		}
 	}

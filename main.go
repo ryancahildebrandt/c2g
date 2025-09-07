@@ -45,13 +45,26 @@ func main() {
 			corpus.transitions = NewTransitions(corpus, t)
 			corpus.ngrams = ToNgrams(corpus.texts, t, corpus.transitions)
 			corpus.texts = SplitTriplets(corpus.texts, corpus.ngrams)
-			triplets := ToTripletMap(corpus.texts)
-			rules := ToRules(triplets)
-			for _, r := range rules {
-				fmt.Println(r.print("_"))
-			}
-			fmt.Println(time.Since(start))
+			rules := ToRules(corpus.texts)
 
+			fmt.Println(len(rules))
+
+			var ssd SSDMerger
+			var sds SDSMerger
+			var dss DSSMerger
+			var sss SSSMerger
+
+			rules = ssd.apply(rules)
+			rules = sds.apply(rules)
+			rules = dss.apply(rules)
+			rules = sss.apply(rules)
+
+			for _, rule := range rules {
+				fmt.Println(rule.print("", true))
+			}
+
+			fmt.Println(len(rules))
+			fmt.Println(time.Since(start))
 			return nil
 		},
 	}

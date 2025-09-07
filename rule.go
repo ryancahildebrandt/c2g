@@ -12,9 +12,20 @@ import (
 )
 
 type Rule struct {
-	root []Expression
 	pre  []Expression
+	root []Expression
 	suf  []Expression
+}
+
+func (r *Rule) isEmpty() bool {
+	switch {
+	case r.pre == nil && r.root == nil && r.suf == nil:
+		return true
+	case slices.Equal(r.pre, []Expression{}) && slices.Equal(r.root, []Expression{}) && slices.Equal(r.suf, []Expression{}):
+		return true
+	default:
+		return false
+	}
 }
 
 func NewRule(e Expression) Rule {
@@ -42,20 +53,29 @@ func fmtGroup(g []Expression) string {
 	return fmt.Sprintf("(%s)", strings.Join(g, "|"))
 }
 
-func (r *Rule) print(n string) string {
+func (r *Rule) print(n string, p bool) string {
 	var b strings.Builder
+
+	if r.isEmpty() {
+		return ""
+	}
 
 	pre := fmtGroup(r.pre)
 	root := fmtGroup(r.root)
 	suf := fmtGroup(r.suf)
 
-	b.WriteString(fmt.Sprintf("public <%s> =", n))
+	if p {
+		b.WriteString("public ")
+	}
+	b.WriteString(fmt.Sprintf("<%s> =", n))
+
 	for _, s := range []string{pre, root, suf} {
 		if s == "()" || s == "[]" || s == "" {
 			continue
 		}
 		b.WriteString(fmt.Sprintf(" %s", s))
 	}
+
 	return b.String()
 }
 
@@ -113,6 +133,9 @@ func (m *SSDMerger) check(r1 Rule, r2 Rule) bool {
 
 func (m *SSDMerger) merge(r1 Rule, r2 Rule) Rule {
 	var r Rule
+	r.pre = r1.pre
+	r.root = r1.root
+	r.suf = []Expression{}
 
 	for _, i := range r1.suf {
 		if !slices.Contains(r.suf, i) {
@@ -152,6 +175,9 @@ func (m *SDSMerger) check(r1 Rule, r2 Rule) bool {
 
 func (m *SDSMerger) merge(r1 Rule, r2 Rule) Rule {
 	var r Rule
+	r.pre = r1.pre
+	r.root = []Expression{}
+	r.suf = r1.suf
 
 	for _, i := range r1.root {
 		if !slices.Contains(r.root, i) {
@@ -191,6 +217,9 @@ func (m *DSSMerger) check(r1 Rule, r2 Rule) bool {
 
 func (m *DSSMerger) merge(r1 Rule, r2 Rule) Rule {
 	var r Rule
+	r.pre = []Expression{}
+	r.root = r1.root
+	r.suf = r1.suf
 
 	for _, i := range r1.pre {
 		if !slices.Contains(r.pre, i) {
@@ -244,21 +273,31 @@ func (m *SSSMerger) merge(rules ...Rule) Rule {
 		}
 		b.Reset()
 	}
+	if r.root != nil {
+		r.pre = []Expression{}
+		r.suf = []Expression{}
+	}
 
 	return r
 }
 
 func (m *SSSMerger) apply(r []Rule) []Rule {
 	var rr []Rule
+	var res Rule
 
 	PRSSort(r)
-	for i := 0; i < len(r)-1; i++ {
+	for i := 0; i < len(r); i++ {
 		if m.check(r[i]) {
-			rr = append(rr, r[i])
+			if !r[i].isEmpty() {
+				rr = append(rr, r[i])
+			}
 			r = slices.Delete(r, i, i+1)
 		}
 	}
-	r = append(r, m.merge(rr...))
+	res = m.merge(rr...)
+	if !res.isEmpty() {
+		r = append(r, res)
+	}
 
 	return r
 }
