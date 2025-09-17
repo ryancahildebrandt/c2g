@@ -40,14 +40,14 @@ func ReadTexts(s *bufio.Scanner) []Expression {
 	return e
 }
 
-func ToNgrams(s []Sentence, t *tokenizer.Tokenizer, tr Transitions) []Ngram {
+func ToNgrams(s []Sentence, t *tokenizer.Tokenizer, tr Transitions, p float64) []Ngram {
 	var n []Ngram
 	var m = make(map[Expression]Ngram)
 
 	for i, sent := range s {
 		tokens := UnigramTokenize(sent.text, t)
 		sent.text = strings.Join(tokens, " ")
-		sent.seg = NgramTokenize(tokens, tr, 0.1)
+		sent.seg = NgramTokenize(tokens, tr, p)
 		for _, ng := range sent.seg {
 			_, ok := m[ng]
 			if !ok {
@@ -60,9 +60,11 @@ func ToNgrams(s []Sentence, t *tokenizer.Tokenizer, tr Transitions) []Ngram {
 	for _, v := range m {
 		n = append(n, v)
 	}
-	slices.SortFunc(n, func(a, b Ngram) int {
-		switch a.len {
-		case b.len:
+	slices.SortStableFunc(n, func(a, b Ngram) int {
+		switch {
+		case a.len == b.len && a.count == b.count:
+			return strings.Compare(a.text, b.text)
+		case a.len == b.len:
 			return b.count - a.count
 		default:
 			return b.len - a.len
@@ -117,6 +119,7 @@ func ToRules(s []Sentence) []Rule {
 		rule = NewRule(sent.root)
 		rule.pre = []Expression{sent.pre}
 		rule.suf = []Expression{sent.suf}
+		rule.isPublic = true
 		if !rule.isEmpty() {
 			r = append(r, rule)
 		}

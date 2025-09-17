@@ -12,13 +12,27 @@ import (
 )
 
 type Rule struct {
-	pre  []Expression
-	root []Expression
-	suf  []Expression
+	pre      []Expression
+	root     []Expression
+	suf      []Expression
+	isPublic bool
+	id       int
 }
 
 func (r *Rule) isEmpty() bool {
 	if len(r.pre) == 0 && len(r.root) == 0 && len(r.suf) == 0 {
+		return true
+	}
+	if len(r.pre)+len(r.root)+len(r.suf) <= 3 {
+		e := []Expression{}
+		e = append(e, r.pre...)
+		e = append(e, r.root...)
+		e = append(e, r.suf...)
+		for _, e := range e {
+			if e != "" {
+				return false
+			}
+		}
 		return true
 	}
 	return false
@@ -49,7 +63,7 @@ func fmtGroup(g []Expression) string {
 	return fmt.Sprintf("(%s)", strings.Join(g, "|"))
 }
 
-func (r *Rule) print(n string, p bool) string {
+func (r *Rule) print(n string) string {
 	var b strings.Builder
 
 	if r.isEmpty() {
@@ -60,7 +74,7 @@ func (r *Rule) print(n string, p bool) string {
 	root := fmtGroup(r.root)
 	suf := fmtGroup(r.suf)
 
-	if p {
+	if r.isPublic {
 		b.WriteString("public ")
 	}
 	b.WriteString(fmt.Sprintf("<%s> =", n))
@@ -76,8 +90,15 @@ func (r *Rule) print(n string, p bool) string {
 	return b.String()
 }
 
+func (r *Rule) name() string {
+	if r.id != 0 {
+		return fmt.Sprintf("%.*s_%v", 20, strings.Replace(strings.Join(r.root, "_"), " ", "_", -1), r.id)
+	}
+	return fmt.Sprintf("%.*s", 20, strings.Replace(strings.Join(r.root, "_"), " ", "_", -1))
+}
+
 func PRSort(r []Rule) {
-	slices.SortFunc(r, func(r1 Rule, r2 Rule) int {
+	slices.SortStableFunc(r, func(r1 Rule, r2 Rule) int {
 		if slices.Equal(r1.pre, r2.pre) {
 			return slices.Compare(r1.root, r2.root)
 		}
@@ -86,7 +107,7 @@ func PRSort(r []Rule) {
 }
 
 func PSSort(r []Rule) {
-	slices.SortFunc(r, func(r1 Rule, r2 Rule) int {
+	slices.SortStableFunc(r, func(r1 Rule, r2 Rule) int {
 		if slices.Equal(r1.pre, r2.pre) {
 			return slices.Compare(r1.suf, r2.suf)
 		}
@@ -95,7 +116,7 @@ func PSSort(r []Rule) {
 }
 
 func RSSort(r []Rule) {
-	slices.SortFunc(r, func(r1 Rule, r2 Rule) int {
+	slices.SortStableFunc(r, func(r1 Rule, r2 Rule) int {
 		if slices.Equal(r1.root, r2.root) {
 			return slices.Compare(r1.suf, r2.suf)
 		}
@@ -104,7 +125,7 @@ func RSSort(r []Rule) {
 }
 
 func PRSSort(r []Rule) {
-	slices.SortFunc(r, func(r1 Rule, r2 Rule) int {
+	slices.SortStableFunc(r, func(r1 Rule, r2 Rule) int {
 		switch {
 		case slices.Equal(r1.pre, r2.pre) && slices.Equal(r1.root, r2.root):
 			return slices.Compare(r1.suf, r2.suf)
@@ -133,6 +154,7 @@ func (m *SSDMerger) merge(r1 Rule, r2 Rule) Rule {
 	r.pre = r1.pre
 	r.root = r1.root
 	r.suf = []Expression{}
+	r.isPublic = true
 
 	for _, i := range r1.suf {
 		if !slices.Contains(r.suf, i) {
@@ -175,6 +197,7 @@ func (m *SDSMerger) merge(r1 Rule, r2 Rule) Rule {
 	r.pre = r1.pre
 	r.root = []Expression{}
 	r.suf = r1.suf
+	r.isPublic = true
 
 	for _, i := range r1.root {
 		if !slices.Contains(r.root, i) {
@@ -217,6 +240,7 @@ func (m *DSSMerger) merge(r1 Rule, r2 Rule) Rule {
 	r.pre = []Expression{}
 	r.root = r1.root
 	r.suf = r1.suf
+	r.isPublic = true
 
 	for _, i := range r1.pre {
 		if !slices.Contains(r.pre, i) {
@@ -273,6 +297,8 @@ func (m *SSSMerger) merge(rules ...Rule) Rule {
 	if r.root != nil {
 		r.pre = []Expression{}
 		r.suf = []Expression{}
+		r.isPublic = true
+
 	}
 
 	return r
@@ -297,4 +323,97 @@ func (m *SSSMerger) apply(r []Rule) []Rule {
 	}
 
 	return r
+}
+
+func Factor(r Rule, f Rule) Rule {
+	if slices.Equal(f.root, []Expression{}) {
+		return r
+	}
+	if slices.Equal(f.root, []Expression{""}) {
+		return r
+	}
+
+	slices.Sort(r.pre)
+	slices.Sort(r.root)
+	slices.Sort(r.suf)
+
+	if slices.Equal(r.pre, f.root) {
+		r.pre = []Expression{fmt.Sprintf("<%s>", f.name())}
+	}
+	if slices.Equal(r.root, f.root) {
+		r.root = []Expression{fmt.Sprintf("<%s>", f.name())}
+	}
+	if slices.Equal(r.suf, f.root) {
+		r.suf = []Expression{fmt.Sprintf("<%s>", f.name())}
+	}
+
+	return r
+}
+
+func ApplyFactor(rules []Rule) []Rule {
+	Counts := func(r []Rule) map[string]int {
+		counts := make(map[string]int)
+
+		slices.SortStableFunc(r, func(i, j Rule) int {
+			return strings.Compare(i.print(""), j.print(""))
+		})
+
+		for _, rule := range r {
+			slices.Sort(rule.pre)
+			slices.Sort(rule.root)
+			slices.Sort(rule.suf)
+			counts[fmt.Sprint(strings.Join(rule.pre, "|"))]++
+			counts[fmt.Sprint(strings.Join(rule.root, "|"))]++
+			counts[fmt.Sprint(strings.Join(rule.suf, "|"))]++
+		}
+
+		return counts
+	}
+
+	NGrams := func(c map[string]int) []Expression {
+		ngs := []Expression{}
+
+		for cc := range c {
+			if cc == "" {
+				continue
+			}
+			ngs = append(ngs, cc)
+		}
+
+		slices.SortStableFunc(ngs, func(i, j Expression) int {
+			return c[j] - c[i]
+		})
+
+		return ngs
+	}
+
+	counts := Counts(rules)
+	ngs := NGrams(counts)
+	for _, n := range ngs {
+		if counts[n] > 5 {
+			f := Rule{pre: []Expression{}, root: []Expression{n}, suf: []Expression{}, isPublic: false, id: 0}
+			for j := range rules {
+				rules[j] = Factor(rules[j], f)
+			}
+			rules = append(rules, f)
+		}
+	}
+	return rules
+}
+
+func SetIDs(rules []Rule) []Rule {
+	slices.SortStableFunc(rules, func(i, j Rule) int {
+		return strings.Compare(i.print(""), j.print(""))
+	})
+
+	for i := range len(rules) - 1 {
+		r1 := rules[i]
+		r2 := rules[i+1]
+		if r1.name() == r2.name() {
+			r2.id++
+			rules[i+1] = r2
+		}
+	}
+
+	return rules
 }

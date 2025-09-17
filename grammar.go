@@ -5,16 +5,72 @@
 
 package main
 
-type TripletMap = map[string]map[string][]string // map[pre][root][[]suf]
+import (
+	"fmt"
+	"slices"
+	"strings"
+)
 
 type Grammar struct {
-	Rules map[string]Rule
+	Rules []Rule
 }
 
-func NewGrammar() Grammar {
-	var grammar Grammar
+func (g *Grammar) print() string {
+	var b strings.Builder
+	b.WriteString("#JSGF V1.0 ISO8859-1 en;\n\ngrammar main;\n\n")
 
-	grammar.Rules = make(map[string]Rule)
+	slices.SortStableFunc(g.Rules, func(i, j Rule) int {
+		return strings.Compare(i.print(""), j.print(""))
+	})
 
-	return grammar
+	for _, v := range g.Rules {
+		if v.isPublic && !v.isEmpty() {
+			b.WriteString(v.print(v.name()))
+			b.WriteString("\n")
+		}
+	}
+	b.WriteString("\n")
+
+	for _, v := range g.Rules {
+		if !v.isPublic && !v.isEmpty() {
+			b.WriteString(v.print(v.name()))
+			b.WriteString("\n")
+		}
+	}
+
+	return strings.TrimSpace(b.String())
+}
+
+func (g *Grammar) printMain() string {
+	var b strings.Builder
+	var main Rule
+
+	for k, v := range g.Rules {
+		if v.isPublic && !v.isEmpty() {
+			main.root = append(main.root, fmt.Sprint("<", v.name(), ">"))
+			v.isPublic = false
+			g.Rules[k] = v
+		}
+	}
+	main.isPublic = true
+	b.WriteString("#JSGF V1.0 ISO8859-1 en;\n\ngrammar main;\n\n")
+	b.WriteString(main.print("main"))
+	b.WriteString("\n")
+
+	for _, v := range g.Rules {
+		if v.isPublic && !v.isEmpty() {
+			b.WriteString(v.print(v.name()))
+			b.WriteString("\n")
+		}
+	}
+	b.WriteString("\n")
+
+	for _, v := range g.Rules {
+		if !v.isPublic && !v.isEmpty() {
+			b.WriteString(v.print(v.name()))
+			b.WriteString("\n")
+		}
+	}
+
+	return strings.TrimSpace(b.String())
 }

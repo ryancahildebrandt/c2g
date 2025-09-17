@@ -11,8 +11,6 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"slices"
-	"strings"
 	"time"
 
 	"github.com/urfave/cli/v3"
@@ -30,10 +28,12 @@ func main() {
 		Flags: []cli.Flag{
 			&inFile,
 			&outFile,
+			&prob,
 		},
 		Action: func(ctx context.Context, cmd *cli.Command) error {
 			start := time.Now()
 			infile := cmd.String("inFile")
+			prob := cmd.Float("prob")
 			file, err := os.Open(infile)
 			if err != nil {
 				log.Fatal(err)
@@ -45,11 +45,9 @@ func main() {
 			texts := ReadTexts(scanner)
 			corpus := NewCorpus(texts)
 			corpus.transitions = NewTransitions(corpus, t)
-			corpus.ngrams = ToNgrams(corpus.texts, t, corpus.transitions)
+			corpus.ngrams = ToNgrams(corpus.texts, t, corpus.transitions, prob)
 			corpus.texts = SplitTriplets(corpus.texts, corpus.ngrams)
 			rules := ToRules(corpus.texts)
-
-			fmt.Println(len(rules))
 
 			var ssd SSDMerger
 			rules = ssd.apply(rules)
@@ -63,14 +61,14 @@ func main() {
 			var sss SSSMerger
 			rules = sss.apply(rules)
 
-			slices.SortFunc(rules, func(i, j Rule) int {
-				return strings.Compare(i.print("", false), j.print("", false))
-			})
-			for _, rule := range rules {
-				fmt.Println(rule.print("", false))
-			}
+			rules = ApplyFactor(rules)
+			rules = SetIDs(rules)
+			g := Grammar{Rules: rules}
 
-			fmt.Println(len(rules))
+			err = os.WriteFile("./outputs/test.jsgf", []byte(g.print()), 0644)
+			if err != nil {
+				return err
+			}
 			fmt.Println(time.Since(start))
 			return nil
 		},

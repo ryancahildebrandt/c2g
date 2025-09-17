@@ -38,13 +38,13 @@ func Test_fmtGroup(t *testing.T) {
 
 func TestRule_print(t *testing.T) {
 	type fields struct {
-		root []Expression
-		pre  []Expression
-		suf  []Expression
+		root     []Expression
+		pre      []Expression
+		suf      []Expression
+		isPublic bool
 	}
 	type args struct {
 		n string
-		p bool
 	}
 	tests := []struct {
 		name   string
@@ -52,23 +52,24 @@ func TestRule_print(t *testing.T) {
 		args   args
 		want   string
 	}{
-		{name: "", fields: fields{pre: []Expression{}, root: []Expression{}, suf: []Expression{}}, args: args{n: "", p: false}, want: ""},
-		{name: "", fields: fields{pre: []Expression{}, root: []Expression{}, suf: []Expression{}}, args: args{n: "", p: true}, want: ""},
-		{name: "", fields: fields{pre: []Expression{""}, root: []Expression{""}, suf: []Expression{""}}, args: args{n: "", p: true}, want: "public <> =;"},
-		{name: "", fields: fields{pre: []Expression{"", "", "", ""}, root: []Expression{"", "", "", ""}, suf: []Expression{"", "", "", ""}}, args: args{n: "", p: true}, want: "public <> = [||] [||] [||];"},
-		{name: "", fields: fields{pre: []Expression{"a", "b", "c", ""}, root: []Expression{"a", "b", "c", "d"}, suf: []Expression{}}, args: args{n: "1", p: false}, want: "<1> = [a|b|c] (a|b|c|d);"},
-		{name: "", fields: fields{pre: []Expression{}, root: []Expression{"a", "b", "c", ""}, suf: []Expression{"a", "b", "c", "d"}}, args: args{n: "2", p: true}, want: "public <2> = [a|b|c] (a|b|c|d);"},
-		{name: "", fields: fields{pre: []Expression{"a", "b", "c", "d"}, root: []Expression{}, suf: []Expression{"a", "b", "c", ""}}, args: args{n: " ", p: false}, want: "< > = (a|b|c|d) [a|b|c];"},
-		{name: "", fields: fields{pre: []Expression{}, root: []Expression{"a", "b", "c", "d"}, suf: []Expression{}}, args: args{n: "  ", p: true}, want: "public <  > = (a|b|c|d);"},
+		{name: "", fields: fields{pre: []Expression{}, root: []Expression{}, suf: []Expression{}, isPublic: false}, args: args{n: ""}, want: ""},
+		{name: "", fields: fields{pre: []Expression{}, root: []Expression{}, suf: []Expression{}, isPublic: true}, args: args{n: ""}, want: ""},
+		{name: "", fields: fields{pre: []Expression{""}, root: []Expression{""}, suf: []Expression{""}, isPublic: true}, args: args{n: ""}, want: ""},
+		{name: "", fields: fields{pre: []Expression{"", "", "", ""}, root: []Expression{"", "", "", ""}, suf: []Expression{"", "", "", ""}, isPublic: true}, args: args{n: ""}, want: "public <> = [||] [||] [||];"},
+		{name: "", fields: fields{pre: []Expression{"a", "b", "c", ""}, root: []Expression{"a", "b", "c", "d"}, suf: []Expression{}, isPublic: false}, args: args{n: "1"}, want: "<1> = [a|b|c] (a|b|c|d);"},
+		{name: "", fields: fields{pre: []Expression{}, root: []Expression{"a", "b", "c", ""}, suf: []Expression{"a", "b", "c", "d"}, isPublic: true}, args: args{n: "2"}, want: "public <2> = [a|b|c] (a|b|c|d);"},
+		{name: "", fields: fields{pre: []Expression{"a", "b", "c", "d"}, root: []Expression{}, suf: []Expression{"a", "b", "c", ""}, isPublic: false}, args: args{n: " "}, want: "< > = (a|b|c|d) [a|b|c];"},
+		{name: "", fields: fields{pre: []Expression{}, root: []Expression{"a", "b", "c", "d"}, suf: []Expression{}, isPublic: true}, args: args{n: "  "}, want: "public <  > = (a|b|c|d);"},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			r := &Rule{
-				root: tt.fields.root,
-				pre:  tt.fields.pre,
-				suf:  tt.fields.suf,
+				root:     tt.fields.root,
+				pre:      tt.fields.pre,
+				suf:      tt.fields.suf,
+				isPublic: tt.fields.isPublic,
 			}
-			assert.Equal(t, tt.want, r.print(tt.args.n, tt.args.p))
+			assert.Equal(t, tt.want, r.print(tt.args.n))
 		})
 	}
 }
@@ -86,38 +87,35 @@ func TestPRSort(t *testing.T) {
 		want []Rule
 	}{
 		{name: "", args: args{f: "./data/tests/test5.csv"}, want: []Rule{
-			{pre: []Expression{""}, root: []Expression{"I don't have an online account"}, suf: []Expression{""}},
+			{pre: []Expression{""}, root: []Expression{"I don't have an online account"}, suf: []Expression{""}, isPublic: true},
 		}},
 		{name: "", args: args{f: "./data/tests/test6.csv"}, want: []Rule{
-			{pre: []Expression{""}, root: []Expression{"I don't have an online account"}, suf: []Expression{""}},
-			{pre: []Expression{""}, root: []Expression{"I don't understand you"}, suf: []Expression{""}},
-			{pre: []Expression{""}, root: []Expression{"I got an error message when I attempted to make a payment"}, suf: []Expression{""}},
-			{pre: []Expression{""}, root: []Expression{"I want an online accoynt"}, suf: []Expression{""}},
-			{pre: []Expression{""}, root: []Expression{"ask an agent to notify issues with my payment"}, suf: []Expression{""}},
-			{pre: []Expression{""}, root: []Expression{"can you show me information about the status of my refund ?"}, suf: []Expression{""}},
-			{pre: []Expression{""}, root: []Expression{"can you show me my invoices ?"}, suf: []Expression{""}},
-			{pre: []Expression{""}, root: []Expression{"can you tell me how I can get some bills ?"}, suf: []Expression{""}},
-			{pre: []Expression{""}, root: []Expression{"i dont want my profile"}, suf: []Expression{""}},
-			{pre: []Expression{""}, root: []Expression{"i want to know wat the email of Customer Service is"}, suf: []Expression{""}},
-			{pre: []Expression{""}, root: []Expression{"where can i leave an opinion for a service ?"}, suf: []Expression{""}},
+			{pre: []Expression{""}, root: []Expression{"I don't have an online account"}, suf: []Expression{""}, isPublic: true},
+			{pre: []Expression{""}, root: []Expression{"I don't understand you"}, suf: []Expression{""}, isPublic: true},
+			{pre: []Expression{""}, root: []Expression{"I got an error message when I attempted to make a payment"}, suf: []Expression{""}, isPublic: true},
+			{pre: []Expression{""}, root: []Expression{"I want an online accoynt"}, suf: []Expression{""}, isPublic: true},
+			{pre: []Expression{""}, root: []Expression{"ask an agent to notify issues with my payment"}, suf: []Expression{""}, isPublic: true},
+			{pre: []Expression{""}, root: []Expression{"can you show me information about the status of my refund ?"}, suf: []Expression{""}, isPublic: true},
+			{pre: []Expression{""}, root: []Expression{"can you show me my invoices ?"}, suf: []Expression{""}, isPublic: true},
+			{pre: []Expression{""}, root: []Expression{"can you tell me how I can get some bills ?"}, suf: []Expression{""}, isPublic: true},
+			{pre: []Expression{""}, root: []Expression{"i dont want my profile"}, suf: []Expression{""}, isPublic: true},
+			{pre: []Expression{""}, root: []Expression{"i want to know wat the email of Customer Service is"}, suf: []Expression{""}, isPublic: true},
+			{pre: []Expression{""}, root: []Expression{"where can i leave an opinion for a service ?"}, suf: []Expression{""}, isPublic: true},
 		}},
-		{name: "", args: args{f: "./data/tests/test7.csv"}, want: []Rule{
-			{pre: []Expression{""}, root: []Expression{""}, suf: []Expression{""}},
-			{pre: []Expression{""}, root: []Expression{""}, suf: []Expression{""}},
-		}},
+		{name: "", args: args{f: "./data/tests/test7.csv"}, want: emp},
 		{name: "", args: args{f: "./data/tests/test8.csv"}, want: emp},
 		{name: "", args: args{f: "./data/tests/test9.csv"}, want: []Rule{
-			{pre: []Expression{""}, root: []Expression{"I don't have an online account"}, suf: []Expression{""}},
-			{pre: []Expression{""}, root: []Expression{"I have a question"}, suf: []Expression{""}},
-			{pre: []Expression{""}, root: []Expression{"I ordered an item and Id like to modify my fucking order"}, suf: []Expression{""}},
-			{pre: []Expression{""}, root: []Expression{"I want to download a bill"}, suf: []Expression{""}},
-			{pre: []Expression{""}, root: []Expression{"I want to know what the number of Customer Service is"}, suf: []Expression{""}},
-			{pre: []Expression{""}, root: []Expression{"I want to make a review for a service"}, suf: []Expression{""}},
-			{pre: []Expression{""}, root: []Expression{"how do I make changes to my shipping address ?"}, suf: []Expression{""}},
-			{pre: []Expression{""}, root: []Expression{"i get an error message when i ty to make a payment for my order"}, suf: []Expression{""}},
-			{pre: []Expression{""}, root: []Expression{"i want to request an invoice"}, suf: []Expression{""}},
-			{pre: []Expression{""}, root: []Expression{"where do i check the delivery options ?"}, suf: []Expression{""}},
-			{pre: []Expression{""}, root: []Expression{"you arent helping"}, suf: []Expression{""}},
+			{pre: []Expression{""}, root: []Expression{"I don't have an online account"}, suf: []Expression{""}, isPublic: true},
+			{pre: []Expression{""}, root: []Expression{"I have a question"}, suf: []Expression{""}, isPublic: true},
+			{pre: []Expression{""}, root: []Expression{"I ordered an item and Id like to modify my fucking order"}, suf: []Expression{""}, isPublic: true},
+			{pre: []Expression{""}, root: []Expression{"I want to download a bill"}, suf: []Expression{""}, isPublic: true},
+			{pre: []Expression{""}, root: []Expression{"I want to know what the number of Customer Service is"}, suf: []Expression{""}, isPublic: true},
+			{pre: []Expression{""}, root: []Expression{"I want to make a review for a service"}, suf: []Expression{""}, isPublic: true},
+			{pre: []Expression{""}, root: []Expression{"how do I make changes to my shipping address ?"}, suf: []Expression{""}, isPublic: true},
+			{pre: []Expression{""}, root: []Expression{"i get an error message when i ty to make a payment for my order"}, suf: []Expression{""}, isPublic: true},
+			{pre: []Expression{""}, root: []Expression{"i want to request an invoice"}, suf: []Expression{""}, isPublic: true},
+			{pre: []Expression{""}, root: []Expression{"where do i check the delivery options ?"}, suf: []Expression{""}, isPublic: true},
+			{pre: []Expression{""}, root: []Expression{"you arent helping"}, suf: []Expression{""}, isPublic: true},
 		}},
 		{name: "", args: args{f: "./data/tests/test10.csv"}, want: emp},
 	}
@@ -129,7 +127,7 @@ func TestPRSort(t *testing.T) {
 			tx := ReadTexts(s)
 			c := NewCorpus(tx)
 			c.transitions = NewTransitions(c, tk)
-			c.ngrams = ToNgrams(c.texts, tk, c.transitions)
+			c.ngrams = ToNgrams(c.texts, tk, c.transitions, 0.1)
 			c.texts = SplitTriplets(c.texts, c.ngrams)
 			res := ToRules(c.texts)
 			PRSort(res)
@@ -151,35 +149,33 @@ func TestPSSort(t *testing.T) {
 		want []Rule
 	}{
 		{name: "", args: args{f: "./data/tests/test5.csv"}, want: []Rule{
-			{pre: []Expression{""}, root: []Expression{"I don't have an online account"}, suf: []Expression{""}}}},
+			{pre: []Expression{""}, root: []Expression{"I don't have an online account"}, suf: []Expression{""}, isPublic: true}}},
 		{name: "", args: args{f: "./data/tests/test6.csv"}, want: []Rule{
-			{pre: []Expression{""}, root: []Expression{"I don't have an online account"}, suf: []Expression{""}},
-			{pre: []Expression{""}, root: []Expression{"I don't understand you"}, suf: []Expression{""}},
-			{pre: []Expression{""}, root: []Expression{"I got an error message when I attempted to make a payment"}, suf: []Expression{""}},
-			{pre: []Expression{""}, root: []Expression{"I want an online accoynt"}, suf: []Expression{""}},
-			{pre: []Expression{""}, root: []Expression{"ask an agent to notify issues with my payment"}, suf: []Expression{""}},
-			{pre: []Expression{""}, root: []Expression{"can you show me information about the status of my refund ?"}, suf: []Expression{""}},
-			{pre: []Expression{""}, root: []Expression{"can you show me my invoices ?"}, suf: []Expression{""}},
-			{pre: []Expression{""}, root: []Expression{"can you tell me how I can get some bills ?"}, suf: []Expression{""}},
-			{pre: []Expression{""}, root: []Expression{"i dont want my profile"}, suf: []Expression{""}},
-			{pre: []Expression{""}, root: []Expression{"i want to know wat the email of Customer Service is"}, suf: []Expression{""}},
-			{pre: []Expression{""}, root: []Expression{"where can i leave an opinion for a service ?"}, suf: []Expression{""}}}},
-		{name: "", args: args{f: "./data/tests/test7.csv"}, want: []Rule{
-			{pre: []Expression{""}, root: []Expression{""}, suf: []Expression{""}},
-			{pre: []Expression{""}, root: []Expression{""}, suf: []Expression{""}}}},
+			{pre: []Expression{""}, root: []Expression{"I don't have an online account"}, suf: []Expression{""}, isPublic: true},
+			{pre: []Expression{""}, root: []Expression{"I don't understand you"}, suf: []Expression{""}, isPublic: true},
+			{pre: []Expression{""}, root: []Expression{"I got an error message when I attempted to make a payment"}, suf: []Expression{""}, isPublic: true},
+			{pre: []Expression{""}, root: []Expression{"I want an online accoynt"}, suf: []Expression{""}, isPublic: true},
+			{pre: []Expression{""}, root: []Expression{"ask an agent to notify issues with my payment"}, suf: []Expression{""}, isPublic: true},
+			{pre: []Expression{""}, root: []Expression{"can you show me information about the status of my refund ?"}, suf: []Expression{""}, isPublic: true},
+			{pre: []Expression{""}, root: []Expression{"can you show me my invoices ?"}, suf: []Expression{""}, isPublic: true},
+			{pre: []Expression{""}, root: []Expression{"can you tell me how I can get some bills ?"}, suf: []Expression{""}, isPublic: true},
+			{pre: []Expression{""}, root: []Expression{"i dont want my profile"}, suf: []Expression{""}, isPublic: true},
+			{pre: []Expression{""}, root: []Expression{"i want to know wat the email of Customer Service is"}, suf: []Expression{""}, isPublic: true},
+			{pre: []Expression{""}, root: []Expression{"where can i leave an opinion for a service ?"}, suf: []Expression{""}, isPublic: true}}},
+		{name: "", args: args{f: "./data/tests/test7.csv"}, want: emp},
 		{name: "", args: args{f: "./data/tests/test8.csv"}, want: emp},
 		{name: "", args: args{f: "./data/tests/test9.csv"}, want: []Rule{
-			{pre: []Expression{""}, root: []Expression{"I don't have an online account"}, suf: []Expression{""}},
-			{pre: []Expression{""}, root: []Expression{"I have a question"}, suf: []Expression{""}},
-			{pre: []Expression{""}, root: []Expression{"I ordered an item and Id like to modify my fucking order"}, suf: []Expression{""}},
-			{pre: []Expression{""}, root: []Expression{"I want to download a bill"}, suf: []Expression{""}},
-			{pre: []Expression{""}, root: []Expression{"I want to know what the number of Customer Service is"}, suf: []Expression{""}},
-			{pre: []Expression{""}, root: []Expression{"I want to make a review for a service"}, suf: []Expression{""}},
-			{pre: []Expression{""}, root: []Expression{"how do I make changes to my shipping address ?"}, suf: []Expression{""}},
-			{pre: []Expression{""}, root: []Expression{"i get an error message when i ty to make a payment for my order"}, suf: []Expression{""}},
-			{pre: []Expression{""}, root: []Expression{"i want to request an invoice"}, suf: []Expression{""}},
-			{pre: []Expression{""}, root: []Expression{"where do i check the delivery options ?"}, suf: []Expression{""}},
-			{pre: []Expression{""}, root: []Expression{"you arent helping"}, suf: []Expression{""}}}},
+			{pre: []Expression{""}, root: []Expression{"I don't have an online account"}, suf: []Expression{""}, isPublic: true},
+			{pre: []Expression{""}, root: []Expression{"I have a question"}, suf: []Expression{""}, isPublic: true},
+			{pre: []Expression{""}, root: []Expression{"I ordered an item and Id like to modify my fucking order"}, suf: []Expression{""}, isPublic: true},
+			{pre: []Expression{""}, root: []Expression{"I want to download a bill"}, suf: []Expression{""}, isPublic: true},
+			{pre: []Expression{""}, root: []Expression{"I want to know what the number of Customer Service is"}, suf: []Expression{""}, isPublic: true},
+			{pre: []Expression{""}, root: []Expression{"I want to make a review for a service"}, suf: []Expression{""}, isPublic: true},
+			{pre: []Expression{""}, root: []Expression{"how do I make changes to my shipping address ?"}, suf: []Expression{""}, isPublic: true},
+			{pre: []Expression{""}, root: []Expression{"i get an error message when i ty to make a payment for my order"}, suf: []Expression{""}, isPublic: true},
+			{pre: []Expression{""}, root: []Expression{"i want to request an invoice"}, suf: []Expression{""}, isPublic: true},
+			{pre: []Expression{""}, root: []Expression{"where do i check the delivery options ?"}, suf: []Expression{""}, isPublic: true},
+			{pre: []Expression{""}, root: []Expression{"you arent helping"}, suf: []Expression{""}, isPublic: true}}},
 		{name: "", args: args{f: "./data/tests/test10.csv"}, want: emp},
 	}
 	for _, tt := range tests {
@@ -190,7 +186,7 @@ func TestPSSort(t *testing.T) {
 			tx := ReadTexts(s)
 			c := NewCorpus(tx)
 			c.transitions = NewTransitions(c, tk)
-			c.ngrams = ToNgrams(c.texts, tk, c.transitions)
+			c.ngrams = ToNgrams(c.texts, tk, c.transitions, 0.1)
 			c.texts = SplitTriplets(c.texts, c.ngrams)
 			res := ToRules(c.texts)
 			PSSort(res)
@@ -212,35 +208,33 @@ func TestRSSort(t *testing.T) {
 		want []Rule
 	}{
 		{name: "", args: args{f: "./data/tests/test5.csv"}, want: []Rule{
-			{pre: []Expression{""}, root: []Expression{"I don't have an online account"}, suf: []Expression{""}}}},
+			{pre: []Expression{""}, root: []Expression{"I don't have an online account"}, suf: []Expression{""}, isPublic: true}}},
 		{name: "", args: args{f: "./data/tests/test6.csv"}, want: []Rule{
-			{pre: []Expression{""}, root: []Expression{"I don't have an online account"}, suf: []Expression{""}},
-			{pre: []Expression{""}, root: []Expression{"I don't understand you"}, suf: []Expression{""}},
-			{pre: []Expression{""}, root: []Expression{"I got an error message when I attempted to make a payment"}, suf: []Expression{""}},
-			{pre: []Expression{""}, root: []Expression{"I want an online accoynt"}, suf: []Expression{""}},
-			{pre: []Expression{""}, root: []Expression{"ask an agent to notify issues with my payment"}, suf: []Expression{""}},
-			{pre: []Expression{""}, root: []Expression{"can you show me information about the status of my refund ?"}, suf: []Expression{""}},
-			{pre: []Expression{""}, root: []Expression{"can you show me my invoices ?"}, suf: []Expression{""}},
-			{pre: []Expression{""}, root: []Expression{"can you tell me how I can get some bills ?"}, suf: []Expression{""}},
-			{pre: []Expression{""}, root: []Expression{"i dont want my profile"}, suf: []Expression{""}},
-			{pre: []Expression{""}, root: []Expression{"i want to know wat the email of Customer Service is"}, suf: []Expression{""}},
-			{pre: []Expression{""}, root: []Expression{"where can i leave an opinion for a service ?"}, suf: []Expression{""}}}},
-		{name: "", args: args{f: "./data/tests/test7.csv"}, want: []Rule{
-			{pre: []Expression{""}, root: []Expression{""}, suf: []Expression{""}},
-			{pre: []Expression{""}, root: []Expression{""}, suf: []Expression{""}}}},
+			{pre: []Expression{""}, root: []Expression{"I don't have an online account"}, suf: []Expression{""}, isPublic: true},
+			{pre: []Expression{""}, root: []Expression{"I don't understand you"}, suf: []Expression{""}, isPublic: true},
+			{pre: []Expression{""}, root: []Expression{"I got an error message when I attempted to make a payment"}, suf: []Expression{""}, isPublic: true},
+			{pre: []Expression{""}, root: []Expression{"I want an online accoynt"}, suf: []Expression{""}, isPublic: true},
+			{pre: []Expression{""}, root: []Expression{"ask an agent to notify issues with my payment"}, suf: []Expression{""}, isPublic: true},
+			{pre: []Expression{""}, root: []Expression{"can you show me information about the status of my refund ?"}, suf: []Expression{""}, isPublic: true},
+			{pre: []Expression{""}, root: []Expression{"can you show me my invoices ?"}, suf: []Expression{""}, isPublic: true},
+			{pre: []Expression{""}, root: []Expression{"can you tell me how I can get some bills ?"}, suf: []Expression{""}, isPublic: true},
+			{pre: []Expression{""}, root: []Expression{"i dont want my profile"}, suf: []Expression{""}, isPublic: true},
+			{pre: []Expression{""}, root: []Expression{"i want to know wat the email of Customer Service is"}, suf: []Expression{""}, isPublic: true},
+			{pre: []Expression{""}, root: []Expression{"where can i leave an opinion for a service ?"}, suf: []Expression{""}, isPublic: true}}},
+		{name: "", args: args{f: "./data/tests/test7.csv"}, want: emp},
 		{name: "", args: args{f: "./data/tests/test8.csv"}, want: emp},
 		{name: "", args: args{f: "./data/tests/test9.csv"}, want: []Rule{
-			{pre: []Expression{""}, root: []Expression{"I don't have an online account"}, suf: []Expression{""}},
-			{pre: []Expression{""}, root: []Expression{"I have a question"}, suf: []Expression{""}},
-			{pre: []Expression{""}, root: []Expression{"I ordered an item and Id like to modify my fucking order"}, suf: []Expression{""}},
-			{pre: []Expression{""}, root: []Expression{"I want to download a bill"}, suf: []Expression{""}},
-			{pre: []Expression{""}, root: []Expression{"I want to know what the number of Customer Service is"}, suf: []Expression{""}},
-			{pre: []Expression{""}, root: []Expression{"I want to make a review for a service"}, suf: []Expression{""}},
-			{pre: []Expression{""}, root: []Expression{"how do I make changes to my shipping address ?"}, suf: []Expression{""}},
-			{pre: []Expression{""}, root: []Expression{"i get an error message when i ty to make a payment for my order"}, suf: []Expression{""}},
-			{pre: []Expression{""}, root: []Expression{"i want to request an invoice"}, suf: []Expression{""}},
-			{pre: []Expression{""}, root: []Expression{"where do i check the delivery options ?"}, suf: []Expression{""}},
-			{pre: []Expression{""}, root: []Expression{"you arent helping"}, suf: []Expression{""}}}},
+			{pre: []Expression{""}, root: []Expression{"I don't have an online account"}, suf: []Expression{""}, isPublic: true},
+			{pre: []Expression{""}, root: []Expression{"I have a question"}, suf: []Expression{""}, isPublic: true},
+			{pre: []Expression{""}, root: []Expression{"I ordered an item and Id like to modify my fucking order"}, suf: []Expression{""}, isPublic: true},
+			{pre: []Expression{""}, root: []Expression{"I want to download a bill"}, suf: []Expression{""}, isPublic: true},
+			{pre: []Expression{""}, root: []Expression{"I want to know what the number of Customer Service is"}, suf: []Expression{""}, isPublic: true},
+			{pre: []Expression{""}, root: []Expression{"I want to make a review for a service"}, suf: []Expression{""}, isPublic: true},
+			{pre: []Expression{""}, root: []Expression{"how do I make changes to my shipping address ?"}, suf: []Expression{""}, isPublic: true},
+			{pre: []Expression{""}, root: []Expression{"i get an error message when i ty to make a payment for my order"}, suf: []Expression{""}, isPublic: true},
+			{pre: []Expression{""}, root: []Expression{"i want to request an invoice"}, suf: []Expression{""}, isPublic: true},
+			{pre: []Expression{""}, root: []Expression{"where do i check the delivery options ?"}, suf: []Expression{""}, isPublic: true},
+			{pre: []Expression{""}, root: []Expression{"you arent helping"}, suf: []Expression{""}, isPublic: true}}},
 		{name: "", args: args{f: "./data/tests/test10.csv"}, want: emp},
 	}
 	for _, tt := range tests {
@@ -251,7 +245,7 @@ func TestRSSort(t *testing.T) {
 			tx := ReadTexts(s)
 			c := NewCorpus(tx)
 			c.transitions = NewTransitions(c, tk)
-			c.ngrams = ToNgrams(c.texts, tk, c.transitions)
+			c.ngrams = ToNgrams(c.texts, tk, c.transitions, 0.1)
 			c.texts = SplitTriplets(c.texts, c.ngrams)
 			res := ToRules(c.texts)
 			RSSort(res)
@@ -273,35 +267,33 @@ func TestPRSSort(t *testing.T) {
 		want []Rule
 	}{
 		{name: "", args: args{f: "./data/tests/test5.csv"}, want: []Rule{
-			{pre: []Expression{""}, root: []Expression{"I don't have an online account"}, suf: []Expression{""}}}},
+			{pre: []Expression{""}, root: []Expression{"I don't have an online account"}, suf: []Expression{""}, isPublic: true}}},
 		{name: "", args: args{f: "./data/tests/test6.csv"}, want: []Rule{
-			{pre: []Expression{""}, root: []Expression{"I don't have an online account"}, suf: []Expression{""}},
-			{pre: []Expression{""}, root: []Expression{"I don't understand you"}, suf: []Expression{""}},
-			{pre: []Expression{""}, root: []Expression{"I got an error message when I attempted to make a payment"}, suf: []Expression{""}},
-			{pre: []Expression{""}, root: []Expression{"I want an online accoynt"}, suf: []Expression{""}},
-			{pre: []Expression{""}, root: []Expression{"ask an agent to notify issues with my payment"}, suf: []Expression{""}},
-			{pre: []Expression{""}, root: []Expression{"can you show me information about the status of my refund ?"}, suf: []Expression{""}},
-			{pre: []Expression{""}, root: []Expression{"can you show me my invoices ?"}, suf: []Expression{""}},
-			{pre: []Expression{""}, root: []Expression{"can you tell me how I can get some bills ?"}, suf: []Expression{""}},
-			{pre: []Expression{""}, root: []Expression{"i dont want my profile"}, suf: []Expression{""}},
-			{pre: []Expression{""}, root: []Expression{"i want to know wat the email of Customer Service is"}, suf: []Expression{""}},
-			{pre: []Expression{""}, root: []Expression{"where can i leave an opinion for a service ?"}, suf: []Expression{""}}}},
-		{name: "", args: args{f: "./data/tests/test7.csv"}, want: []Rule{
-			{pre: []Expression{""}, root: []Expression{""}, suf: []Expression{""}},
-			{pre: []Expression{""}, root: []Expression{""}, suf: []Expression{""}}}},
+			{pre: []Expression{""}, root: []Expression{"I don't have an online account"}, suf: []Expression{""}, isPublic: true},
+			{pre: []Expression{""}, root: []Expression{"I don't understand you"}, suf: []Expression{""}, isPublic: true},
+			{pre: []Expression{""}, root: []Expression{"I got an error message when I attempted to make a payment"}, suf: []Expression{""}, isPublic: true},
+			{pre: []Expression{""}, root: []Expression{"I want an online accoynt"}, suf: []Expression{""}, isPublic: true},
+			{pre: []Expression{""}, root: []Expression{"ask an agent to notify issues with my payment"}, suf: []Expression{""}, isPublic: true},
+			{pre: []Expression{""}, root: []Expression{"can you show me information about the status of my refund ?"}, suf: []Expression{""}, isPublic: true},
+			{pre: []Expression{""}, root: []Expression{"can you show me my invoices ?"}, suf: []Expression{""}, isPublic: true},
+			{pre: []Expression{""}, root: []Expression{"can you tell me how I can get some bills ?"}, suf: []Expression{""}, isPublic: true},
+			{pre: []Expression{""}, root: []Expression{"i dont want my profile"}, suf: []Expression{""}, isPublic: true},
+			{pre: []Expression{""}, root: []Expression{"i want to know wat the email of Customer Service is"}, suf: []Expression{""}, isPublic: true},
+			{pre: []Expression{""}, root: []Expression{"where can i leave an opinion for a service ?"}, suf: []Expression{""}, isPublic: true}}},
+		{name: "", args: args{f: "./data/tests/test7.csv"}, want: emp},
 		{name: "", args: args{f: "./data/tests/test8.csv"}, want: emp},
 		{name: "", args: args{f: "./data/tests/test9.csv"}, want: []Rule{
-			{pre: []Expression{""}, root: []Expression{"I don't have an online account"}, suf: []Expression{""}},
-			{pre: []Expression{""}, root: []Expression{"I have a question"}, suf: []Expression{""}},
-			{pre: []Expression{""}, root: []Expression{"I ordered an item and Id like to modify my fucking order"}, suf: []Expression{""}},
-			{pre: []Expression{""}, root: []Expression{"I want to download a bill"}, suf: []Expression{""}},
-			{pre: []Expression{""}, root: []Expression{"I want to know what the number of Customer Service is"}, suf: []Expression{""}},
-			{pre: []Expression{""}, root: []Expression{"I want to make a review for a service"}, suf: []Expression{""}},
-			{pre: []Expression{""}, root: []Expression{"how do I make changes to my shipping address ?"}, suf: []Expression{""}},
-			{pre: []Expression{""}, root: []Expression{"i get an error message when i ty to make a payment for my order"}, suf: []Expression{""}},
-			{pre: []Expression{""}, root: []Expression{"i want to request an invoice"}, suf: []Expression{""}},
-			{pre: []Expression{""}, root: []Expression{"where do i check the delivery options ?"}, suf: []Expression{""}},
-			{pre: []Expression{""}, root: []Expression{"you arent helping"}, suf: []Expression{""}}}},
+			{pre: []Expression{""}, root: []Expression{"I don't have an online account"}, suf: []Expression{""}, isPublic: true},
+			{pre: []Expression{""}, root: []Expression{"I have a question"}, suf: []Expression{""}, isPublic: true},
+			{pre: []Expression{""}, root: []Expression{"I ordered an item and Id like to modify my fucking order"}, suf: []Expression{""}, isPublic: true},
+			{pre: []Expression{""}, root: []Expression{"I want to download a bill"}, suf: []Expression{""}, isPublic: true},
+			{pre: []Expression{""}, root: []Expression{"I want to know what the number of Customer Service is"}, suf: []Expression{""}, isPublic: true},
+			{pre: []Expression{""}, root: []Expression{"I want to make a review for a service"}, suf: []Expression{""}, isPublic: true},
+			{pre: []Expression{""}, root: []Expression{"how do I make changes to my shipping address ?"}, suf: []Expression{""}, isPublic: true},
+			{pre: []Expression{""}, root: []Expression{"i get an error message when i ty to make a payment for my order"}, suf: []Expression{""}, isPublic: true},
+			{pre: []Expression{""}, root: []Expression{"i want to request an invoice"}, suf: []Expression{""}, isPublic: true},
+			{pre: []Expression{""}, root: []Expression{"where do i check the delivery options ?"}, suf: []Expression{""}, isPublic: true},
+			{pre: []Expression{""}, root: []Expression{"you arent helping"}, suf: []Expression{""}, isPublic: true}}},
 		{name: "", args: args{f: "./data/tests/test10.csv"}, want: emp},
 	}
 	for _, tt := range tests {
@@ -312,7 +304,7 @@ func TestPRSSort(t *testing.T) {
 			tx := ReadTexts(s)
 			c := NewCorpus(tx)
 			c.transitions = NewTransitions(c, tk)
-			c.ngrams = ToNgrams(c.texts, tk, c.transitions)
+			c.ngrams = ToNgrams(c.texts, tk, c.transitions, 0.1)
 			c.texts = SplitTriplets(c.texts, c.ngrams)
 			res := ToRules(c.texts)
 			PRSSort(res)
@@ -394,52 +386,52 @@ func TestSSDMerger_merge(t *testing.T) {
 			r1: Rule{pre: []Expression{}, root: []Expression{}, suf: []Expression{}},
 			r2: Rule{pre: []Expression{}, root: []Expression{}, suf: []Expression{}},
 		},
-			want: Rule{pre: []string{}, root: []string{}, suf: []string{}}},
+			want: Rule{pre: []string{}, root: []string{}, suf: []string{}, isPublic: true}},
 		{name: "", args: args{
 			r1: Rule{pre: []Expression{""}, root: []Expression{""}, suf: []Expression{""}},
 			r2: Rule{pre: []Expression{}, root: []Expression{}, suf: []Expression{}},
 		},
-			want: Rule{pre: []string{""}, root: []string{""}, suf: []string{""}}},
+			want: Rule{pre: []string{""}, root: []string{""}, suf: []string{""}, isPublic: true}},
 		{name: "", args: args{
 			r1: Rule{pre: []Expression{""}, root: []Expression{""}, suf: []Expression{""}},
 			r2: Rule{pre: []Expression{""}, root: []Expression{""}, suf: []Expression{""}},
 		},
-			want: Rule{pre: []string{""}, root: []string{""}, suf: []string{""}}},
+			want: Rule{pre: []string{""}, root: []string{""}, suf: []string{""}, isPublic: true}},
 		{name: "", args: args{
 			r1: Rule{pre: []Expression{"a"}, root: []Expression{"1", "2"}, suf: []Expression{"c"}},
 			r2: Rule{pre: []Expression{"b"}, root: []Expression{"1", "2"}, suf: []Expression{"d"}},
 		},
-			want: Rule{pre: []Expression{"a"}, root: []Expression{"1", "2"}, suf: []Expression{"c", "d"}}},
+			want: Rule{pre: []Expression{"a"}, root: []Expression{"1", "2"}, suf: []Expression{"c", "d"}, isPublic: true}},
 		{name: "", args: args{
 			r1: Rule{pre: []Expression{"1", "2"}, root: []Expression{"a"}, suf: []Expression{"c"}},
 			r2: Rule{pre: []Expression{"1", "2"}, root: []Expression{"b"}, suf: []Expression{"d"}},
 		},
-			want: Rule{pre: []Expression{"1", "2"}, root: []Expression{"a"}, suf: []Expression{"c", "d"}}},
+			want: Rule{pre: []Expression{"1", "2"}, root: []Expression{"a"}, suf: []Expression{"c", "d"}, isPublic: true}},
 		{name: "", args: args{
 			r1: Rule{pre: []Expression{"c"}, root: []Expression{"a"}, suf: []Expression{"1", "2"}},
 			r2: Rule{pre: []Expression{"d"}, root: []Expression{"b"}, suf: []Expression{"1", "2"}},
 		},
-			want: Rule{pre: []Expression{"c"}, root: []Expression{"a"}, suf: []Expression{"1", "2"}}},
+			want: Rule{pre: []Expression{"c"}, root: []Expression{"a"}, suf: []Expression{"1", "2"}, isPublic: true}},
 		{name: "", args: args{
 			r1: Rule{pre: []Expression{"1", "2"}, root: []Expression{"1", "2"}, suf: []Expression{"a"}},
 			r2: Rule{pre: []Expression{"1", "2"}, root: []Expression{"1", "2"}, suf: []Expression{"b"}},
 		},
-			want: Rule{pre: []Expression{"1", "2"}, root: []Expression{"1", "2"}, suf: []Expression{"a", "b"}}},
+			want: Rule{pre: []Expression{"1", "2"}, root: []Expression{"1", "2"}, suf: []Expression{"a", "b"}, isPublic: true}},
 		{name: "", args: args{
 			r1: Rule{pre: []Expression{"a"}, root: []Expression{"1", "2"}, suf: []Expression{"1", "2"}},
 			r2: Rule{pre: []Expression{"b"}, root: []Expression{"1", "2"}, suf: []Expression{"1", "2"}},
 		},
-			want: Rule{pre: []Expression{"a"}, root: []Expression{"1", "2"}, suf: []Expression{"1", "2"}}},
+			want: Rule{pre: []Expression{"a"}, root: []Expression{"1", "2"}, suf: []Expression{"1", "2"}, isPublic: true}},
 		{name: "", args: args{
 			r1: Rule{pre: []Expression{"1", "2"}, root: []Expression{"a"}, suf: []Expression{"1", "2"}},
 			r2: Rule{pre: []Expression{"1", "2"}, root: []Expression{"b"}, suf: []Expression{"1", "2"}},
 		},
-			want: Rule{pre: []Expression{"1", "2"}, root: []Expression{"a"}, suf: []Expression{"1", "2"}}},
+			want: Rule{pre: []Expression{"1", "2"}, root: []Expression{"a"}, suf: []Expression{"1", "2"}, isPublic: true}},
 		{name: "", args: args{
 			r1: Rule{pre: []Expression{"1", "2"}, root: []Expression{"1", "2"}, suf: []Expression{"1", "2"}},
 			r2: Rule{pre: []Expression{"1", "2"}, root: []Expression{"1", "2"}, suf: []Expression{"1", "2"}},
 		},
-			want: Rule{pre: []Expression{"1", "2"}, root: []Expression{"1", "2"}, suf: []Expression{"1", "2"}}},
+			want: Rule{pre: []Expression{"1", "2"}, root: []Expression{"1", "2"}, suf: []Expression{"1", "2"}, isPublic: true}},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -462,35 +454,34 @@ func TestSSDMerger_apply(t *testing.T) {
 		want []Rule
 	}{
 		{name: "", args: args{f: "./data/tests/test5.csv"}, want: []Rule{
-			{pre: []Expression{""}, root: []Expression{"I don't have an online account"}, suf: []Expression{""}}}},
+			{pre: []Expression{""}, root: []Expression{"I don't have an online account"}, suf: []Expression{""}, isPublic: true}}},
 		{name: "", args: args{f: "./data/tests/test6.csv"}, want: []Rule{
-			{pre: []string{""}, root: []string{"I don't have an online account"}, suf: []string{""}},
-			{pre: []string{""}, root: []string{"I don't understand you"}, suf: []string{""}},
-			{pre: []string{""}, root: []string{"I got an error message when I attempted to make a payment"}, suf: []string{""}},
-			{pre: []string{""}, root: []string{"I want an online accoynt"}, suf: []string{""}},
-			{pre: []string{""}, root: []string{"ask an agent to notify issues with my payment"}, suf: []string{""}},
-			{pre: []string{""}, root: []string{"can you show me information about the status of my refund ?"}, suf: []string{""}},
-			{pre: []string{""}, root: []string{"can you show me my invoices ?"}, suf: []string{""}},
-			{pre: []string{""}, root: []string{"can you tell me how I can get some bills ?"}, suf: []string{""}},
-			{pre: []string{""}, root: []string{"i dont want my profile"}, suf: []string{""}},
-			{pre: []string{""}, root: []string{"i want to know wat the email of Customer Service is"}, suf: []string{""}},
-			{pre: []string{""}, root: []string{"where can i leave an opinion for a service ?"}, suf: []string{""}},
+			{pre: []string{""}, root: []string{"I don't have an online account"}, suf: []string{""}, isPublic: true},
+			{pre: []string{""}, root: []string{"I don't understand you"}, suf: []string{""}, isPublic: true},
+			{pre: []string{""}, root: []string{"I got an error message when I attempted to make a payment"}, suf: []string{""}, isPublic: true},
+			{pre: []string{""}, root: []string{"I want an online accoynt"}, suf: []string{""}, isPublic: true},
+			{pre: []string{""}, root: []string{"ask an agent to notify issues with my payment"}, suf: []string{""}, isPublic: true},
+			{pre: []string{""}, root: []string{"can you show me information about the status of my refund ?"}, suf: []string{""}, isPublic: true},
+			{pre: []string{""}, root: []string{"can you show me my invoices ?"}, suf: []string{""}, isPublic: true},
+			{pre: []string{""}, root: []string{"can you tell me how I can get some bills ?"}, suf: []string{""}, isPublic: true},
+			{pre: []string{""}, root: []string{"i dont want my profile"}, suf: []string{""}, isPublic: true},
+			{pre: []string{""}, root: []string{"i want to know wat the email of Customer Service is"}, suf: []string{""}, isPublic: true},
+			{pre: []string{""}, root: []string{"where can i leave an opinion for a service ?"}, suf: []string{""}, isPublic: true},
 		}},
-		{name: "", args: args{f: "./data/tests/test7.csv"}, want: []Rule{
-			{pre: []Expression{""}, root: []Expression{""}, suf: []Expression{""}}}},
+		{name: "", args: args{f: "./data/tests/test7.csv"}, want: emp},
 		{name: "", args: args{f: "./data/tests/test8.csv"}, want: emp},
 		{name: "", args: args{f: "./data/tests/test9.csv"}, want: []Rule{
-			{pre: []Expression{""}, root: []Expression{"I don't have an online account"}, suf: []Expression{""}},
-			{pre: []Expression{""}, root: []Expression{"I have a question"}, suf: []Expression{""}},
-			{pre: []Expression{""}, root: []Expression{"I ordered an item and Id like to modify my fucking order"}, suf: []Expression{""}},
-			{pre: []Expression{""}, root: []Expression{"I want to download a bill"}, suf: []Expression{""}},
-			{pre: []Expression{""}, root: []Expression{"I want to know what the number of Customer Service is"}, suf: []Expression{""}},
-			{pre: []Expression{""}, root: []Expression{"I want to make a review for a service"}, suf: []Expression{""}},
-			{pre: []Expression{""}, root: []Expression{"how do I make changes to my shipping address ?"}, suf: []Expression{""}},
-			{pre: []Expression{""}, root: []Expression{"i get an error message when i ty to make a payment for my order"}, suf: []Expression{""}},
-			{pre: []Expression{""}, root: []Expression{"i want to request an invoice"}, suf: []Expression{""}},
-			{pre: []Expression{""}, root: []Expression{"where do i check the delivery options ?"}, suf: []Expression{""}},
-			{pre: []Expression{""}, root: []Expression{"you arent helping"}, suf: []Expression{""}}}},
+			{pre: []Expression{""}, root: []Expression{"I don't have an online account"}, suf: []Expression{""}, isPublic: true},
+			{pre: []Expression{""}, root: []Expression{"I have a question"}, suf: []Expression{""}, isPublic: true},
+			{pre: []Expression{""}, root: []Expression{"I ordered an item and Id like to modify my fucking order"}, suf: []Expression{""}, isPublic: true},
+			{pre: []Expression{""}, root: []Expression{"I want to download a bill"}, suf: []Expression{""}, isPublic: true},
+			{pre: []Expression{""}, root: []Expression{"I want to know what the number of Customer Service is"}, suf: []Expression{""}, isPublic: true},
+			{pre: []Expression{""}, root: []Expression{"I want to make a review for a service"}, suf: []Expression{""}, isPublic: true},
+			{pre: []Expression{""}, root: []Expression{"how do I make changes to my shipping address ?"}, suf: []Expression{""}, isPublic: true},
+			{pre: []Expression{""}, root: []Expression{"i get an error message when i ty to make a payment for my order"}, suf: []Expression{""}, isPublic: true},
+			{pre: []Expression{""}, root: []Expression{"i want to request an invoice"}, suf: []Expression{""}, isPublic: true},
+			{pre: []Expression{""}, root: []Expression{"where do i check the delivery options ?"}, suf: []Expression{""}, isPublic: true},
+			{pre: []Expression{""}, root: []Expression{"you arent helping"}, suf: []Expression{""}, isPublic: true}}},
 		{name: "", args: args{f: "./data/tests/test10.csv"}, want: emp},
 	}
 	for _, tt := range tests {
@@ -501,7 +492,7 @@ func TestSSDMerger_apply(t *testing.T) {
 			tx := ReadTexts(s)
 			c := NewCorpus(tx)
 			c.transitions = NewTransitions(c, tk)
-			c.ngrams = ToNgrams(c.texts, tk, c.transitions)
+			c.ngrams = ToNgrams(c.texts, tk, c.transitions, 0.1)
 			c.texts = SplitTriplets(c.texts, c.ngrams)
 			rules := ToRules(c.texts)
 			m := &SSDMerger{}
@@ -583,52 +574,52 @@ func TestSDSMerger_merge(t *testing.T) {
 			r1: Rule{pre: []Expression{}, root: []Expression{}, suf: []Expression{}},
 			r2: Rule{pre: []Expression{}, root: []Expression{}, suf: []Expression{}},
 		},
-			want: Rule{pre: []string{}, root: []string{}, suf: []string{}}},
+			want: Rule{pre: []string{}, root: []string{}, suf: []string{}, isPublic: true}},
 		{name: "", args: args{
 			r1: Rule{pre: []Expression{""}, root: []Expression{""}, suf: []Expression{""}},
 			r2: Rule{pre: []Expression{}, root: []Expression{}, suf: []Expression{}},
 		},
-			want: Rule{pre: []string{""}, root: []string{""}, suf: []string{""}}},
+			want: Rule{pre: []string{""}, root: []string{""}, suf: []string{""}, isPublic: true}},
 		{name: "", args: args{
 			r1: Rule{pre: []Expression{""}, root: []Expression{""}, suf: []Expression{""}},
 			r2: Rule{pre: []Expression{""}, root: []Expression{""}, suf: []Expression{""}},
 		},
-			want: Rule{pre: []string{""}, root: []string{""}, suf: []string{""}}},
+			want: Rule{pre: []string{""}, root: []string{""}, suf: []string{""}, isPublic: true}},
 		{name: "", args: args{
 			r1: Rule{pre: []Expression{"a"}, root: []Expression{"1", "2"}, suf: []Expression{"c"}},
 			r2: Rule{pre: []Expression{"b"}, root: []Expression{"1", "2"}, suf: []Expression{"d"}},
 		},
-			want: Rule{pre: []Expression{"a"}, root: []Expression{"1", "2"}, suf: []Expression{"c"}}},
+			want: Rule{pre: []Expression{"a"}, root: []Expression{"1", "2"}, suf: []Expression{"c"}, isPublic: true}},
 		{name: "", args: args{
 			r1: Rule{pre: []Expression{"1", "2"}, root: []Expression{"a"}, suf: []Expression{"c"}},
 			r2: Rule{pre: []Expression{"1", "2"}, root: []Expression{"b"}, suf: []Expression{"d"}},
 		},
-			want: Rule{pre: []Expression{"1", "2"}, root: []Expression{"a", "b"}, suf: []Expression{"c"}}},
+			want: Rule{pre: []Expression{"1", "2"}, root: []Expression{"a", "b"}, suf: []Expression{"c"}, isPublic: true}},
 		{name: "", args: args{
 			r1: Rule{pre: []Expression{"c"}, root: []Expression{"a"}, suf: []Expression{"1", "2"}},
 			r2: Rule{pre: []Expression{"d"}, root: []Expression{"b"}, suf: []Expression{"1", "2"}},
 		},
-			want: Rule{pre: []Expression{"c"}, root: []Expression{"a", "b"}, suf: []Expression{"1", "2"}}},
+			want: Rule{pre: []Expression{"c"}, root: []Expression{"a", "b"}, suf: []Expression{"1", "2"}, isPublic: true}},
 		{name: "", args: args{
 			r1: Rule{pre: []Expression{"1", "2"}, root: []Expression{"1", "2"}, suf: []Expression{"a"}},
 			r2: Rule{pre: []Expression{"1", "2"}, root: []Expression{"1", "2"}, suf: []Expression{"b"}},
 		},
-			want: Rule{pre: []Expression{"1", "2"}, root: []Expression{"1", "2"}, suf: []Expression{"a"}}},
+			want: Rule{pre: []Expression{"1", "2"}, root: []Expression{"1", "2"}, suf: []Expression{"a"}, isPublic: true}},
 		{name: "", args: args{
 			r1: Rule{pre: []Expression{"a"}, root: []Expression{"1", "2"}, suf: []Expression{"1", "2"}},
 			r2: Rule{pre: []Expression{"b"}, root: []Expression{"1", "2"}, suf: []Expression{"1", "2"}},
 		},
-			want: Rule{pre: []Expression{"a"}, root: []Expression{"1", "2"}, suf: []Expression{"1", "2"}}},
+			want: Rule{pre: []Expression{"a"}, root: []Expression{"1", "2"}, suf: []Expression{"1", "2"}, isPublic: true}},
 		{name: "", args: args{
 			r1: Rule{pre: []Expression{"1", "2"}, root: []Expression{"a"}, suf: []Expression{"1", "2"}},
 			r2: Rule{pre: []Expression{"1", "2"}, root: []Expression{"b"}, suf: []Expression{"1", "2"}},
 		},
-			want: Rule{pre: []Expression{"1", "2"}, root: []Expression{"a", "b"}, suf: []Expression{"1", "2"}}},
+			want: Rule{pre: []Expression{"1", "2"}, root: []Expression{"a", "b"}, suf: []Expression{"1", "2"}, isPublic: true}},
 		{name: "", args: args{
 			r1: Rule{pre: []Expression{"1", "2"}, root: []Expression{"1", "2"}, suf: []Expression{"1", "2"}},
 			r2: Rule{pre: []Expression{"1", "2"}, root: []Expression{"1", "2"}, suf: []Expression{"1", "2"}},
 		},
-			want: Rule{pre: []Expression{"1", "2"}, root: []Expression{"1", "2"}, suf: []Expression{"1", "2"}}},
+			want: Rule{pre: []Expression{"1", "2"}, root: []Expression{"1", "2"}, suf: []Expression{"1", "2"}, isPublic: true}},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -651,15 +642,14 @@ func TestSDSMerger_apply(t *testing.T) {
 		want []Rule
 	}{
 		{name: "", args: args{f: "./data/tests/test5.csv"}, want: []Rule{
-			{pre: []Expression{""}, root: []Expression{"I don't have an online account"}, suf: []Expression{""}}}},
+			{pre: []Expression{""}, root: []Expression{"I don't have an online account"}, suf: []Expression{""}, isPublic: true}}},
 		{name: "", args: args{f: "./data/tests/test6.csv"}, want: []Rule{
-			{pre: []string{""}, root: []string{"I don't have an online account", "I don't understand you", "I got an error message when I attempted to make a payment", "I want an online accoynt", "ask an agent to notify issues with my payment", "can you show me information about the status of my refund ?", "can you show me my invoices ?", "can you tell me how I can get some bills ?", "i dont want my profile", "i want to know wat the email of Customer Service is", "where can i leave an opinion for a service ?"}, suf: []string{""}},
+			{pre: []string{""}, root: []string{"I don't have an online account", "I don't understand you", "I got an error message when I attempted to make a payment", "I want an online accoynt", "ask an agent to notify issues with my payment", "can you show me information about the status of my refund ?", "can you show me my invoices ?", "can you tell me how I can get some bills ?", "i dont want my profile", "i want to know wat the email of Customer Service is", "where can i leave an opinion for a service ?"}, suf: []string{""}, isPublic: true},
 		}},
-		{name: "", args: args{f: "./data/tests/test7.csv"}, want: []Rule{
-			{pre: []Expression{""}, root: []Expression{""}, suf: []Expression{""}}}},
+		{name: "", args: args{f: "./data/tests/test7.csv"}, want: emp},
 		{name: "", args: args{f: "./data/tests/test8.csv"}, want: emp},
 		{name: "", args: args{f: "./data/tests/test9.csv"}, want: []Rule{
-			{pre: []string{""}, root: []string{"I don't have an online account", "I have a question", "I ordered an item and Id like to modify my fucking order", "I want to download a bill", "I want to know what the number of Customer Service is", "I want to make a review for a service", "how do I make changes to my shipping address ?", "i get an error message when i ty to make a payment for my order", "i want to request an invoice", "where do i check the delivery options ?", "you arent helping"}, suf: []string{""}}}},
+			{pre: []string{""}, root: []string{"I don't have an online account", "I have a question", "I ordered an item and Id like to modify my fucking order", "I want to download a bill", "I want to know what the number of Customer Service is", "I want to make a review for a service", "how do I make changes to my shipping address ?", "i get an error message when i ty to make a payment for my order", "i want to request an invoice", "where do i check the delivery options ?", "you arent helping"}, suf: []string{""}, isPublic: true}}},
 		{name: "", args: args{f: "./data/tests/test10.csv"}, want: emp},
 	}
 	for _, tt := range tests {
@@ -670,7 +660,7 @@ func TestSDSMerger_apply(t *testing.T) {
 			tx := ReadTexts(s)
 			c := NewCorpus(tx)
 			c.transitions = NewTransitions(c, tk)
-			c.ngrams = ToNgrams(c.texts, tk, c.transitions)
+			c.ngrams = ToNgrams(c.texts, tk, c.transitions, 0.1)
 			c.texts = SplitTriplets(c.texts, c.ngrams)
 			rules := ToRules(c.texts)
 			m := &SDSMerger{}
@@ -752,52 +742,52 @@ func TestDSSMerger_merge(t *testing.T) {
 			r1: Rule{pre: []Expression{}, root: []Expression{}, suf: []Expression{}},
 			r2: Rule{pre: []Expression{}, root: []Expression{}, suf: []Expression{}},
 		},
-			want: Rule{pre: []string{}, root: []string{}, suf: []string{}}},
+			want: Rule{pre: []string{}, root: []string{}, suf: []string{}, isPublic: true}},
 		{name: "", args: args{
 			r1: Rule{pre: []Expression{""}, root: []Expression{""}, suf: []Expression{""}},
 			r2: Rule{pre: []Expression{}, root: []Expression{}, suf: []Expression{}},
 		},
-			want: Rule{pre: []string{""}, root: []string{""}, suf: []string{""}}},
+			want: Rule{pre: []string{""}, root: []string{""}, suf: []string{""}, isPublic: true}},
 		{name: "", args: args{
 			r1: Rule{pre: []Expression{""}, root: []Expression{""}, suf: []Expression{""}},
 			r2: Rule{pre: []Expression{""}, root: []Expression{""}, suf: []Expression{""}},
 		},
-			want: Rule{pre: []string{""}, root: []string{""}, suf: []string{""}}},
+			want: Rule{pre: []string{""}, root: []string{""}, suf: []string{""}, isPublic: true}},
 		{name: "", args: args{
 			r1: Rule{pre: []Expression{"a"}, root: []Expression{"1", "2"}, suf: []Expression{"c"}},
 			r2: Rule{pre: []Expression{"b"}, root: []Expression{"1", "2"}, suf: []Expression{"d"}},
 		},
-			want: Rule{pre: []string{"a", "b"}, root: []string{"1", "2"}, suf: []string{"c"}}},
+			want: Rule{pre: []string{"a", "b"}, root: []string{"1", "2"}, suf: []string{"c"}, isPublic: true}},
 		{name: "", args: args{
 			r1: Rule{pre: []Expression{"1", "2"}, root: []Expression{"a"}, suf: []Expression{"c"}},
 			r2: Rule{pre: []Expression{"1", "2"}, root: []Expression{"b"}, suf: []Expression{"d"}},
 		},
-			want: Rule{pre: []string{"1", "2"}, root: []string{"a"}, suf: []string{"c"}}},
+			want: Rule{pre: []string{"1", "2"}, root: []string{"a"}, suf: []string{"c"}, isPublic: true}},
 		{name: "", args: args{
 			r1: Rule{pre: []Expression{"c"}, root: []Expression{"a"}, suf: []Expression{"1", "2"}},
 			r2: Rule{pre: []Expression{"d"}, root: []Expression{"b"}, suf: []Expression{"1", "2"}},
 		},
-			want: Rule{pre: []string{"c", "d"}, root: []string{"a"}, suf: []string{"1", "2"}}},
+			want: Rule{pre: []string{"c", "d"}, root: []string{"a"}, suf: []string{"1", "2"}, isPublic: true}},
 		{name: "", args: args{
 			r1: Rule{pre: []Expression{"1", "2"}, root: []Expression{"1", "2"}, suf: []Expression{"a"}},
 			r2: Rule{pre: []Expression{"1", "2"}, root: []Expression{"1", "2"}, suf: []Expression{"b"}},
 		},
-			want: Rule{pre: []string{"1", "2"}, root: []string{"1", "2"}, suf: []string{"a"}}},
+			want: Rule{pre: []string{"1", "2"}, root: []string{"1", "2"}, suf: []string{"a"}, isPublic: true}},
 		{name: "", args: args{
 			r1: Rule{pre: []Expression{"a"}, root: []Expression{"1", "2"}, suf: []Expression{"1", "2"}},
 			r2: Rule{pre: []Expression{"b"}, root: []Expression{"1", "2"}, suf: []Expression{"1", "2"}},
 		},
-			want: Rule{pre: []string{"a", "b"}, root: []string{"1", "2"}, suf: []string{"1", "2"}}},
+			want: Rule{pre: []string{"a", "b"}, root: []string{"1", "2"}, suf: []string{"1", "2"}, isPublic: true}},
 		{name: "", args: args{
 			r1: Rule{pre: []Expression{"1", "2"}, root: []Expression{"a"}, suf: []Expression{"1", "2"}},
 			r2: Rule{pre: []Expression{"1", "2"}, root: []Expression{"b"}, suf: []Expression{"1", "2"}},
 		},
-			want: Rule{pre: []string{"1", "2"}, root: []string{"a"}, suf: []string{"1", "2"}}},
+			want: Rule{pre: []string{"1", "2"}, root: []string{"a"}, suf: []string{"1", "2"}, isPublic: true}},
 		{name: "", args: args{
 			r1: Rule{pre: []Expression{"1", "2"}, root: []Expression{"1", "2"}, suf: []Expression{"1", "2"}},
 			r2: Rule{pre: []Expression{"1", "2"}, root: []Expression{"1", "2"}, suf: []Expression{"1", "2"}},
 		},
-			want: Rule{pre: []string{"1", "2"}, root: []string{"1", "2"}, suf: []string{"1", "2"}}},
+			want: Rule{pre: []string{"1", "2"}, root: []string{"1", "2"}, suf: []string{"1", "2"}, isPublic: true}},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -820,34 +810,33 @@ func TestDSSMerger_apply(t *testing.T) {
 		want []Rule
 	}{
 		{name: "", args: args{f: "./data/tests/test5.csv"}, want: []Rule{
-			{pre: []Expression{""}, root: []Expression{"I don't have an online account"}, suf: []Expression{""}}}},
+			{pre: []Expression{""}, root: []Expression{"I don't have an online account"}, suf: []Expression{""}, isPublic: true}}},
 		{name: "", args: args{f: "./data/tests/test6.csv"}, want: []Rule{
-			{pre: []Expression{""}, root: []Expression{"I don't have an online account"}, suf: []Expression{""}},
-			{pre: []Expression{""}, root: []Expression{"I don't understand you"}, suf: []Expression{""}},
-			{pre: []Expression{""}, root: []Expression{"I got an error message when I attempted to make a payment"}, suf: []Expression{""}},
-			{pre: []Expression{""}, root: []Expression{"I want an online accoynt"}, suf: []Expression{""}},
-			{pre: []Expression{""}, root: []Expression{"ask an agent to notify issues with my payment"}, suf: []Expression{""}},
-			{pre: []Expression{""}, root: []Expression{"can you show me information about the status of my refund ?"}, suf: []Expression{""}},
-			{pre: []Expression{""}, root: []Expression{"can you show me my invoices ?"}, suf: []Expression{""}},
-			{pre: []Expression{""}, root: []Expression{"can you tell me how I can get some bills ?"}, suf: []Expression{""}},
-			{pre: []Expression{""}, root: []Expression{"i dont want my profile"}, suf: []Expression{""}},
-			{pre: []Expression{""}, root: []Expression{"i want to know wat the email of Customer Service is"}, suf: []Expression{""}},
-			{pre: []Expression{""}, root: []Expression{"where can i leave an opinion for a service ?"}, suf: []Expression{""}}}},
-		{name: "", args: args{f: "./data/tests/test7.csv"}, want: []Rule{
-			{pre: []Expression{""}, root: []Expression{""}, suf: []Expression{""}}}},
+			{pre: []Expression{""}, root: []Expression{"I don't have an online account"}, suf: []Expression{""}, isPublic: true},
+			{pre: []Expression{""}, root: []Expression{"I don't understand you"}, suf: []Expression{""}, isPublic: true},
+			{pre: []Expression{""}, root: []Expression{"I got an error message when I attempted to make a payment"}, suf: []Expression{""}, isPublic: true},
+			{pre: []Expression{""}, root: []Expression{"I want an online accoynt"}, suf: []Expression{""}, isPublic: true},
+			{pre: []Expression{""}, root: []Expression{"ask an agent to notify issues with my payment"}, suf: []Expression{""}, isPublic: true},
+			{pre: []Expression{""}, root: []Expression{"can you show me information about the status of my refund ?"}, suf: []Expression{""}, isPublic: true},
+			{pre: []Expression{""}, root: []Expression{"can you show me my invoices ?"}, suf: []Expression{""}, isPublic: true},
+			{pre: []Expression{""}, root: []Expression{"can you tell me how I can get some bills ?"}, suf: []Expression{""}, isPublic: true},
+			{pre: []Expression{""}, root: []Expression{"i dont want my profile"}, suf: []Expression{""}, isPublic: true},
+			{pre: []Expression{""}, root: []Expression{"i want to know wat the email of Customer Service is"}, suf: []Expression{""}, isPublic: true},
+			{pre: []Expression{""}, root: []Expression{"where can i leave an opinion for a service ?"}, suf: []Expression{""}, isPublic: true}}},
+		{name: "", args: args{f: "./data/tests/test7.csv"}, want: emp},
 		{name: "", args: args{f: "./data/tests/test8.csv"}, want: emp},
 		{name: "", args: args{f: "./data/tests/test9.csv"}, want: []Rule{
-			{pre: []string{""}, root: []string{"I don't have an online account"}, suf: []string{""}},
-			{pre: []string{""}, root: []string{"I have a question"}, suf: []string{""}},
-			{pre: []string{""}, root: []string{"I ordered an item and Id like to modify my fucking order"}, suf: []string{""}},
-			{pre: []string{""}, root: []string{"I want to download a bill"}, suf: []string{""}},
-			{pre: []string{""}, root: []string{"I want to know what the number of Customer Service is"}, suf: []string{""}},
-			{pre: []string{""}, root: []string{"I want to make a review for a service"}, suf: []string{""}},
-			{pre: []string{""}, root: []string{"how do I make changes to my shipping address ?"}, suf: []string{""}},
-			{pre: []string{""}, root: []string{"i get an error message when i ty to make a payment for my order"}, suf: []string{""}},
-			{pre: []string{""}, root: []string{"i want to request an invoice"}, suf: []string{""}},
-			{pre: []string{""}, root: []string{"where do i check the delivery options ?"}, suf: []string{""}},
-			{pre: []string{""}, root: []string{"you arent helping"}, suf: []string{""}},
+			{pre: []string{""}, root: []string{"I don't have an online account"}, suf: []string{""}, isPublic: true},
+			{pre: []string{""}, root: []string{"I have a question"}, suf: []string{""}, isPublic: true},
+			{pre: []string{""}, root: []string{"I ordered an item and Id like to modify my fucking order"}, suf: []string{""}, isPublic: true},
+			{pre: []string{""}, root: []string{"I want to download a bill"}, suf: []string{""}, isPublic: true},
+			{pre: []string{""}, root: []string{"I want to know what the number of Customer Service is"}, suf: []string{""}, isPublic: true},
+			{pre: []string{""}, root: []string{"I want to make a review for a service"}, suf: []string{""}, isPublic: true},
+			{pre: []string{""}, root: []string{"how do I make changes to my shipping address ?"}, suf: []string{""}, isPublic: true},
+			{pre: []string{""}, root: []string{"i get an error message when i ty to make a payment for my order"}, suf: []string{""}, isPublic: true},
+			{pre: []string{""}, root: []string{"i want to request an invoice"}, suf: []string{""}, isPublic: true},
+			{pre: []string{""}, root: []string{"where do i check the delivery options ?"}, suf: []string{""}, isPublic: true},
+			{pre: []string{""}, root: []string{"you arent helping"}, suf: []string{""}, isPublic: true},
 		}},
 		{name: "", args: args{f: "./data/tests/test10.csv"}, want: emp},
 	}
@@ -859,7 +848,7 @@ func TestDSSMerger_apply(t *testing.T) {
 			tx := ReadTexts(s)
 			c := NewCorpus(tx)
 			c.transitions = NewTransitions(c, tk)
-			c.ngrams = ToNgrams(c.texts, tk, c.transitions)
+			c.ngrams = ToNgrams(c.texts, tk, c.transitions, 0.1)
 			c.texts = SplitTriplets(c.texts, c.ngrams)
 			rules := ToRules(c.texts)
 			m := &DSSMerger{}
@@ -928,11 +917,11 @@ func TestSSSMerger_merge(t *testing.T) {
 		args args
 		want Rule
 	}{
-		{name: "", args: args{f: "./data/tests/test5.csv"}, want: Rule{pre: []string{}, root: []string{"I don't have an online account"}, suf: []string{}}},
-		{name: "", args: args{f: "./data/tests/test6.csv"}, want: Rule{pre: []string{}, root: []string{"I don't have an online account", "I don't understand you", "I got an error message when I attempted to make a payment", "I want an online accoynt", "ask an agent to notify issues with my payment", "can you show me information about the status of my refund ?", "can you show me my invoices ?", "can you tell me how I can get some bills ?", "i dont want my profile", "i want to know wat the email of Customer Service is", "where can i leave an opinion for a service ?"}, suf: []string{}}},
-		{name: "", args: args{f: "./data/tests/test7.csv"}, want: Rule{pre: []string{}, root: []string{""}, suf: []string{}}},
+		{name: "", args: args{f: "./data/tests/test5.csv"}, want: Rule{pre: []string{}, root: []string{"I don't have an online account"}, suf: []string{}, isPublic: true}},
+		{name: "", args: args{f: "./data/tests/test6.csv"}, want: Rule{pre: []string{}, root: []string{"I don't have an online account", "I don't understand you", "I got an error message when I attempted to make a payment", "I want an online accoynt", "ask an agent to notify issues with my payment", "can you show me information about the status of my refund ?", "can you show me my invoices ?", "can you tell me how I can get some bills ?", "i dont want my profile", "i want to know wat the email of Customer Service is", "where can i leave an opinion for a service ?"}, suf: []string{}, isPublic: true}},
+		{name: "", args: args{f: "./data/tests/test7.csv"}, want: emp},
 		{name: "", args: args{f: "./data/tests/test8.csv"}, want: emp},
-		{name: "", args: args{f: "./data/tests/test9.csv"}, want: Rule{pre: []string{}, root: []string{"I don't have an online account", "I have a question", "I ordered an item and Id like to modify my fucking order", "I want to download a bill", "I want to know what the number of Customer Service is", "I want to make a review for a service", "how do I make changes to my shipping address ?", "i get an error message when i ty to make a payment for my order", "i want to request an invoice", "where do i check the delivery options ?", "you arent helping"}, suf: []string{}}},
+		{name: "", args: args{f: "./data/tests/test9.csv"}, want: Rule{pre: []string{}, root: []string{"I don't have an online account", "I have a question", "I ordered an item and Id like to modify my fucking order", "I want to download a bill", "I want to know what the number of Customer Service is", "I want to make a review for a service", "how do I make changes to my shipping address ?", "i get an error message when i ty to make a payment for my order", "i want to request an invoice", "where do i check the delivery options ?", "you arent helping"}, suf: []string{}, isPublic: true}},
 		{name: "", args: args{f: "./data/tests/test10.csv"}, want: emp},
 	}
 	for _, tt := range tests {
@@ -943,7 +932,7 @@ func TestSSSMerger_merge(t *testing.T) {
 			tx := ReadTexts(s)
 			c := NewCorpus(tx)
 			c.transitions = NewTransitions(c, tk)
-			c.ngrams = ToNgrams(c.texts, tk, c.transitions)
+			c.ngrams = ToNgrams(c.texts, tk, c.transitions, 0.1)
 			c.texts = SplitTriplets(c.texts, c.ngrams)
 			rules := ToRules(c.texts)
 			m := &SSSMerger{}
@@ -966,25 +955,23 @@ func TestSSSMerger_apply(t *testing.T) {
 		want []Rule
 	}{
 		{name: "", args: args{f: "./data/tests/test5.csv"}, want: []Rule{
-			{pre: []Expression{}, root: []Expression{"I don't have an online account"}, suf: []Expression{}}}},
+			{pre: []Expression{}, root: []Expression{"I don't have an online account"}, suf: []Expression{}, isPublic: true}}},
 		{name: "", args: args{f: "./data/tests/test6.csv"}, want: []Rule{
-			{pre: []Expression{""}, root: []Expression{"I don't understand you"}, suf: []Expression{""}},
-			{pre: []Expression{""}, root: []Expression{"I want an online accoynt"}, suf: []Expression{""}},
-			{pre: []Expression{""}, root: []Expression{"can you show me information about the status of my refund ?"}, suf: []Expression{""}},
-			{pre: []Expression{""}, root: []Expression{"can you tell me how I can get some bills ?"}, suf: []Expression{""}},
-			{pre: []Expression{""}, root: []Expression{"i want to know wat the email of Customer Service is"}, suf: []Expression{""}},
-			{pre: []Expression{}, root: []Expression{"I don't have an online account", "I got an error message when I attempted to make a payment", "ask an agent to notify issues with my payment", "can you show me my invoices ?", "i dont want my profile", "where can i leave an opinion for a service ?"}, suf: []Expression{}}}},
-		{name: "", args: args{f: "./data/tests/test7.csv"}, want: []Rule{
-			{pre: []Expression{""}, root: []Expression{""}, suf: []Expression{""}},
-			{pre: []Expression{}, root: []Expression{""}, suf: []Expression{}}}},
+			{pre: []Expression{""}, root: []Expression{"I don't understand you"}, suf: []Expression{""}, isPublic: true},
+			{pre: []Expression{""}, root: []Expression{"I want an online accoynt"}, suf: []Expression{""}, isPublic: true},
+			{pre: []Expression{""}, root: []Expression{"can you show me information about the status of my refund ?"}, suf: []Expression{""}, isPublic: true},
+			{pre: []Expression{""}, root: []Expression{"can you tell me how I can get some bills ?"}, suf: []Expression{""}, isPublic: true},
+			{pre: []Expression{""}, root: []Expression{"i want to know wat the email of Customer Service is"}, suf: []Expression{""}, isPublic: true},
+			{pre: []Expression{}, root: []Expression{"I don't have an online account", "I got an error message when I attempted to make a payment", "ask an agent to notify issues with my payment", "can you show me my invoices ?", "i dont want my profile", "where can i leave an opinion for a service ?"}, suf: []Expression{}, isPublic: true}}},
+		{name: "", args: args{f: "./data/tests/test7.csv"}, want: emp},
 		{name: "", args: args{f: "./data/tests/test8.csv"}, want: emp},
 		{name: "", args: args{f: "./data/tests/test9.csv"}, want: []Rule{
-			{pre: []string{""}, root: []string{"I have a question"}, suf: []string{""}},
-			{pre: []string{""}, root: []string{"I want to download a bill"}, suf: []string{""}},
-			{pre: []string{""}, root: []string{"I want to make a review for a service"}, suf: []string{""}},
-			{pre: []string{""}, root: []string{"i get an error message when i ty to make a payment for my order"}, suf: []string{""}},
-			{pre: []string{""}, root: []string{"where do i check the delivery options ?"}, suf: []string{""}},
-			{pre: []string{}, root: []string{"I don't have an online account", "I ordered an item and Id like to modify my fucking order", "I want to know what the number of Customer Service is", "how do I make changes to my shipping address ?", "i want to request an invoice", "you arent helping"}, suf: []string{}},
+			{pre: []string{""}, root: []string{"I have a question"}, suf: []string{""}, isPublic: true},
+			{pre: []string{""}, root: []string{"I want to download a bill"}, suf: []string{""}, isPublic: true},
+			{pre: []string{""}, root: []string{"I want to make a review for a service"}, suf: []string{""}, isPublic: true},
+			{pre: []string{""}, root: []string{"i get an error message when i ty to make a payment for my order"}, suf: []string{""}, isPublic: true},
+			{pre: []string{""}, root: []string{"where do i check the delivery options ?"}, suf: []string{""}, isPublic: true},
+			{pre: []string{}, root: []string{"I don't have an online account", "I ordered an item and Id like to modify my fucking order", "I want to know what the number of Customer Service is", "how do I make changes to my shipping address ?", "i want to request an invoice", "you arent helping"}, suf: []string{}, isPublic: true},
 		}},
 		{name: "", args: args{f: "./data/tests/test10.csv"}, want: emp},
 	}
@@ -996,11 +983,163 @@ func TestSSSMerger_apply(t *testing.T) {
 			tx := ReadTexts(s)
 			c := NewCorpus(tx)
 			c.transitions = NewTransitions(c, tk)
-			c.ngrams = ToNgrams(c.texts, tk, c.transitions)
+			c.ngrams = ToNgrams(c.texts, tk, c.transitions, 0.1)
 			c.texts = SplitTriplets(c.texts, c.ngrams)
 			rules := ToRules(c.texts)
 			m := &SSSMerger{}
 			assert.Equal(t, tt.want, m.apply(rules))
+		})
+	}
+}
+
+func TestRule_isEmpty(t *testing.T) {
+	type fields struct {
+		pre  []Expression
+		root []Expression
+		suf  []Expression
+	}
+	tests := []struct {
+		name   string
+		fields fields
+		want   bool
+	}{
+		{name: "", fields: fields{
+			pre: []Expression{}, root: []Expression{}, suf: []Expression{},
+		}, want: true},
+		{name: "", fields: fields{
+			pre: []Expression{""}, root: []Expression{}, suf: []Expression{},
+		}, want: true},
+		{name: "", fields: fields{
+			pre: []Expression{}, root: []Expression{""}, suf: []Expression{},
+		}, want: true},
+		{name: "", fields: fields{
+			pre: []Expression{}, root: []Expression{}, suf: []Expression{""},
+		}, want: true},
+		{name: "", fields: fields{
+			pre: []Expression{""}, root: []Expression{""}, suf: []Expression{""},
+		}, want: true},
+		{name: "", fields: fields{
+			pre: []Expression{"a"}, root: []Expression{"1", "2"}, suf: []Expression{"c"},
+		}, want: false},
+		{name: "", fields: fields{
+			pre: []Expression{"1", "2"}, root: []Expression{"a"}, suf: []Expression{"c"},
+		}, want: false},
+		{name: "", fields: fields{
+			pre: []Expression{"c"}, root: []Expression{"a"}, suf: []Expression{"1", "2"},
+		}, want: false},
+		{name: "", fields: fields{
+			pre: []Expression{"1", "2"}, root: []Expression{"1", "2"}, suf: []Expression{"a"},
+		}, want: false},
+		{name: "", fields: fields{
+			pre: []Expression{"a"}, root: []Expression{"1", "2"}, suf: []Expression{"1", "2"},
+		}, want: false},
+		{name: "", fields: fields{
+			pre: []Expression{"1", "2"}, root: []Expression{"a"}, suf: []Expression{"1", "2"},
+		}, want: false},
+		{name: "", fields: fields{
+			pre: []Expression{"1", "2"}, root: []Expression{"1", "2"}, suf: []Expression{"1", "2"},
+		}, want: false},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			r := &Rule{
+				pre:  tt.fields.pre,
+				root: tt.fields.root,
+				suf:  tt.fields.suf,
+			}
+			assert.Equal(t, tt.want, r.isEmpty())
+		})
+	}
+}
+
+func Test_name(t *testing.T) {
+	type args struct {
+		r Rule
+	}
+	tests := []struct {
+		name string
+		args args
+		want string
+	}{
+		{name: "", args: args{r: Rule{pre: []Expression{}, root: []Expression{}, suf: []Expression{}}}, want: ""},
+		{name: "", args: args{r: Rule{pre: []Expression{}, root: []Expression{}, suf: []Expression{}}}, want: ""},
+		{name: "", args: args{r: Rule{pre: []Expression{""}, root: []Expression{""}, suf: []Expression{""}}}, want: ""},
+		{name: "", args: args{r: Rule{pre: []Expression{"", "", "", ""}, root: []Expression{"", "", "", ""}, suf: []Expression{"", "", "", ""}}}, want: "___"},
+		{name: "", args: args{r: Rule{pre: []Expression{"a", "b", "c", ""}, root: []Expression{"a", "b", "c", "d"}, suf: []Expression{}}}, want: "a_b_c_d"},
+		{name: "", args: args{r: Rule{pre: []Expression{}, root: []Expression{"a", "b", "c", ""}, suf: []Expression{"a", "b", "c", "d"}}}, want: "a_b_c_"},
+		{name: "", args: args{r: Rule{pre: []Expression{"a", "b", "c", "d"}, root: []Expression{}, suf: []Expression{"a", "b", "c", ""}}}, want: ""},
+		{name: "", args: args{r: Rule{pre: []Expression{}, root: []Expression{"a", "b", "c", "d"}, suf: []Expression{}}}, want: "a_b_c_d"},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			assert.Equal(t, tt.want, tt.args.r.name())
+		})
+	}
+}
+
+func TestFactor(t *testing.T) {
+	type args struct {
+		r Rule
+		f Rule
+	}
+	tests := []struct {
+		name string
+		args args
+		want Rule
+	}{
+		{name: "", args: args{
+			r: Rule{pre: []Expression{}, root: []Expression{}, suf: []Expression{}},
+			f: Rule{pre: []Expression{}, root: []Expression{}, suf: []Expression{}},
+		},
+			want: Rule{pre: []string{}, root: []string{}, suf: []string{}}},
+		{name: "", args: args{
+			r: Rule{pre: []Expression{""}, root: []Expression{""}, suf: []Expression{""}},
+			f: Rule{pre: []Expression{}, root: []Expression{}, suf: []Expression{}},
+		},
+			want: Rule{pre: []string{""}, root: []string{""}, suf: []string{""}}},
+		{name: "", args: args{
+			r: Rule{pre: []Expression{""}, root: []Expression{""}, suf: []Expression{""}},
+			f: Rule{pre: []Expression{""}, root: []Expression{""}, suf: []Expression{""}},
+		},
+			want: Rule{pre: []string{""}, root: []string{""}, suf: []string{""}}},
+		{name: "", args: args{
+			r: Rule{pre: []Expression{"a"}, root: []Expression{"1", "2"}, suf: []Expression{"c"}},
+			f: Rule{pre: []Expression{"b"}, root: []Expression{"1", "2"}, suf: []Expression{"d"}},
+		},
+			want: Rule{pre: []string{"a"}, root: []string{"<1_2>"}, suf: []string{"c"}}},
+		{name: "", args: args{
+			r: Rule{pre: []Expression{"1", "2"}, root: []Expression{"a"}, suf: []Expression{"c"}},
+			f: Rule{pre: []Expression{"1", "2"}, root: []Expression{"b"}, suf: []Expression{"d"}},
+		},
+			want: Rule{pre: []string{"1", "2"}, root: []string{"a"}, suf: []string{"c"}}},
+		{name: "", args: args{
+			r: Rule{pre: []Expression{"c"}, root: []Expression{"a"}, suf: []Expression{"1", "2"}},
+			f: Rule{pre: []Expression{"d"}, root: []Expression{"b"}, suf: []Expression{"1", "2"}},
+		},
+			want: Rule{pre: []string{"c"}, root: []string{"a"}, suf: []string{"1", "2"}}},
+		{name: "", args: args{
+			r: Rule{pre: []Expression{"1", "2"}, root: []Expression{"1", "2"}, suf: []Expression{"a"}},
+			f: Rule{pre: []Expression{}, root: []Expression{"1", "2"}, suf: []Expression{}},
+		},
+			want: Rule{pre: []string{"<1_2>"}, root: []string{"<1_2>"}, suf: []string{"a"}}},
+		{name: "", args: args{
+			r: Rule{pre: []Expression{"a"}, root: []Expression{"1", "2"}, suf: []Expression{"1", "2"}},
+			f: Rule{pre: []Expression{}, root: []Expression{"1", "2"}, suf: []Expression{}},
+		},
+			want: Rule{pre: []string{"a"}, root: []string{"<1_2>"}, suf: []string{"<1_2>"}}},
+		{name: "", args: args{
+			r: Rule{pre: []Expression{"1", "2"}, root: []Expression{"a"}, suf: []Expression{"1", "2"}},
+			f: Rule{pre: []Expression{}, root: []Expression{"b"}, suf: []Expression{}},
+		},
+			want: Rule{pre: []string{"1", "2"}, root: []string{"a"}, suf: []string{"1", "2"}}},
+		{name: "", args: args{
+			r: Rule{pre: []Expression{"1", "2"}, root: []Expression{"1", "2"}, suf: []Expression{"1", "2"}},
+			f: Rule{pre: []Expression{}, root: []Expression{"1", "2"}, suf: []Expression{}},
+		},
+			want: Rule{pre: []string{"<1_2>"}, root: []string{"<1_2>"}, suf: []string{"<1_2>"}}}}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			assert.Equal(t, tt.want, Factor(tt.args.r, tt.args.f))
 		})
 	}
 }

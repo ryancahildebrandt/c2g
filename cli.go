@@ -22,6 +22,11 @@ var (
 		Aliases: []string{"o"},
 		Usage:   "jsgf file to write grammar to. If blank, grammar is returned to stdout",
 	}
+	prob cli.FloatFlag = cli.FloatFlag{
+		Name:    "prob",
+		Aliases: []string{"p"},
+		Usage:   "transitional probability below which tokens will be split",
+	}
 )
 
 // Checks that the provided path exists on disk and has extension .jsgf/.jjsgf

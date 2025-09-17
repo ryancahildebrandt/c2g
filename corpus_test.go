@@ -117,8 +117,8 @@ func TestToNgrams(t *testing.T) {
 			tx := ReadTexts(s)
 			c := NewCorpus(tx)
 			tr := NewTransitions(c, tk)
-			res := ToNgrams(c.texts, tk, tr)
-			slices.SortFunc(res, func(i, j Ngram) int {
+			res := ToNgrams(c.texts, tk, tr, 0.1)
+			slices.SortStableFunc(res, func(i, j Ngram) int {
 				return strings.Compare(i.text, j.text)
 			})
 			assert.Equal(t, tt.want, res)
@@ -184,7 +184,7 @@ func TestSplitTriplets(t *testing.T) {
 			tx := ReadTexts(s)
 			c := NewCorpus(tx)
 			c.transitions = NewTransitions(c, tk)
-			c.ngrams = ToNgrams(c.texts, tk, c.transitions)
+			c.ngrams = ToNgrams(c.texts, tk, c.transitions, 0.1)
 			assert.Equal(t, tt.want, SplitTriplets(c.texts, c.ngrams))
 		})
 	}
@@ -203,38 +203,35 @@ func TestToRules(t *testing.T) {
 		want []Rule
 	}{
 		{name: "", args: args{f: "./data/tests/test5.csv"}, want: []Rule{
-			{root: []Expression{"I don't have an online account"}, pre: []Expression{""}, suf: []Expression{""}},
+			{root: []Expression{"I don't have an online account"}, pre: []Expression{""}, suf: []Expression{""}, isPublic: true},
 		}},
 		{name: "", args: args{f: "./data/tests/test6.csv"}, want: []Rule{
-			{root: []string{"I don't have an online account"}, pre: []string{""}, suf: []string{""}},
-			{root: []string{"I don't understand you"}, pre: []string{""}, suf: []string{""}},
-			{root: []string{"I got an error message when I attempted to make a payment"}, pre: []string{""}, suf: []string{""}},
-			{root: []string{"I want an online accoynt"}, pre: []string{""}, suf: []string{""}},
-			{root: []string{"ask an agent to notify issues with my payment"}, pre: []string{""}, suf: []string{""}},
-			{root: []string{"can you show me information about the status of my refund ?"}, pre: []string{""}, suf: []string{""}},
-			{root: []string{"can you show me my invoices ?"}, pre: []string{""}, suf: []string{""}},
-			{root: []string{"can you tell me how I can get some bills ?"}, pre: []string{""}, suf: []string{""}},
-			{root: []string{"i dont want my profile"}, pre: []string{""}, suf: []string{""}},
-			{root: []string{"i want to know wat the email of Customer Service is"}, pre: []string{""}, suf: []string{""}},
-			{root: []string{"where can i leave an opinion for a service ?"}, pre: []string{""}, suf: []string{""}},
+			{root: []string{"I don't have an online account"}, pre: []string{""}, suf: []string{""}, isPublic: true},
+			{root: []string{"I don't understand you"}, pre: []string{""}, suf: []string{""}, isPublic: true},
+			{root: []string{"I got an error message when I attempted to make a payment"}, pre: []string{""}, suf: []string{""}, isPublic: true},
+			{root: []string{"I want an online accoynt"}, pre: []string{""}, suf: []string{""}, isPublic: true},
+			{root: []string{"ask an agent to notify issues with my payment"}, pre: []string{""}, suf: []string{""}, isPublic: true},
+			{root: []string{"can you show me information about the status of my refund ?"}, pre: []string{""}, suf: []string{""}, isPublic: true},
+			{root: []string{"can you show me my invoices ?"}, pre: []string{""}, suf: []string{""}, isPublic: true},
+			{root: []string{"can you tell me how I can get some bills ?"}, pre: []string{""}, suf: []string{""}, isPublic: true},
+			{root: []string{"i dont want my profile"}, pre: []string{""}, suf: []string{""}, isPublic: true},
+			{root: []string{"i want to know wat the email of Customer Service is"}, pre: []string{""}, suf: []string{""}, isPublic: true},
+			{root: []string{"where can i leave an opinion for a service ?"}, pre: []string{""}, suf: []string{""}, isPublic: true},
 		}},
-		{name: "", args: args{f: "./data/tests/test7.csv"}, want: []Rule{
-			{root: []string{""}, pre: []string{""}, suf: []string{""}},
-			{root: []string{""}, pre: []string{""}, suf: []string{""}},
-		}},
+		{name: "", args: args{f: "./data/tests/test7.csv"}, want: emp},
 		{name: "", args: args{f: "./data/tests/test8.csv"}, want: emp},
 		{name: "", args: args{f: "./data/tests/test9.csv"}, want: []Rule{
-			{root: []string{"I don't have an online account"}, pre: []string{""}, suf: []string{""}},
-			{root: []string{"I have a question"}, pre: []string{""}, suf: []string{""}},
-			{root: []string{"I ordered an item and Id like to modify my fucking order"}, pre: []string{""}, suf: []string{""}},
-			{root: []string{"I want to download a bill"}, pre: []string{""}, suf: []string{""}},
-			{root: []string{"I want to know what the number of Customer Service is"}, pre: []string{""}, suf: []string{""}},
-			{root: []string{"I want to make a review for a service"}, pre: []string{""}, suf: []string{""}},
-			{root: []string{"how do I make changes to my shipping address ?"}, pre: []string{""}, suf: []string{""}},
-			{root: []string{"i get an error message when i ty to make a payment for my order"}, pre: []string{""}, suf: []string{""}},
-			{root: []string{"i want to request an invoice"}, pre: []string{""}, suf: []string{""}},
-			{root: []string{"where do i check the delivery options ?"}, pre: []string{""}, suf: []string{""}},
-			{root: []string{"you arent helping"}, pre: []string{""}, suf: []string{""}},
+			{root: []string{"I don't have an online account"}, pre: []string{""}, suf: []string{""}, isPublic: true},
+			{root: []string{"I have a question"}, pre: []string{""}, suf: []string{""}, isPublic: true},
+			{root: []string{"I ordered an item and Id like to modify my fucking order"}, pre: []string{""}, suf: []string{""}, isPublic: true},
+			{root: []string{"I want to download a bill"}, pre: []string{""}, suf: []string{""}, isPublic: true},
+			{root: []string{"I want to know what the number of Customer Service is"}, pre: []string{""}, suf: []string{""}, isPublic: true},
+			{root: []string{"I want to make a review for a service"}, pre: []string{""}, suf: []string{""}, isPublic: true},
+			{root: []string{"how do I make changes to my shipping address ?"}, pre: []string{""}, suf: []string{""}, isPublic: true},
+			{root: []string{"i get an error message when i ty to make a payment for my order"}, pre: []string{""}, suf: []string{""}, isPublic: true},
+			{root: []string{"i want to request an invoice"}, pre: []string{""}, suf: []string{""}, isPublic: true},
+			{root: []string{"where do i check the delivery options ?"}, pre: []string{""}, suf: []string{""}, isPublic: true},
+			{root: []string{"you arent helping"}, pre: []string{""}, suf: []string{""}, isPublic: true},
 		}},
 		{name: "", args: args{f: "./data/tests/test10.csv"}, want: emp},
 	}
@@ -246,7 +243,7 @@ func TestToRules(t *testing.T) {
 			tx := ReadTexts(s)
 			c := NewCorpus(tx)
 			c.transitions = NewTransitions(c, tk)
-			c.ngrams = ToNgrams(c.texts, tk, c.transitions)
+			c.ngrams = ToNgrams(c.texts, tk, c.transitions, 0.1)
 			c.texts = SplitTriplets(c.texts, c.ngrams)
 			res := ToRules(c.texts)
 			assert.Equal(t, tt.want, res)
