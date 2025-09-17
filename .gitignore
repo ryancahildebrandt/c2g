@@ -26,3 +26,5 @@ go.work.sum
 
 scratch.txt
 .golangci.yml
+
+outputs/*

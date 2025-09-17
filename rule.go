@@ -18,14 +18,10 @@ type Rule struct {
 }
 
 func (r *Rule) isEmpty() bool {
-	switch {
-	case r.pre == nil && r.root == nil && r.suf == nil:
+	if len(r.pre) == 0 && len(r.root) == 0 && len(r.suf) == 0 {
 		return true
-	case slices.Equal(r.pre, []Expression{}) && slices.Equal(r.root, []Expression{}) && slices.Equal(r.suf, []Expression{}):
-		return true
-	default:
-		return false
 	}
+	return false
 }
 
 func NewRule(e Expression) Rule {
@@ -75,6 +71,7 @@ func (r *Rule) print(n string, p bool) string {
 		}
 		b.WriteString(fmt.Sprintf(" %s", s))
 	}
+	b.WriteString(";")
 
 	return b.String()
 }
@@ -267,7 +264,7 @@ func (m *SSSMerger) merge(rules ...Rule) Rule {
 		b.WriteString(strings.Join(rule.root, " "))
 		b.WriteString(" ")
 		b.WriteString(strings.Join(rule.suf, " "))
-		e := b.String()
+		e := strings.TrimSpace(b.String())
 		if !slices.Contains(r.root, e) {
 			r.root = append(r.root, e)
 		}

@@ -11,6 +11,8 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"slices"
+	"strings"
 	"time"
 
 	"github.com/urfave/cli/v3"
@@ -50,17 +52,22 @@ func main() {
 			fmt.Println(len(rules))
 
 			var ssd SSDMerger
-			var sds SDSMerger
-			var dss DSSMerger
-			var sss SSSMerger
-
 			rules = ssd.apply(rules)
+
+			var sds SDSMerger
 			rules = sds.apply(rules)
+
+			var dss DSSMerger
 			rules = dss.apply(rules)
+
+			var sss SSSMerger
 			rules = sss.apply(rules)
 
+			slices.SortFunc(rules, func(i, j Rule) int {
+				return strings.Compare(i.print("", false), j.print("", false))
+			})
 			for _, rule := range rules {
-				fmt.Println(rule.print("", true))
+				fmt.Println(rule.print("", false))
 			}
 
 			fmt.Println(len(rules))

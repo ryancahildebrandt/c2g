@@ -53,14 +53,13 @@ func TestRule_print(t *testing.T) {
 		want   string
 	}{
 		{name: "", fields: fields{pre: []Expression{}, root: []Expression{}, suf: []Expression{}}, args: args{n: "", p: false}, want: ""},
-		// {name: "", fields: fields{pre: []Expression{}, root: []Expression{}, suf: []Expression{}}, args: args{n: "", p: true}, want: ""},
-		// {name: "", fields: fields{pre: []Expression{""}, root: []Expression{""}, suf: []Expression{""}}, args: args{n: "", p: true}, want: ""},
-
-		{name: "", fields: fields{pre: []Expression{"", "", "", ""}, root: []Expression{"", "", "", ""}, suf: []Expression{"", "", "", ""}}, args: args{n: "", p: true}, want: "public <> = [||] [||] [||]"},
-		{name: "", fields: fields{pre: []Expression{"a", "b", "c", ""}, root: []Expression{"a", "b", "c", "d"}, suf: []Expression{}}, args: args{n: "1", p: false}, want: "<1> = [a|b|c] (a|b|c|d)"},
-		{name: "", fields: fields{pre: []Expression{}, root: []Expression{"a", "b", "c", ""}, suf: []Expression{"a", "b", "c", "d"}}, args: args{n: "2", p: true}, want: "public <2> = [a|b|c] (a|b|c|d)"},
-		{name: "", fields: fields{pre: []Expression{"a", "b", "c", "d"}, root: []Expression{}, suf: []Expression{"a", "b", "c", ""}}, args: args{n: " ", p: false}, want: "< > = (a|b|c|d) [a|b|c]"},
-		{name: "", fields: fields{pre: []Expression{}, root: []Expression{"a", "b", "c", "d"}, suf: []Expression{}}, args: args{n: "  ", p: true}, want: "public <  > = (a|b|c|d)"},
+		{name: "", fields: fields{pre: []Expression{}, root: []Expression{}, suf: []Expression{}}, args: args{n: "", p: true}, want: ""},
+		{name: "", fields: fields{pre: []Expression{""}, root: []Expression{""}, suf: []Expression{""}}, args: args{n: "", p: true}, want: "public <> =;"},
+		{name: "", fields: fields{pre: []Expression{"", "", "", ""}, root: []Expression{"", "", "", ""}, suf: []Expression{"", "", "", ""}}, args: args{n: "", p: true}, want: "public <> = [||] [||] [||];"},
+		{name: "", fields: fields{pre: []Expression{"a", "b", "c", ""}, root: []Expression{"a", "b", "c", "d"}, suf: []Expression{}}, args: args{n: "1", p: false}, want: "<1> = [a|b|c] (a|b|c|d);"},
+		{name: "", fields: fields{pre: []Expression{}, root: []Expression{"a", "b", "c", ""}, suf: []Expression{"a", "b", "c", "d"}}, args: args{n: "2", p: true}, want: "public <2> = [a|b|c] (a|b|c|d);"},
+		{name: "", fields: fields{pre: []Expression{"a", "b", "c", "d"}, root: []Expression{}, suf: []Expression{"a", "b", "c", ""}}, args: args{n: " ", p: false}, want: "< > = (a|b|c|d) [a|b|c];"},
+		{name: "", fields: fields{pre: []Expression{}, root: []Expression{"a", "b", "c", "d"}, suf: []Expression{}}, args: args{n: "  ", p: true}, want: "public <  > = (a|b|c|d);"},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -929,11 +928,11 @@ func TestSSSMerger_merge(t *testing.T) {
 		args args
 		want Rule
 	}{
-		{name: "", args: args{f: "./data/tests/test5.csv"}, want: Rule{pre: []string{}, root: []string{" I don't have an online account "}, suf: []string{}}},
-		{name: "", args: args{f: "./data/tests/test6.csv"}, want: Rule{pre: []string{}, root: []string{" I don't have an online account ", " I don't understand you ", " I got an error message when I attempted to make a payment ", " I want an online accoynt ", " ask an agent to notify issues with my payment ", " can you show me information about the status of my refund ? ", " can you show me my invoices ? ", " can you tell me how I can get some bills ? ", " i dont want my profile ", " i want to know wat the email of Customer Service is ", " where can i leave an opinion for a service ? "}, suf: []string{}}},
-		{name: "", args: args{f: "./data/tests/test7.csv"}, want: Rule{pre: []string{}, root: []string{"  "}, suf: []string{}}},
+		{name: "", args: args{f: "./data/tests/test5.csv"}, want: Rule{pre: []string{}, root: []string{"I don't have an online account"}, suf: []string{}}},
+		{name: "", args: args{f: "./data/tests/test6.csv"}, want: Rule{pre: []string{}, root: []string{"I don't have an online account", "I don't understand you", "I got an error message when I attempted to make a payment", "I want an online accoynt", "ask an agent to notify issues with my payment", "can you show me information about the status of my refund ?", "can you show me my invoices ?", "can you tell me how I can get some bills ?", "i dont want my profile", "i want to know wat the email of Customer Service is", "where can i leave an opinion for a service ?"}, suf: []string{}}},
+		{name: "", args: args{f: "./data/tests/test7.csv"}, want: Rule{pre: []string{}, root: []string{""}, suf: []string{}}},
 		{name: "", args: args{f: "./data/tests/test8.csv"}, want: emp},
-		{name: "", args: args{f: "./data/tests/test9.csv"}, want: Rule{pre: []string{}, root: []string{" I don't have an online account ", " I have a question ", " I ordered an item and Id like to modify my fucking order ", " I want to download a bill ", " I want to know what the number of Customer Service is ", " I want to make a review for a service ", " how do I make changes to my shipping address ? ", " i get an error message when i ty to make a payment for my order ", " i want to request an invoice ", " where do i check the delivery options ? ", " you arent helping "}, suf: []string{}}},
+		{name: "", args: args{f: "./data/tests/test9.csv"}, want: Rule{pre: []string{}, root: []string{"I don't have an online account", "I have a question", "I ordered an item and Id like to modify my fucking order", "I want to download a bill", "I want to know what the number of Customer Service is", "I want to make a review for a service", "how do I make changes to my shipping address ?", "i get an error message when i ty to make a payment for my order", "i want to request an invoice", "where do i check the delivery options ?", "you arent helping"}, suf: []string{}}},
 		{name: "", args: args{f: "./data/tests/test10.csv"}, want: emp},
 	}
 	for _, tt := range tests {
@@ -967,17 +966,17 @@ func TestSSSMerger_apply(t *testing.T) {
 		want []Rule
 	}{
 		{name: "", args: args{f: "./data/tests/test5.csv"}, want: []Rule{
-			{pre: []Expression{}, root: []Expression{" I don't have an online account "}, suf: []Expression{}}}},
+			{pre: []Expression{}, root: []Expression{"I don't have an online account"}, suf: []Expression{}}}},
 		{name: "", args: args{f: "./data/tests/test6.csv"}, want: []Rule{
 			{pre: []Expression{""}, root: []Expression{"I don't understand you"}, suf: []Expression{""}},
 			{pre: []Expression{""}, root: []Expression{"I want an online accoynt"}, suf: []Expression{""}},
 			{pre: []Expression{""}, root: []Expression{"can you show me information about the status of my refund ?"}, suf: []Expression{""}},
 			{pre: []Expression{""}, root: []Expression{"can you tell me how I can get some bills ?"}, suf: []Expression{""}},
 			{pre: []Expression{""}, root: []Expression{"i want to know wat the email of Customer Service is"}, suf: []Expression{""}},
-			{pre: []Expression{}, root: []Expression{" I don't have an online account ", " I got an error message when I attempted to make a payment ", " ask an agent to notify issues with my payment ", " can you show me my invoices ? ", " i dont want my profile ", " where can i leave an opinion for a service ? "}, suf: []Expression{}}}},
+			{pre: []Expression{}, root: []Expression{"I don't have an online account", "I got an error message when I attempted to make a payment", "ask an agent to notify issues with my payment", "can you show me my invoices ?", "i dont want my profile", "where can i leave an opinion for a service ?"}, suf: []Expression{}}}},
 		{name: "", args: args{f: "./data/tests/test7.csv"}, want: []Rule{
 			{pre: []Expression{""}, root: []Expression{""}, suf: []Expression{""}},
-			{pre: []Expression{}, root: []Expression{"  "}, suf: []Expression{}}}},
+			{pre: []Expression{}, root: []Expression{""}, suf: []Expression{}}}},
 		{name: "", args: args{f: "./data/tests/test8.csv"}, want: emp},
 		{name: "", args: args{f: "./data/tests/test9.csv"}, want: []Rule{
 			{pre: []string{""}, root: []string{"I have a question"}, suf: []string{""}},
@@ -985,7 +984,7 @@ func TestSSSMerger_apply(t *testing.T) {
 			{pre: []string{""}, root: []string{"I want to make a review for a service"}, suf: []string{""}},
 			{pre: []string{""}, root: []string{"i get an error message when i ty to make a payment for my order"}, suf: []string{""}},
 			{pre: []string{""}, root: []string{"where do i check the delivery options ?"}, suf: []string{""}},
-			{pre: []string{}, root: []string{" I don't have an online account ", " I ordered an item and Id like to modify my fucking order ", " I want to know what the number of Customer Service is ", " how do I make changes to my shipping address ? ", " i want to request an invoice ", " you arent helping "}, suf: []string{}},
+			{pre: []string{}, root: []string{"I don't have an online account", "I ordered an item and Id like to modify my fucking order", "I want to know what the number of Customer Service is", "how do I make changes to my shipping address ?", "i want to request an invoice", "you arent helping"}, suf: []string{}},
 		}},
 		{name: "", args: args{f: "./data/tests/test10.csv"}, want: emp},
 	}
