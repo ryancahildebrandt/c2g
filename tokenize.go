@@ -21,14 +21,19 @@ const (
 	WhiteSpace
 )
 
+var (
+	boundaryChars   []string = []string{".", ",", "?", "!", ":", ";"}
+	whiteSpaceChars []string = []string{" ", "\t", "\n", "\r"}
+)
+
 // Returns a whitespace and punctuation based tokenizer
 func NewUnigramTokenizer() *tokenizer.Tokenizer {
 	var lexer *tokenizer.Tokenizer = tokenizer.New()
 
 	lexer.SetWhiteSpaces([]byte{})
 
-	lexer.DefineTokens(WhiteSpace, []string{" ", "\t", "\n", "\r"})
-	lexer.DefineTokens(Boundary, []string{".", ",", "?", "!", ":", ";"})
+	lexer.DefineTokens(WhiteSpace, whiteSpaceChars)
+	lexer.DefineTokens(Boundary, boundaryChars)
 
 	return lexer
 }

@@ -61,8 +61,8 @@ func main() {
 			var sss SSSMerger
 			rules = sss.apply(rules)
 
-			rules = ApplyFactor(rules)
 			rules = SetIDs(rules)
+			rules = ApplyFactor(rules)
 			g := Grammar{Rules: rules}
 
 			err = os.WriteFile("./outputs/test.jsgf", []byte(g.print()), 0644)

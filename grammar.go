@@ -44,33 +44,31 @@ func (g *Grammar) print() string {
 func (g *Grammar) printMain() string {
 	var b strings.Builder
 	var main Rule
-
-	for k, v := range g.Rules {
-		if v.isPublic && !v.isEmpty() {
-			main.root = append(main.root, fmt.Sprint("<", v.name(), ">"))
-			v.isPublic = false
-			g.Rules[k] = v
-		}
-	}
 	main.isPublic = true
+
+	for _, rule := range g.Rules {
+		if !rule.isPublic {
+			continue
+		}
+		if rule.isEmpty() {
+			continue
+		}
+		main.root = append(main.root, fmt.Sprint("<", rule.name(), ">"))
+	}
+
 	b.WriteString("#JSGF V1.0 ISO8859-1 en;\n\ngrammar main;\n\n")
 	b.WriteString(main.print("main"))
-	b.WriteString("\n")
+	b.WriteString("\n\n")
 
-	for _, v := range g.Rules {
-		if v.isPublic && !v.isEmpty() {
-			b.WriteString(v.print(v.name()))
-			b.WriteString("\n")
+	for _, rule := range g.Rules {
+		if rule.isEmpty() {
+			continue
 		}
+		rule.isPublic = false
+		b.WriteString(rule.print(rule.name()))
+		b.WriteString("\n")
 	}
 	b.WriteString("\n")
-
-	for _, v := range g.Rules {
-		if !v.isPublic && !v.isEmpty() {
-			b.WriteString(v.print(v.name()))
-			b.WriteString("\n")
-		}
-	}
 
 	return strings.TrimSpace(b.String())
 }

@@ -45,9 +45,20 @@ func NewRule(e Expression) Rule {
 	return r
 }
 
+func joinBoundaries(e Expression) Expression {
+	for _, b := range boundaryChars {
+		e = strings.Replace(e, fmt.Sprint(" ", b), b, -1)
+	}
+	return e
+}
+
 func fmtGroup(g []Expression) string {
 	var o bool
 	var i int
+
+	for j := range g {
+		g[j] = joinBoundaries(g[j])
+	}
 
 	if slices.Contains(g, "") {
 		o = true
@@ -91,10 +102,14 @@ func (r *Rule) print(n string) string {
 }
 
 func (r *Rule) name() string {
+	base := strings.Join(r.root, "_")
+	base = strings.Replace(base, " ", "_", -1)
+	base = strings.Replace(base, "<", "", -1)
+	base = strings.Replace(base, ">", "", -1)
 	if r.id != 0 {
-		return fmt.Sprintf("%.*s_%v", 20, strings.Replace(strings.Join(r.root, "_"), " ", "_", -1), r.id)
+		return fmt.Sprintf("%.*s_%v", 20, base, r.id)
 	}
-	return fmt.Sprintf("%.*s", 20, strings.Replace(strings.Join(r.root, "_"), " ", "_", -1))
+	return fmt.Sprintf("%.*s", 20, base)
 }
 
 func PRSort(r []Rule) {
@@ -138,8 +153,6 @@ func PRSSort(r []Rule) {
 }
 
 type RuleMerger interface {
-	check(r1 Rule, r2 Rule) bool
-	merge(r1 Rule, r2 Rule) Rule
 	apply(r []Rule) []Rule
 }
 
@@ -377,6 +390,12 @@ func ApplyFactor(rules []Rule) []Rule {
 			if cc == "" {
 				continue
 			}
+			if strings.HasPrefix(cc, "<") {
+				continue
+			}
+			if strings.HasSuffix(cc, ">") {
+				continue
+			}
 			ngs = append(ngs, cc)
 		}
 
@@ -398,21 +417,17 @@ func ApplyFactor(rules []Rule) []Rule {
 			rules = append(rules, f)
 		}
 	}
+
 	return rules
 }
 
 func SetIDs(rules []Rule) []Rule {
 	slices.SortStableFunc(rules, func(i, j Rule) int {
-		return strings.Compare(i.print(""), j.print(""))
+		return strings.Compare(i.name(), j.name())
 	})
 
-	for i := range len(rules) - 1 {
-		r1 := rules[i]
-		r2 := rules[i+1]
-		if r1.name() == r2.name() {
-			r2.id++
-			rules[i+1] = r2
-		}
+	for i := range rules {
+		rules[i].id = i
 	}
 
 	return rules
