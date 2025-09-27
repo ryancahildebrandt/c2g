@@ -28,3 +28,4 @@ scratch.txt
 .golangci.yml
 
 outputs/*
+data/tests/out/*
