@@ -7,18 +7,46 @@ package main
 
 import (
 	"fmt"
+	"os"
 	"slices"
 	"strings"
+
+	"github.com/urfave/cli/v3"
 )
 
 type Grammar struct {
 	Rules []Rule
 }
 
-func (g *Grammar) print() string {
+func (g *Grammar) frontMatter(c *cli.Command) string {
 	var b strings.Builder
-	b.WriteString("#JSGF V1.0 ISO8859-1 en;\n\ngrammar main;\n\n")
+	var flags []cli.Flag
 
+	b.WriteString("#JSGF V1.0 ISO8859-1 en;\n")
+	b.WriteString("#created using c2g\n")
+	b.WriteString("#cfg: {")
+	b.WriteString(fmt.Sprintf("\"inFile\":%v, ", c.String("inFile")))
+
+	for _, f := range c.Root().VisibleFlags() {
+		if f.Names()[0] == "help" {
+			continue
+		}
+		flags = append(flags, f)
+	}
+
+	slices.SortStableFunc(flags, func(i, j cli.Flag) int { return strings.Compare(i.Names()[0], j.Names()[0]) })
+	for _, f := range flags {
+		b.WriteString(fmt.Sprintf("\"%s\":%v, ", f.Names()[0], f.Get()))
+	}
+
+	b.WriteString("}\n\n")
+	b.WriteString("grammar main;\n\n")
+
+	return b.String()
+}
+
+func (g *Grammar) body() string {
+	var b strings.Builder
 	slices.SortStableFunc(g.Rules, func(i, j Rule) int {
 		return strings.Compare(i.print(""), j.print(""))
 	})
@@ -41,10 +69,9 @@ func (g *Grammar) print() string {
 	return strings.TrimSpace(b.String())
 }
 
-func (g *Grammar) printMain() string {
+func (g *Grammar) bodyMain() string {
 	var b strings.Builder
-	var main Rule
-	main.isPublic = true
+	var main = Rule{isPublic: true}
 
 	for _, rule := range g.Rules {
 		if !rule.isPublic {
@@ -56,7 +83,6 @@ func (g *Grammar) printMain() string {
 		main.root = append(main.root, fmt.Sprint("<", rule.name(), ">"))
 	}
 
-	b.WriteString("#JSGF V1.0 ISO8859-1 en;\n\ngrammar main;\n\n")
 	b.WriteString(main.print("main"))
 	b.WriteString("\n\n")
 
@@ -71,4 +97,40 @@ func (g *Grammar) printMain() string {
 	b.WriteString("\n")
 
 	return strings.TrimSpace(b.String())
+}
+
+func (g *Grammar) write(c *cli.Command) error {
+	var (
+		err  error
+		b    strings.Builder
+		out  = c.String("outFile")
+		main = c.Bool("main")
+	)
+
+	b.WriteString(g.frontMatter(c))
+
+	switch {
+	case out == "" && !main:
+		b.WriteString(g.body())
+		fmt.Println(b.String())
+		return nil
+	case out == "" && main:
+		b.WriteString(g.bodyMain())
+		fmt.Println(b.String())
+		return nil
+	case !main:
+		b.WriteString(g.body())
+		err = os.WriteFile(out, []byte(b.String()), 0644)
+		if err != nil {
+			return err
+		}
+	case main:
+		b.WriteString(g.bodyMain())
+		err = os.WriteFile(out, []byte(b.String()), 0644)
+		if err != nil {
+			return err
+		}
+	default:
+	}
+	return err
 }

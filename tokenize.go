@@ -14,8 +14,6 @@ import (
 	"github.com/bzick/tokenizer"
 )
 
-type Expression = string
-
 const (
 	Boundary = iota + 1
 	WhiteSpace
@@ -38,11 +36,11 @@ func NewUnigramTokenizer() *tokenizer.Tokenizer {
 	return lexer
 }
 
-func UnigramTokenize(e Expression, t *tokenizer.Tokenizer) []Expression {
+func UnigramTokenize(e string, t *tokenizer.Tokenizer) []string {
 	var (
 		res     string
 		builder strings.Builder
-		out     []Expression
+		out                       = []string{}
 		stream  *tokenizer.Stream = t.ParseString(e)
 	)
 
@@ -70,25 +68,12 @@ func UnigramTokenize(e Expression, t *tokenizer.Tokenizer) []Expression {
 	return out
 }
 
-func ToBigrams(e []Expression) [][]Expression {
-	var b [][]Expression
-
-	if len(e) == 0 {
-		return b
-	}
-	if len(e) == 1 {
-		return append(b, []string{e[0], ""})
-	}
-
-	for i := 0; i < len(e)-1; i++ {
-		b = append(b, e[i:i+2])
-	}
-
-	return b
+func UnigramNormalize(e string, t *tokenizer.Tokenizer) string {
+	return strings.Join(UnigramTokenize(e, t), " ")
 }
 
 // Helper function to get current contents of strings.Builder and reset
-func flushBuilder(b strings.Builder, o []Expression) (strings.Builder, []Expression) {
+func flushBuilder(b strings.Builder, o []string) (strings.Builder, []string) {
 	var str string = b.String()
 
 	b.Reset()

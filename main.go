@@ -6,7 +6,6 @@
 package main
 
 import (
-	"bufio"
 	"context"
 	"fmt"
 	"log"
@@ -29,46 +28,25 @@ func main() {
 			&inFile,
 			&outFile,
 			&prob,
+			&factor,
+			&printMain,
 		},
 		Action: func(ctx context.Context, cmd *cli.Command) error {
 			start := time.Now()
-			infile := cmd.String("inFile")
-			prob := cmd.Float("prob")
-			file, err := os.Open(infile)
-			if err != nil {
-				log.Fatal(err)
-			}
-			defer file.Close()
-
-			t := NewUnigramTokenizer()
-			scanner := bufio.NewScanner(file)
-			texts := ReadTexts(scanner)
-			corpus := NewCorpus(texts)
-			corpus.transitions = NewTransitions(corpus, t)
-			corpus.ngrams = ToNgrams(corpus.texts, t, corpus.transitions, prob)
-			corpus.texts = SplitTriplets(corpus.texts, corpus.ngrams)
-			rules := ToRules(corpus.texts)
-
-			var ssd SSDMerger
-			rules = ssd.apply(rules)
-
-			var sds SDSMerger
-			rules = sds.apply(rules)
-
-			var dss DSSMerger
-			rules = dss.apply(rules)
-
-			var sss SSSMerger
-			rules = sss.apply(rules)
-
-			rules = SetIDs(rules)
-			rules = ApplyFactor(rules)
-			g := Grammar{Rules: rules}
-
-			err = os.WriteFile("./outputs/test.jsgf", []byte(g.print()), 0644)
+			rules, err := buildRules(cmd)
 			if err != nil {
 				return err
 			}
+
+			rules = MergePR(rules)
+			rules = MergePS(rules)
+			rules = MergeRS(rules)
+			rules = MergePRS(rules)
+			rules = SetIDs(rules)
+			rules = Factor(rules, cmd.Int("factor"))
+			g := Grammar{Rules: rules}
+			g.write(cmd)
+
 			fmt.Println(time.Since(start))
 			return nil
 		},

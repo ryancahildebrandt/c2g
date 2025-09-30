@@ -13,36 +13,6 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestToBigrams(t *testing.T) {
-	tok := NewUnigramTokenizer()
-	emp := [][]Expression{{"", ""}}
-
-	type args struct {
-		e []Expression
-		t *tokenizer.Tokenizer
-	}
-	tests := []struct {
-		name string
-		args args
-		want [][]Expression
-	}{
-		{name: "", args: args{e: []Expression{""}, t: tok}, want: emp},
-		{name: "", args: args{e: []Expression{" "}, t: tok}, want: [][]Expression{{" ", ""}}},
-		{name: "", args: args{e: []Expression{" ", "	"}, t: tok}, want: [][]Expression{{" ", "	"}}},
-		{name: "", args: args{e: []Expression{".", ""}, t: tok}, want: [][]Expression{{".", ""}}},
-		{name: "", args: args{e: []Expression{".", ".", "?"}, t: tok}, want: [][]Expression{{".", "."}, {".", "?"}}},
-		{name: "", args: args{e: []Expression{"a", ".", "b"}, t: tok}, want: [][]Expression{{"a", "."}, {".", "b"}}},
-		{name: "", args: args{e: []Expression{"a", ".", "b"}, t: tok}, want: [][]Expression{{"a", "."}, {".", "b"}}},
-		{name: "", args: args{e: []Expression{" ", "a.", "b"}, t: tok}, want: [][]Expression{{" ", "a."}, {"a.", "b"}}},
-		{name: "", args: args{e: []Expression{" a.", "b.", ""}, t: tok}, want: [][]Expression{{" a.", "b."}, {"b.", ""}}},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			assert.Equalf(t, tt.want, ToBigrams(tt.args.e), "ToBigrams(%v)", tt.args.e)
-		})
-	}
-}
-
 func TestValidateTokenizerString(t *testing.T) {
 	type args struct {
 		s string
@@ -69,29 +39,54 @@ func TestValidateTokenizerString(t *testing.T) {
 
 func TestUnigramTokenize(t *testing.T) {
 	tok := NewUnigramTokenizer()
-	var emp []Expression
 
 	type args struct {
-		e Expression
+		e string
 		t *tokenizer.Tokenizer
 	}
 	tests := []struct {
 		name string
 		args args
-		want []Expression
+		want []string
 	}{
-		{name: "", args: args{e: "", t: tok}, want: emp},
-		{name: "", args: args{e: " ", t: tok}, want: emp},
-		{name: "", args: args{e: " 	", t: tok}, want: emp},
-		{name: "", args: args{e: ".", t: tok}, want: []Expression{"."}},
-		{name: "", args: args{e: "..?", t: tok}, want: []Expression{".", ".", "?"}},
-		{name: "", args: args{e: "a.b", t: tok}, want: []Expression{"a", ".", "b"}},
-		{name: "", args: args{e: "a . b", t: tok}, want: []Expression{"a", ".", "b"}},
-		{name: "", args: args{e: " a. b", t: tok}, want: []Expression{"a", ".", "b"}},
+		{name: "", args: args{e: "", t: tok}, want: []string{}},
+		{name: "", args: args{e: " ", t: tok}, want: []string{}},
+		{name: "", args: args{e: " 	", t: tok}, want: []string{}},
+		{name: "", args: args{e: ".", t: tok}, want: []string{"."}},
+		{name: "", args: args{e: "..?", t: tok}, want: []string{".", ".", "?"}},
+		{name: "", args: args{e: "a.b", t: tok}, want: []string{"a", ".", "b"}},
+		{name: "", args: args{e: "a . b", t: tok}, want: []string{"a", ".", "b"}},
+		{name: "", args: args{e: " a. b", t: tok}, want: []string{"a", ".", "b"}},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			assert.Equal(t, tt.want, UnigramTokenize(tt.args.e, tt.args.t))
+		})
+	}
+}
+
+func TestUnigramNormalize(t *testing.T) {
+	type args struct {
+		e string
+	}
+	tests := []struct {
+		name string
+		args args
+		want string
+	}{
+		{name: "", args: args{e: ""}, want: ""},
+		{name: "", args: args{e: " "}, want: ""},
+		{name: "", args: args{e: " 	"}, want: ""},
+		{name: "", args: args{e: "."}, want: "."},
+		{name: "", args: args{e: "..?"}, want: ". . ?"},
+		{name: "", args: args{e: "a.b"}, want: "a . b"},
+		{name: "", args: args{e: "a . b"}, want: "a . b"},
+		{name: "", args: args{e: " a. b"}, want: "a . b"},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			tk := NewUnigramTokenizer()
+			assert.Equal(t, tt.want, UnigramNormalize(tt.args.e, tk))
 		})
 	}
 }
