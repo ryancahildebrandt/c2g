@@ -60,7 +60,6 @@ func TestGrammarE2E(t *testing.T) {
 			for i := range got {
 				got[i] = strings.TrimSpace(got[i])
 				got[i] = strings.ReplaceAll(got[i], "  ", " ")
-				got[i] = joinBoundaries(got[i])
 			}
 			got = slices.DeleteFunc(got, func(i string) bool { return i == "" })
 			slices.Sort(got)
@@ -102,7 +101,6 @@ func TestGrammarE2E(t *testing.T) {
 				for i := range want {
 					want[i] = strings.TrimSpace(want[i])
 					want[i] = strings.ReplaceAll(want[i], "  ", " ")
-					want[i] = joinBoundaries(want[i])
 				}
 				want = slices.DeleteFunc(want, func(i string) bool { return i == "" })
 				slices.Sort(want)
@@ -156,7 +154,6 @@ func TestGrammarMainE2E(t *testing.T) {
 			for i := range got {
 				got[i] = strings.TrimSpace(got[i])
 				got[i] = strings.ReplaceAll(got[i], "  ", " ")
-				got[i] = joinBoundaries(got[i])
 			}
 			got = slices.DeleteFunc(got, func(i string) bool { return i == "" })
 			slices.Sort(got)
@@ -198,7 +195,6 @@ func TestGrammarMainE2E(t *testing.T) {
 				for i := range want {
 					want[i] = strings.TrimSpace(want[i])
 					want[i] = strings.ReplaceAll(want[i], "  ", " ")
-					want[i] = joinBoundaries(want[i])
 				}
 				want = slices.DeleteFunc(want, func(i string) bool { return i == "" })
 				slices.Sort(want)
