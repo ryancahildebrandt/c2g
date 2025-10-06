@@ -19,18 +19,18 @@ func TestCollectTransitions(t *testing.T) {
 		c []Text
 	}
 	tests := []struct {
-		name string
+		
 		args args
 		want Transitions
 	}{
-		{name: "", args: args{c: []Text{}}, want: Transitions{}},
-		{name: "", args: args{c: []Text{{text: ""}, {text: ""}}}, want: Transitions{}},
-		{name: "", args: args{c: []Text{{text: ""}, {text: ""}, {text: ""}, {text: ""}, {text: ""}, {text: ""}}}, want: Transitions{}},
-		{name: "", args: args{c: []Text{{text: "."}, {text: ","}, {text: "."}, {text: ""}, {text: "."}, {text: ""}}}, want: Transitions{".": map[string]float64{"": 1.0}, ",": map[string]float64{"": 1.0}}},
-		{name: "", args: args{c: []Text{{text: "abc abc"}, {text: "d e e f"}, {text: "g ."}, {text: ". h"}, {text: "h ,"}}}, want: Transitions{"abc": map[string]float64{"abc": 1}, "d": map[string]float64{"e": 1}, "e": map[string]float64{"e": 0.5, "f": 0.5}, "g": map[string]float64{".": 1}, ".": map[string]float64{"h": 1}, "h": map[string]float64{",": 1}}},
+		{args: args{c: []Text{}}, want: Transitions{}},
+		{args: args{c: []Text{{text: ""}, {text: ""}}}, want: Transitions{}},
+		{args: args{c: []Text{{text: ""}, {text: ""}, {text: ""}, {text: ""}, {text: ""}, {text: ""}}}, want: Transitions{}},
+		{args: args{c: []Text{{text: "."}, {text: ","}, {text: "."}, {text: ""}, {text: "."}, {text: ""}}}, want: Transitions{".": map[string]float64{"": 1.0}, ",": map[string]float64{"": 1.0}}},
+		{args: args{c: []Text{{text: "abc abc"}, {text: "d e e f"}, {text: "g ."}, {text: ". h"}, {text: "h ,"}}}, want: Transitions{"abc": map[string]float64{"abc": 1}, "d": map[string]float64{"e": 1}, "e": map[string]float64{"e": 0.5, "f": 0.5}, "g": map[string]float64{".": 1}, ".": map[string]float64{"h": 1}, "h": map[string]float64{",": 1}}},
 	}
 	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
+		t.Run("", func(t *testing.T) {
 			tok := NewWordTokenizer()
 			assert.Equalf(t, tt.want, CollectTransitions(tt.args.c, tok), "NewTransitions(%v)", tt.args.c)
 		})
@@ -53,28 +53,28 @@ func TestTransitionChunk(t *testing.T) {
 		p float64
 	}
 	tests := []struct {
-		name string
+		
 		args args
 		want []string
 	}{
-		{name: "", args: args{s: []string{}, t: transitions, p: 0.0}, want: []string{}},
-		{name: "", args: args{s: []string{}, t: transitions, p: 0.5}, want: []string{}},
-		{name: "", args: args{s: []string{}, t: transitions, p: 1.0}, want: []string{}},
+		{args: args{s: []string{}, t: transitions, p: 0.0}, want: []string{}},
+		{args: args{s: []string{}, t: transitions, p: 0.5}, want: []string{}},
+		{args: args{s: []string{}, t: transitions, p: 1.0}, want: []string{}},
 
-		{name: "", args: args{s: []string{"", "", "", "", "", ""}, t: transitions, p: 0.0}, want: []string{}},
-		{name: "", args: args{s: []string{"", "", "", "", "", ""}, t: transitions, p: 0.5}, want: []string{}},
-		{name: "", args: args{s: []string{"", "", "", "", "", ""}, t: transitions, p: 1.0}, want: []string{}},
+		{args: args{s: []string{"", "", "", "", "", ""}, t: transitions, p: 0.0}, want: []string{}},
+		{args: args{s: []string{"", "", "", "", "", ""}, t: transitions, p: 0.5}, want: []string{}},
+		{args: args{s: []string{"", "", "", "", "", ""}, t: transitions, p: 1.0}, want: []string{}},
 
-		{name: "", args: args{s: []string{"a", "b", "c", "d", "e", "f"}, t: transitions, p: 0.0}, want: []string{"a b c d e f"}},
-		{name: "", args: args{s: []string{"a", "b", "c", "d", "e", "f"}, t: transitions, p: 0.5}, want: []string{"a", "b c d", "e f"}},
-		{name: "", args: args{s: []string{"a", "b", "c", "d", "e", "f"}, t: transitions, p: 1.0}, want: []string{"a", "b", "c", "d", "e f"}},
+		{args: args{s: []string{"a", "b", "c", "d", "e", "f"}, t: transitions, p: 0.0}, want: []string{"a b c d e f"}},
+		{args: args{s: []string{"a", "b", "c", "d", "e", "f"}, t: transitions, p: 0.5}, want: []string{"a", "b c d", "e f"}},
+		{args: args{s: []string{"a", "b", "c", "d", "e", "f"}, t: transitions, p: 1.0}, want: []string{"a", "b", "c", "d", "e f"}},
 
-		{name: "", args: args{s: []string{"a", "f", "f", "d", "d", "h"}, t: transitions, p: 0.0}, want: []string{"a f f d d h"}},
-		{name: "", args: args{s: []string{"a", "f", "f", "d", "d", "h"}, t: transitions, p: 0.5}, want: []string{"a", "f", "f d", "d h"}},
-		{name: "", args: args{s: []string{"a", "f", "f", "d", "d", "h"}, t: transitions, p: 1.0}, want: []string{"a", "f", "f", "d", "d h"}},
+		{args: args{s: []string{"a", "f", "f", "d", "d", "h"}, t: transitions, p: 0.0}, want: []string{"a f f d d h"}},
+		{args: args{s: []string{"a", "f", "f", "d", "d", "h"}, t: transitions, p: 0.5}, want: []string{"a", "f", "f d", "d h"}},
+		{args: args{s: []string{"a", "f", "f", "d", "d", "h"}, t: transitions, p: 1.0}, want: []string{"a", "f", "f", "d", "d h"}},
 	}
 	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
+		t.Run("", func(t *testing.T) {
 			assert.Equal(t, tt.want, TransitionChunk(tt.args.s, tt.args.t, tt.args.p))
 		})
 	}
@@ -85,12 +85,12 @@ func TestCollectChunks(t *testing.T) {
 		f string
 	}
 	tests := []struct {
-		name string
+		
 		args args
 		want []string
 	}{
-		{name: "", args: args{f: "./data/tests/test5.csv"}, want: []string{"I don't have an online account"}},
-		{name: "", args: args{f: "./data/tests/test6.csv"}, want: []string{
+		{args: args{f: "./data/tests/test5.csv"}, want: []string{"I don't have an online account"}},
+		{args: args{f: "./data/tests/test6.csv"}, want: []string{
 			"I don't have an online account",
 			"I don't understand you",
 			"I got an error message when I attempted to make a payment",
@@ -103,9 +103,9 @@ func TestCollectChunks(t *testing.T) {
 			"i want to know wat the email of Customer Service is",
 			"where can i leave an opinion for a service ?",
 		}},
-		{name: "", args: args{f: "./data/tests/test7.csv"}, want: []string{}},
-		{name: "", args: args{f: "./data/tests/test8.csv"}, want: []string{}},
-		{name: "", args: args{f: "./data/tests/test9.csv"}, want: []string{
+		{args: args{f: "./data/tests/test7.csv"}, want: []string{}},
+		{args: args{f: "./data/tests/test8.csv"}, want: []string{}},
+		{args: args{f: "./data/tests/test9.csv"}, want: []string{
 			"I don't have an online account",
 			"I have a question",
 			"I ordered an item and Id like to modify my fucking order",
@@ -118,10 +118,10 @@ func TestCollectChunks(t *testing.T) {
 			"where do i check the delivery options ?",
 			"you arent helping",
 		}},
-		{name: "", args: args{f: "./data/tests/test10.csv"}, want: []string{}},
+		{args: args{f: "./data/tests/test10.csv"}, want: []string{}},
 	}
 	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
+		t.Run("", func(t *testing.T) {
 			tk := NewWordTokenizer()
 			file, _ := os.Open(tt.args.f)
 			defer file.Close()

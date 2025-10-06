@@ -18,14 +18,14 @@ func TestSortPR(t *testing.T) {
 		f string
 	}
 	tests := []struct {
-		name string
+		
 		args args
 		want []Rule
 	}{
-		{name: "", args: args{f: "./data/tests/test5.csv"}, want: []Rule{
+		{args: args{f: "./data/tests/test5.csv"}, want: []Rule{
 			{pre: []string{""}, root: []string{"I don't have an online account"}, suf: []string{""}, isPublic: true},
 		}},
-		{name: "", args: args{f: "./data/tests/test6.csv"}, want: []Rule{
+		{args: args{f: "./data/tests/test6.csv"}, want: []Rule{
 			{pre: []string{""}, root: []string{"I don't have an online account"}, suf: []string{""}, isPublic: true},
 			{pre: []string{""}, root: []string{"I don't understand you"}, suf: []string{""}, isPublic: true},
 			{pre: []string{""}, root: []string{"I got an error message when I attempted to make a payment"}, suf: []string{""}, isPublic: true},
@@ -38,9 +38,9 @@ func TestSortPR(t *testing.T) {
 			{pre: []string{""}, root: []string{"i want to know wat the email of Customer Service is"}, suf: []string{""}, isPublic: true},
 			{pre: []string{""}, root: []string{"where can i leave an opinion for a service ?"}, suf: []string{""}, isPublic: true},
 		}},
-		{name: "", args: args{f: "./data/tests/test7.csv"}, want: []Rule{}},
-		{name: "", args: args{f: "./data/tests/test8.csv"}, want: []Rule{}},
-		{name: "", args: args{f: "./data/tests/test9.csv"}, want: []Rule{
+		{args: args{f: "./data/tests/test7.csv"}, want: []Rule{}},
+		{args: args{f: "./data/tests/test8.csv"}, want: []Rule{}},
+		{args: args{f: "./data/tests/test9.csv"}, want: []Rule{
 			{pre: []string{""}, root: []string{"I don't have an online account"}, suf: []string{""}, isPublic: true},
 			{pre: []string{""}, root: []string{"I have a question"}, suf: []string{""}, isPublic: true},
 			{pre: []string{""}, root: []string{"I ordered an item and Id like to modify my fucking order"}, suf: []string{""}, isPublic: true},
@@ -53,10 +53,10 @@ func TestSortPR(t *testing.T) {
 			{pre: []string{""}, root: []string{"where do i check the delivery options ?"}, suf: []string{""}, isPublic: true},
 			{pre: []string{""}, root: []string{"you arent helping"}, suf: []string{""}, isPublic: true},
 		}},
-		{name: "", args: args{f: "./data/tests/test10.csv"}, want: []Rule{}},
+		{args: args{f: "./data/tests/test10.csv"}, want: []Rule{}},
 	}
 	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
+		t.Run("", func(t *testing.T) {
 			tk := NewWordTokenizer()
 			file, _ := os.Open(tt.args.f)
 			defer file.Close()
@@ -88,13 +88,13 @@ func TestSortPS(t *testing.T) {
 		f string
 	}
 	tests := []struct {
-		name string
+		
 		args args
 		want []Rule
 	}{
-		{name: "", args: args{f: "./data/tests/test5.csv"}, want: []Rule{
+		{args: args{f: "./data/tests/test5.csv"}, want: []Rule{
 			{pre: []string{""}, root: []string{"I don't have an online account"}, suf: []string{""}, isPublic: true}}},
-		{name: "", args: args{f: "./data/tests/test6.csv"}, want: []Rule{
+		{args: args{f: "./data/tests/test6.csv"}, want: []Rule{
 			{pre: []string{""}, root: []string{"I don't have an online account"}, suf: []string{""}, isPublic: true},
 			{pre: []string{""}, root: []string{"I don't understand you"}, suf: []string{""}, isPublic: true},
 			{pre: []string{""}, root: []string{"I got an error message when I attempted to make a payment"}, suf: []string{""}, isPublic: true},
@@ -106,9 +106,9 @@ func TestSortPS(t *testing.T) {
 			{pre: []string{""}, root: []string{"i dont want my profile"}, suf: []string{""}, isPublic: true},
 			{pre: []string{""}, root: []string{"i want to know wat the email of Customer Service is"}, suf: []string{""}, isPublic: true},
 			{pre: []string{""}, root: []string{"where can i leave an opinion for a service ?"}, suf: []string{""}, isPublic: true}}},
-		{name: "", args: args{f: "./data/tests/test7.csv"}, want: []Rule{}},
-		{name: "", args: args{f: "./data/tests/test8.csv"}, want: []Rule{}},
-		{name: "", args: args{f: "./data/tests/test9.csv"}, want: []Rule{
+		{args: args{f: "./data/tests/test7.csv"}, want: []Rule{}},
+		{args: args{f: "./data/tests/test8.csv"}, want: []Rule{}},
+		{args: args{f: "./data/tests/test9.csv"}, want: []Rule{
 			{pre: []string{""}, root: []string{"I don't have an online account"}, suf: []string{""}, isPublic: true},
 			{pre: []string{""}, root: []string{"I have a question"}, suf: []string{""}, isPublic: true},
 			{pre: []string{""}, root: []string{"I ordered an item and Id like to modify my fucking order"}, suf: []string{""}, isPublic: true},
@@ -120,10 +120,10 @@ func TestSortPS(t *testing.T) {
 			{pre: []string{""}, root: []string{"i want to request an invoice"}, suf: []string{""}, isPublic: true},
 			{pre: []string{""}, root: []string{"where do i check the delivery options ?"}, suf: []string{""}, isPublic: true},
 			{pre: []string{""}, root: []string{"you arent helping"}, suf: []string{""}, isPublic: true}}},
-		{name: "", args: args{f: "./data/tests/test10.csv"}, want: []Rule{}},
+		{args: args{f: "./data/tests/test10.csv"}, want: []Rule{}},
 	}
 	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
+		t.Run("", func(t *testing.T) {
 			tk := NewWordTokenizer()
 			file, _ := os.Open(tt.args.f)
 			defer file.Close()
@@ -155,13 +155,13 @@ func TestSortRS(t *testing.T) {
 		f string
 	}
 	tests := []struct {
-		name string
+		
 		args args
 		want []Rule
 	}{
-		{name: "", args: args{f: "./data/tests/test5.csv"}, want: []Rule{
+		{args: args{f: "./data/tests/test5.csv"}, want: []Rule{
 			{pre: []string{""}, root: []string{"I don't have an online account"}, suf: []string{""}, isPublic: true}}},
-		{name: "", args: args{f: "./data/tests/test6.csv"}, want: []Rule{
+		{args: args{f: "./data/tests/test6.csv"}, want: []Rule{
 			{pre: []string{""}, root: []string{"I don't have an online account"}, suf: []string{""}, isPublic: true},
 			{pre: []string{""}, root: []string{"I don't understand you"}, suf: []string{""}, isPublic: true},
 			{pre: []string{""}, root: []string{"I got an error message when I attempted to make a payment"}, suf: []string{""}, isPublic: true},
@@ -173,9 +173,9 @@ func TestSortRS(t *testing.T) {
 			{pre: []string{""}, root: []string{"i dont want my profile"}, suf: []string{""}, isPublic: true},
 			{pre: []string{""}, root: []string{"i want to know wat the email of Customer Service is"}, suf: []string{""}, isPublic: true},
 			{pre: []string{""}, root: []string{"where can i leave an opinion for a service ?"}, suf: []string{""}, isPublic: true}}},
-		{name: "", args: args{f: "./data/tests/test7.csv"}, want: []Rule{}},
-		{name: "", args: args{f: "./data/tests/test8.csv"}, want: []Rule{}},
-		{name: "", args: args{f: "./data/tests/test9.csv"}, want: []Rule{
+		{args: args{f: "./data/tests/test7.csv"}, want: []Rule{}},
+		{args: args{f: "./data/tests/test8.csv"}, want: []Rule{}},
+		{args: args{f: "./data/tests/test9.csv"}, want: []Rule{
 			{pre: []string{""}, root: []string{"I don't have an online account"}, suf: []string{""}, isPublic: true},
 			{pre: []string{""}, root: []string{"I have a question"}, suf: []string{""}, isPublic: true},
 			{pre: []string{""}, root: []string{"I ordered an item and Id like to modify my fucking order"}, suf: []string{""}, isPublic: true},
@@ -187,10 +187,10 @@ func TestSortRS(t *testing.T) {
 			{pre: []string{""}, root: []string{"i want to request an invoice"}, suf: []string{""}, isPublic: true},
 			{pre: []string{""}, root: []string{"where do i check the delivery options ?"}, suf: []string{""}, isPublic: true},
 			{pre: []string{""}, root: []string{"you arent helping"}, suf: []string{""}, isPublic: true}}},
-		{name: "", args: args{f: "./data/tests/test10.csv"}, want: []Rule{}},
+		{args: args{f: "./data/tests/test10.csv"}, want: []Rule{}},
 	}
 	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
+		t.Run("", func(t *testing.T) {
 			tk := NewWordTokenizer()
 			file, _ := os.Open(tt.args.f)
 			defer file.Close()
@@ -222,13 +222,13 @@ func TestSortPRS(t *testing.T) {
 		f string
 	}
 	tests := []struct {
-		name string
+		
 		args args
 		want []Rule
 	}{
-		{name: "", args: args{f: "./data/tests/test5.csv"}, want: []Rule{
+		{args: args{f: "./data/tests/test5.csv"}, want: []Rule{
 			{pre: []string{""}, root: []string{"I don't have an online account"}, suf: []string{""}, isPublic: true}}},
-		{name: "", args: args{f: "./data/tests/test6.csv"}, want: []Rule{
+		{args: args{f: "./data/tests/test6.csv"}, want: []Rule{
 			{pre: []string{""}, root: []string{"I don't have an online account"}, suf: []string{""}, isPublic: true},
 			{pre: []string{""}, root: []string{"I don't understand you"}, suf: []string{""}, isPublic: true},
 			{pre: []string{""}, root: []string{"I got an error message when I attempted to make a payment"}, suf: []string{""}, isPublic: true},
@@ -240,9 +240,9 @@ func TestSortPRS(t *testing.T) {
 			{pre: []string{""}, root: []string{"i dont want my profile"}, suf: []string{""}, isPublic: true},
 			{pre: []string{""}, root: []string{"i want to know wat the email of Customer Service is"}, suf: []string{""}, isPublic: true},
 			{pre: []string{""}, root: []string{"where can i leave an opinion for a service ?"}, suf: []string{""}, isPublic: true}}},
-		{name: "", args: args{f: "./data/tests/test7.csv"}, want: []Rule{}},
-		{name: "", args: args{f: "./data/tests/test8.csv"}, want: []Rule{}},
-		{name: "", args: args{f: "./data/tests/test9.csv"}, want: []Rule{
+		{args: args{f: "./data/tests/test7.csv"}, want: []Rule{}},
+		{args: args{f: "./data/tests/test8.csv"}, want: []Rule{}},
+		{args: args{f: "./data/tests/test9.csv"}, want: []Rule{
 			{pre: []string{""}, root: []string{"I don't have an online account"}, suf: []string{""}, isPublic: true},
 			{pre: []string{""}, root: []string{"I have a question"}, suf: []string{""}, isPublic: true},
 			{pre: []string{""}, root: []string{"I ordered an item and Id like to modify my fucking order"}, suf: []string{""}, isPublic: true},
@@ -254,10 +254,10 @@ func TestSortPRS(t *testing.T) {
 			{pre: []string{""}, root: []string{"i want to request an invoice"}, suf: []string{""}, isPublic: true},
 			{pre: []string{""}, root: []string{"where do i check the delivery options ?"}, suf: []string{""}, isPublic: true},
 			{pre: []string{""}, root: []string{"you arent helping"}, suf: []string{""}, isPublic: true}}},
-		{name: "", args: args{f: "./data/tests/test10.csv"}, want: []Rule{}},
+		{args: args{f: "./data/tests/test10.csv"}, want: []Rule{}},
 	}
 	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
+		t.Run("", func(t *testing.T) {
 			tk := NewWordTokenizer()
 			file, _ := os.Open(tt.args.f)
 			defer file.Close()
@@ -289,22 +289,22 @@ func TestMergeP(t *testing.T) {
 		f string
 	}
 	tests := []struct {
-		name string
+		
 		args args
 		want []Rule
 	}{
-		{name: "", args: args{f: "./data/tests/test5.csv"}, want: []Rule{
+		{args: args{f: "./data/tests/test5.csv"}, want: []Rule{
 			{pre: []string{""}, root: []string{"I don't have an online account"}, suf: []string{""}, isPublic: true, id: 0}}},
-		{name: "", args: args{f: "./data/tests/test6.csv"}, want: []Rule{
+		{args: args{f: "./data/tests/test6.csv"}, want: []Rule{
 			{pre: []string{""}, root: []string{"I don't have an online account", "I don't understand you", "I got an error message when I attempted to make a payment", "I want an online accoynt", "ask an agent to notify issues with my payment", "can you show me information about the status of my refund ?", "can you show me my invoices ?", "can you tell me how I can get some bills ?", "i dont want my profile", "i want to know wat the email of Customer Service is", "where can i leave an opinion for a service ?"}, suf: []string{""}, isPublic: true, id: 0}}},
-		{name: "", args: args{f: "./data/tests/test7.csv"}, want: []Rule{}},
-		{name: "", args: args{f: "./data/tests/test8.csv"}, want: []Rule{}},
-		{name: "", args: args{f: "./data/tests/test9.csv"}, want: []Rule{
+		{args: args{f: "./data/tests/test7.csv"}, want: []Rule{}},
+		{args: args{f: "./data/tests/test8.csv"}, want: []Rule{}},
+		{args: args{f: "./data/tests/test9.csv"}, want: []Rule{
 			{pre: []string{""}, root: []string{"I don't have an online account", "I have a question", "I ordered an item and Id like to modify my fucking order", "I want to download a bill", "I want to know what the number of Customer Service is", "I want to make a review for a service", "how do I make changes to my shipping address ?", "i get an error message when i ty to make a payment for my order", "i want to request an invoice", "where do i check the delivery options ?", "you arent helping"}, suf: []string{""}, isPublic: true, id: 0}}},
-		{name: "", args: args{f: "./data/tests/test10.csv"}, want: []Rule{}},
+		{args: args{f: "./data/tests/test10.csv"}, want: []Rule{}},
 	}
 	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
+		t.Run("", func(t *testing.T) {
 			tk := NewWordTokenizer()
 			file, _ := os.Open(tt.args.f)
 			defer file.Close()
@@ -336,13 +336,13 @@ func TestMergeR(t *testing.T) {
 		f string
 	}
 	tests := []struct {
-		name string
+		
 		args args
 		want []Rule
 	}{
-		{name: "", args: args{f: "./data/tests/test5.csv"}, want: []Rule{
+		{args: args{f: "./data/tests/test5.csv"}, want: []Rule{
 			{pre: []string{""}, root: []string{"I don't have an online account"}, suf: []string{""}, isPublic: true, id: 0}}},
-		{name: "", args: args{f: "./data/tests/test6.csv"}, want: []Rule{
+		{args: args{f: "./data/tests/test6.csv"}, want: []Rule{
 			{pre: []string{""}, root: []string{"I don't have an online account"}, suf: []string{""}, isPublic: true, id: 0},
 			{pre: []string{""}, root: []string{"I don't understand you"}, suf: []string{""}, isPublic: true, id: 0},
 			{pre: []string{""}, root: []string{"I got an error message when I attempted to make a payment"}, suf: []string{""}, isPublic: true, id: 0},
@@ -355,9 +355,9 @@ func TestMergeR(t *testing.T) {
 			{pre: []string{""}, root: []string{"i want to know wat the email of Customer Service is"}, suf: []string{""}, isPublic: true, id: 0},
 			{pre: []string{""}, root: []string{"where can i leave an opinion for a service ?"}, suf: []string{""}, isPublic: true, id: 0},
 		}},
-		{name: "", args: args{f: "./data/tests/test7.csv"}, want: []Rule{}},
-		{name: "", args: args{f: "./data/tests/test8.csv"}, want: []Rule{}},
-		{name: "", args: args{f: "./data/tests/test9.csv"}, want: []Rule{
+		{args: args{f: "./data/tests/test7.csv"}, want: []Rule{}},
+		{args: args{f: "./data/tests/test8.csv"}, want: []Rule{}},
+		{args: args{f: "./data/tests/test9.csv"}, want: []Rule{
 			{pre: []string{""}, root: []string{"I don't have an online account"}, suf: []string{""}, isPublic: true, id: 0},
 			{pre: []string{""}, root: []string{"I have a question"}, suf: []string{""}, isPublic: true, id: 0},
 			{pre: []string{""}, root: []string{"I ordered an item and Id like to modify my fucking order"}, suf: []string{""}, isPublic: true, id: 0},
@@ -370,10 +370,10 @@ func TestMergeR(t *testing.T) {
 			{pre: []string{""}, root: []string{"where do i check the delivery options ?"}, suf: []string{""}, isPublic: true, id: 0},
 			{pre: []string{""}, root: []string{"you arent helping"}, suf: []string{""}, isPublic: true, id: 0},
 		}},
-		{name: "", args: args{f: "./data/tests/test10.csv"}, want: []Rule{}},
+		{args: args{f: "./data/tests/test10.csv"}, want: []Rule{}},
 	}
 	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
+		t.Run("", func(t *testing.T) {
 			tk := NewWordTokenizer()
 			file, _ := os.Open(tt.args.f)
 			defer file.Close()
@@ -405,25 +405,25 @@ func TestMergeS(t *testing.T) {
 		f string
 	}
 	tests := []struct {
-		name string
+		
 		args args
 		want []Rule
 	}{
-		{name: "", args: args{f: "./data/tests/test5.csv"}, want: []Rule{
+		{args: args{f: "./data/tests/test5.csv"}, want: []Rule{
 			{pre: []string{""}, root: []string{"I don't have an online account"}, suf: []string{""}, isPublic: true, id: 0},
 		}},
-		{name: "", args: args{f: "./data/tests/test6.csv"}, want: []Rule{
+		{args: args{f: "./data/tests/test6.csv"}, want: []Rule{
 			{pre: []string{""}, root: []string{"I don't have an online account", "I don't understand you", "I got an error message when I attempted to make a payment", "I want an online accoynt", "ask an agent to notify issues with my payment", "can you show me information about the status of my refund ?", "can you show me my invoices ?", "can you tell me how I can get some bills ?", "i dont want my profile", "i want to know wat the email of Customer Service is", "where can i leave an opinion for a service ?"}, suf: []string{""}, isPublic: true, id: 0},
 		}},
-		{name: "", args: args{f: "./data/tests/test7.csv"}, want: []Rule{}},
-		{name: "", args: args{f: "./data/tests/test8.csv"}, want: []Rule{}},
-		{name: "", args: args{f: "./data/tests/test9.csv"}, want: []Rule{
+		{args: args{f: "./data/tests/test7.csv"}, want: []Rule{}},
+		{args: args{f: "./data/tests/test8.csv"}, want: []Rule{}},
+		{args: args{f: "./data/tests/test9.csv"}, want: []Rule{
 			{pre: []string{""}, root: []string{"I don't have an online account", "I have a question", "I ordered an item and Id like to modify my fucking order", "I want to download a bill", "I want to know what the number of Customer Service is", "I want to make a review for a service", "how do I make changes to my shipping address ?", "i get an error message when i ty to make a payment for my order", "i want to request an invoice", "where do i check the delivery options ?", "you arent helping"}, suf: []string{""}, isPublic: true, id: 0},
 		}},
-		{name: "", args: args{f: "./data/tests/test10.csv"}, want: []Rule{}},
+		{args: args{f: "./data/tests/test10.csv"}, want: []Rule{}},
 	}
 	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
+		t.Run("", func(t *testing.T) {
 			tk := NewWordTokenizer()
 			file, _ := os.Open(tt.args.f)
 			defer file.Close()
@@ -455,13 +455,13 @@ func TestMergePR(t *testing.T) {
 		f string
 	}
 	tests := []struct {
-		name string
+		
 		args args
 		want []Rule
 	}{
-		{name: "", args: args{f: "./data/tests/test5.csv"}, want: []Rule{
+		{args: args{f: "./data/tests/test5.csv"}, want: []Rule{
 			{pre: []string{""}, root: []string{"I don't have an online account"}, suf: []string{""}, isPublic: true}}},
-		{name: "", args: args{f: "./data/tests/test6.csv"}, want: []Rule{
+		{args: args{f: "./data/tests/test6.csv"}, want: []Rule{
 			{pre: []string{""}, root: []string{"I don't have an online account"}, suf: []string{""}, isPublic: true},
 			{pre: []string{""}, root: []string{"I don't understand you"}, suf: []string{""}, isPublic: true},
 			{pre: []string{""}, root: []string{"I got an error message when I attempted to make a payment"}, suf: []string{""}, isPublic: true},
@@ -474,9 +474,9 @@ func TestMergePR(t *testing.T) {
 			{pre: []string{""}, root: []string{"i want to know wat the email of Customer Service is"}, suf: []string{""}, isPublic: true},
 			{pre: []string{""}, root: []string{"where can i leave an opinion for a service ?"}, suf: []string{""}, isPublic: true},
 		}},
-		{name: "", args: args{f: "./data/tests/test7.csv"}, want: []Rule{}},
-		{name: "", args: args{f: "./data/tests/test8.csv"}, want: []Rule{}},
-		{name: "", args: args{f: "./data/tests/test9.csv"}, want: []Rule{
+		{args: args{f: "./data/tests/test7.csv"}, want: []Rule{}},
+		{args: args{f: "./data/tests/test8.csv"}, want: []Rule{}},
+		{args: args{f: "./data/tests/test9.csv"}, want: []Rule{
 			{pre: []string{""}, root: []string{"I don't have an online account"}, suf: []string{""}, isPublic: true},
 			{pre: []string{""}, root: []string{"I have a question"}, suf: []string{""}, isPublic: true},
 			{pre: []string{""}, root: []string{"I ordered an item and Id like to modify my fucking order"}, suf: []string{""}, isPublic: true},
@@ -488,10 +488,10 @@ func TestMergePR(t *testing.T) {
 			{pre: []string{""}, root: []string{"i want to request an invoice"}, suf: []string{""}, isPublic: true},
 			{pre: []string{""}, root: []string{"where do i check the delivery options ?"}, suf: []string{""}, isPublic: true},
 			{pre: []string{""}, root: []string{"you arent helping"}, suf: []string{""}, isPublic: true}}},
-		{name: "", args: args{f: "./data/tests/test10.csv"}, want: []Rule{}},
+		{args: args{f: "./data/tests/test10.csv"}, want: []Rule{}},
 	}
 	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
+		t.Run("", func(t *testing.T) {
 			tk := NewWordTokenizer()
 			file, _ := os.Open(tt.args.f)
 			defer file.Close()
@@ -523,23 +523,23 @@ func TestMergePS(t *testing.T) {
 		f string
 	}
 	tests := []struct {
-		name string
+		
 		args args
 		want []Rule
 	}{
-		{name: "", args: args{f: "./data/tests/test5.csv"}, want: []Rule{
+		{args: args{f: "./data/tests/test5.csv"}, want: []Rule{
 			{pre: []string{""}, root: []string{"I don't have an online account"}, suf: []string{""}, isPublic: true}}},
-		{name: "", args: args{f: "./data/tests/test6.csv"}, want: []Rule{
+		{args: args{f: "./data/tests/test6.csv"}, want: []Rule{
 			{pre: []string{""}, root: []string{"I don't have an online account", "I don't understand you", "I got an error message when I attempted to make a payment", "I want an online accoynt", "ask an agent to notify issues with my payment", "can you show me information about the status of my refund ?", "can you show me my invoices ?", "can you tell me how I can get some bills ?", "i dont want my profile", "i want to know wat the email of Customer Service is", "where can i leave an opinion for a service ?"}, suf: []string{""}, isPublic: true},
 		}},
-		{name: "", args: args{f: "./data/tests/test7.csv"}, want: []Rule{}},
-		{name: "", args: args{f: "./data/tests/test8.csv"}, want: []Rule{}},
-		{name: "", args: args{f: "./data/tests/test9.csv"}, want: []Rule{
+		{args: args{f: "./data/tests/test7.csv"}, want: []Rule{}},
+		{args: args{f: "./data/tests/test8.csv"}, want: []Rule{}},
+		{args: args{f: "./data/tests/test9.csv"}, want: []Rule{
 			{pre: []string{""}, root: []string{"I don't have an online account", "I have a question", "I ordered an item and Id like to modify my fucking order", "I want to download a bill", "I want to know what the number of Customer Service is", "I want to make a review for a service", "how do I make changes to my shipping address ?", "i get an error message when i ty to make a payment for my order", "i want to request an invoice", "where do i check the delivery options ?", "you arent helping"}, suf: []string{""}, isPublic: true}}},
-		{name: "", args: args{f: "./data/tests/test10.csv"}, want: []Rule{}},
+		{args: args{f: "./data/tests/test10.csv"}, want: []Rule{}},
 	}
 	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
+		t.Run("", func(t *testing.T) {
 			tk := NewWordTokenizer()
 			file, _ := os.Open(tt.args.f)
 			defer file.Close()
@@ -571,13 +571,13 @@ func TestMergeRS(t *testing.T) {
 		f string
 	}
 	tests := []struct {
-		name string
+		
 		args args
 		want []Rule
 	}{
-		{name: "", args: args{f: "./data/tests/test5.csv"}, want: []Rule{
+		{args: args{f: "./data/tests/test5.csv"}, want: []Rule{
 			{pre: []string{""}, root: []string{"I don't have an online account"}, suf: []string{""}, isPublic: true}}},
-		{name: "", args: args{f: "./data/tests/test6.csv"}, want: []Rule{
+		{args: args{f: "./data/tests/test6.csv"}, want: []Rule{
 			{pre: []string{""}, root: []string{"I don't have an online account"}, suf: []string{""}, isPublic: true},
 			{pre: []string{""}, root: []string{"I don't understand you"}, suf: []string{""}, isPublic: true},
 			{pre: []string{""}, root: []string{"I got an error message when I attempted to make a payment"}, suf: []string{""}, isPublic: true},
@@ -589,9 +589,9 @@ func TestMergeRS(t *testing.T) {
 			{pre: []string{""}, root: []string{"i dont want my profile"}, suf: []string{""}, isPublic: true},
 			{pre: []string{""}, root: []string{"i want to know wat the email of Customer Service is"}, suf: []string{""}, isPublic: true},
 			{pre: []string{""}, root: []string{"where can i leave an opinion for a service ?"}, suf: []string{""}, isPublic: true}}},
-		{name: "", args: args{f: "./data/tests/test7.csv"}, want: []Rule{}},
-		{name: "", args: args{f: "./data/tests/test8.csv"}, want: []Rule{}},
-		{name: "", args: args{f: "./data/tests/test9.csv"}, want: []Rule{
+		{args: args{f: "./data/tests/test7.csv"}, want: []Rule{}},
+		{args: args{f: "./data/tests/test8.csv"}, want: []Rule{}},
+		{args: args{f: "./data/tests/test9.csv"}, want: []Rule{
 			{pre: []string{""}, root: []string{"I don't have an online account"}, suf: []string{""}, isPublic: true},
 			{pre: []string{""}, root: []string{"I have a question"}, suf: []string{""}, isPublic: true},
 			{pre: []string{""}, root: []string{"I ordered an item and Id like to modify my fucking order"}, suf: []string{""}, isPublic: true},
@@ -604,10 +604,10 @@ func TestMergeRS(t *testing.T) {
 			{pre: []string{""}, root: []string{"where do i check the delivery options ?"}, suf: []string{""}, isPublic: true},
 			{pre: []string{""}, root: []string{"you arent helping"}, suf: []string{""}, isPublic: true},
 		}},
-		{name: "", args: args{f: "./data/tests/test10.csv"}, want: []Rule{}},
+		{args: args{f: "./data/tests/test10.csv"}, want: []Rule{}},
 	}
 	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
+		t.Run("", func(t *testing.T) {
 			tk := NewWordTokenizer()
 			file, _ := os.Open(tt.args.f)
 			defer file.Close()
@@ -639,22 +639,22 @@ func TestMergeMisc(t *testing.T) {
 		f string
 	}
 	tests := []struct {
-		name string
+		
 		args args
 		want []Rule
 	}{
-		{name: "", args: args{f: "./data/tests/test5.csv"}, want: []Rule{
+		{args: args{f: "./data/tests/test5.csv"}, want: []Rule{
 			{pre: []string{}, root: []string{"I don't have an online account"}, suf: []string{}, isPublic: true}}},
-		{name: "", args: args{f: "./data/tests/test6.csv"}, want: []Rule{
+		{args: args{f: "./data/tests/test6.csv"}, want: []Rule{
 			{pre: []string{""}, root: []string{"I don't understand you"}, suf: []string{""}, isPublic: true},
 			{pre: []string{""}, root: []string{"I want an online accoynt"}, suf: []string{""}, isPublic: true},
 			{pre: []string{""}, root: []string{"can you show me information about the status of my refund ?"}, suf: []string{""}, isPublic: true},
 			{pre: []string{""}, root: []string{"can you tell me how I can get some bills ?"}, suf: []string{""}, isPublic: true},
 			{pre: []string{""}, root: []string{"i want to know wat the email of Customer Service is"}, suf: []string{""}, isPublic: true},
 			{pre: []string{}, root: []string{"I don't have an online account", "I got an error message when I attempted to make a payment", "ask an agent to notify issues with my payment", "can you show me my invoices ?", "i dont want my profile", "where can i leave an opinion for a service ?"}, suf: []string{}, isPublic: true}}},
-		{name: "", args: args{f: "./data/tests/test7.csv"}, want: []Rule{}},
-		{name: "", args: args{f: "./data/tests/test8.csv"}, want: []Rule{}},
-		{name: "", args: args{f: "./data/tests/test9.csv"}, want: []Rule{
+		{args: args{f: "./data/tests/test7.csv"}, want: []Rule{}},
+		{args: args{f: "./data/tests/test8.csv"}, want: []Rule{}},
+		{args: args{f: "./data/tests/test9.csv"}, want: []Rule{
 			{pre: []string{""}, root: []string{"I have a question"}, suf: []string{""}, isPublic: true},
 			{pre: []string{""}, root: []string{"I want to download a bill"}, suf: []string{""}, isPublic: true},
 			{pre: []string{""}, root: []string{"I want to make a review for a service"}, suf: []string{""}, isPublic: true},
@@ -662,10 +662,10 @@ func TestMergeMisc(t *testing.T) {
 			{pre: []string{""}, root: []string{"where do i check the delivery options ?"}, suf: []string{""}, isPublic: true},
 			{pre: []string{}, root: []string{"I don't have an online account", "I ordered an item and Id like to modify my fucking order", "I want to know what the number of Customer Service is", "how do I make changes to my shipping address ?", "i want to request an invoice", "you arent helping"}, suf: []string{}, isPublic: true},
 		}},
-		{name: "", args: args{f: "./data/tests/test10.csv"}, want: []Rule{}},
+		{args: args{f: "./data/tests/test10.csv"}, want: []Rule{}},
 	}
 	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
+		t.Run("", func(t *testing.T) {
 			tk := NewWordTokenizer()
 			file, _ := os.Open(tt.args.f)
 			defer file.Close()
@@ -698,21 +698,21 @@ func TestFactor(t *testing.T) {
 		ff int
 	}
 	tests := []struct {
-		name string
+		
 		args args
 		want []Rule
 	}{
-		{name: "", args: args{f: "./data/tests/test5.csv", ff: 0}, want: []Rule{
+		{args: args{f: "./data/tests/test5.csv", ff: 0}, want: []Rule{
 			{pre: []string{}, root: []string{"I don't have an online account"}, suf: []string{}, isPublic: false, id: 0},
 			{pre: []string{""}, root: []string{"<I_don't_have_an_onli>"}, suf: []string{""}, isPublic: true, id: 0},
 		}},
-		{name: "", args: args{f: "./data/tests/test5.csv", ff: 1}, want: []Rule{
+		{args: args{f: "./data/tests/test5.csv", ff: 1}, want: []Rule{
 			{pre: []string{""}, root: []string{"I don't have an online account"}, suf: []string{""}, isPublic: true, id: 0},
 		}},
-		{name: "", args: args{f: "./data/tests/test5.csv", ff: 10}, want: []Rule{
+		{args: args{f: "./data/tests/test5.csv", ff: 10}, want: []Rule{
 			{pre: []string{""}, root: []string{"I don't have an online account"}, suf: []string{""}, isPublic: true, id: 0},
 		}},
-		{name: "", args: args{f: "./data/tests/test6.csv", ff: 0}, want: []Rule{
+		{args: args{f: "./data/tests/test6.csv", ff: 0}, want: []Rule{
 			{pre: []string{}, root: []string{"I don't have an online account"}, suf: []string{}, isPublic: false, id: 0},
 			{pre: []string{}, root: []string{"I don't understand you"}, suf: []string{}, isPublic: false, id: 0},
 			{pre: []string{}, root: []string{"I got an error message when I attempted to make a payment"}, suf: []string{}, isPublic: false, id: 0},
@@ -736,7 +736,7 @@ func TestFactor(t *testing.T) {
 			{pre: []string{""}, root: []string{"<i_want_to_know_wat_t>"}, suf: []string{""}, isPublic: true, id: 0},
 			{pre: []string{""}, root: []string{"<where_can_i_leave_an>"}, suf: []string{""}, isPublic: true, id: 0},
 		}},
-		{name: "", args: args{f: "./data/tests/test6.csv", ff: 1}, want: []Rule{
+		{args: args{f: "./data/tests/test6.csv", ff: 1}, want: []Rule{
 			{pre: []string{""}, root: []string{"I don't have an online account"}, suf: []string{""}, isPublic: true, id: 0},
 			{pre: []string{""}, root: []string{"I don't understand you"}, suf: []string{""}, isPublic: true, id: 0},
 			{pre: []string{""}, root: []string{"I got an error message when I attempted to make a payment"}, suf: []string{""}, isPublic: true, id: 0},
@@ -749,7 +749,7 @@ func TestFactor(t *testing.T) {
 			{pre: []string{""}, root: []string{"i want to know wat the email of Customer Service is"}, suf: []string{""}, isPublic: true, id: 0},
 			{pre: []string{""}, root: []string{"where can i leave an opinion for a service?"}, suf: []string{""}, isPublic: true, id: 0},
 		}},
-		{name: "", args: args{f: "./data/tests/test6.csv", ff: 10}, want: []Rule{
+		{args: args{f: "./data/tests/test6.csv", ff: 10}, want: []Rule{
 			{pre: []string{""}, root: []string{"I don't have an online account"}, suf: []string{""}, isPublic: true, id: 0},
 			{pre: []string{""}, root: []string{"I don't understand you"}, suf: []string{""}, isPublic: true, id: 0},
 			{pre: []string{""}, root: []string{"I got an error message when I attempted to make a payment"}, suf: []string{""}, isPublic: true, id: 0},
@@ -762,9 +762,9 @@ func TestFactor(t *testing.T) {
 			{pre: []string{""}, root: []string{"i want to know wat the email of Customer Service is"}, suf: []string{""}, isPublic: true, id: 0},
 			{pre: []string{""}, root: []string{"where can i leave an opinion for a service?"}, suf: []string{""}, isPublic: true, id: 0},
 		}},
-		{name: "", args: args{f: "./data/tests/test7.csv", ff: 0}, want: []Rule{}},
-		{name: "", args: args{f: "./data/tests/test8.csv", ff: 0}, want: []Rule{}},
-		{name: "", args: args{f: "./data/tests/test9.csv", ff: 0}, want: []Rule{
+		{args: args{f: "./data/tests/test7.csv", ff: 0}, want: []Rule{}},
+		{args: args{f: "./data/tests/test8.csv", ff: 0}, want: []Rule{}},
+		{args: args{f: "./data/tests/test9.csv", ff: 0}, want: []Rule{
 			{pre: []string{}, root: []string{"I don't have an online account"}, suf: []string{}, isPublic: false, id: 0},
 			{pre: []string{}, root: []string{"I have a question"}, suf: []string{}, isPublic: false, id: 0},
 			{pre: []string{}, root: []string{"I ordered an item and Id like to modify my fucking order"}, suf: []string{}, isPublic: false, id: 0},
@@ -788,7 +788,7 @@ func TestFactor(t *testing.T) {
 			{pre: []string{""}, root: []string{"<where_do_i_check_the>"}, suf: []string{""}, isPublic: true, id: 0},
 			{pre: []string{""}, root: []string{"<you_arent_helping>"}, suf: []string{""}, isPublic: true, id: 0},
 		}},
-		{name: "", args: args{f: "./data/tests/test9.csv", ff: 1}, want: []Rule{
+		{args: args{f: "./data/tests/test9.csv", ff: 1}, want: []Rule{
 			{pre: []string{""}, root: []string{"I don't have an online account"}, suf: []string{""}, isPublic: true, id: 0},
 			{pre: []string{""}, root: []string{"I have a question"}, suf: []string{""}, isPublic: true, id: 0},
 			{pre: []string{""}, root: []string{"I ordered an item and Id like to modify my fucking order"}, suf: []string{""}, isPublic: true, id: 0},
@@ -801,7 +801,7 @@ func TestFactor(t *testing.T) {
 			{pre: []string{""}, root: []string{"where do i check the delivery options?"}, suf: []string{""}, isPublic: true, id: 0},
 			{pre: []string{""}, root: []string{"you arent helping"}, suf: []string{""}, isPublic: true, id: 0},
 		}},
-		{name: "", args: args{f: "./data/tests/test9.csv", ff: 10}, want: []Rule{
+		{args: args{f: "./data/tests/test9.csv", ff: 10}, want: []Rule{
 			{pre: []string{""}, root: []string{"I don't have an online account"}, suf: []string{""}, isPublic: true, id: 0},
 			{pre: []string{""}, root: []string{"I have a question"}, suf: []string{""}, isPublic: true, id: 0},
 			{pre: []string{""}, root: []string{"I ordered an item and Id like to modify my fucking order"}, suf: []string{""}, isPublic: true, id: 0},
@@ -814,10 +814,10 @@ func TestFactor(t *testing.T) {
 			{pre: []string{""}, root: []string{"where do i check the delivery options?"}, suf: []string{""}, isPublic: true, id: 0},
 			{pre: []string{""}, root: []string{"you arent helping"}, suf: []string{""}, isPublic: true, id: 0},
 		}},
-		{name: "", args: args{f: "./data/tests/test10.csv", ff: 0}, want: []Rule{}},
+		{args: args{f: "./data/tests/test10.csv", ff: 0}, want: []Rule{}},
 	}
 	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
+		t.Run("", func(t *testing.T) {
 			tk := NewWordTokenizer()
 			file, _ := os.Open(tt.args.f)
 			defer file.Close()

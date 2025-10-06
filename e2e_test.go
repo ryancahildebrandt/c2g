@@ -28,22 +28,22 @@ func TestGrammarE2E(t *testing.T) {
 		f string
 	}
 	tests := []struct {
-		name string
+		
 		args args
 	}{
-		{name: "", args: args{f: "./data/tests/test1.csv"}},
-		{name: "", args: args{f: "./data/tests/test2.csv"}},
-		{name: "", args: args{f: "./data/tests/test3.csv"}},
-		{name: "", args: args{f: "./data/tests/test4.csv"}},
-		{name: "", args: args{f: "./data/tests/test5.csv"}},
-		{name: "", args: args{f: "./data/tests/test6.csv"}},
-		{name: "", args: args{f: "./data/tests/test7.csv"}},
-		{name: "", args: args{f: "./data/tests/test8.csv"}},
-		{name: "", args: args{f: "./data/tests/test9.csv"}},
-		{name: "", args: args{f: "./data/tests/test10.csv"}},
+		{args: args{f: "./data/tests/test1.csv"}},
+		{args: args{f: "./data/tests/test2.csv"}},
+		{args: args{f: "./data/tests/test3.csv"}},
+		{args: args{f: "./data/tests/test4.csv"}},
+		{args: args{f: "./data/tests/test5.csv"}},
+		{args: args{f: "./data/tests/test6.csv"}},
+		{args: args{f: "./data/tests/test7.csv"}},
+		{args: args{f: "./data/tests/test8.csv"}},
+		{args: args{f: "./data/tests/test9.csv"}},
+		{args: args{f: "./data/tests/test10.csv"}},
 	}
 	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
+		t.Run("", func(t *testing.T) {
 			tk := NewWordTokenizer()
 			file, _ := os.Open(tt.args.f)
 			defer file.Close()
@@ -122,22 +122,22 @@ func TestGrammarMainE2E(t *testing.T) {
 		f string
 	}
 	tests := []struct {
-		name string
+		
 		args args
 	}{
-		{name: "", args: args{f: "./data/tests/test1.csv"}},
-		{name: "", args: args{f: "./data/tests/test2.csv"}},
-		{name: "", args: args{f: "./data/tests/test3.csv"}},
-		{name: "", args: args{f: "./data/tests/test4.csv"}},
-		{name: "", args: args{f: "./data/tests/test5.csv"}},
-		{name: "", args: args{f: "./data/tests/test6.csv"}},
-		{name: "", args: args{f: "./data/tests/test7.csv"}},
-		{name: "", args: args{f: "./data/tests/test8.csv"}},
-		{name: "", args: args{f: "./data/tests/test9.csv"}},
-		{name: "", args: args{f: "./data/tests/test10.csv"}},
+		{args: args{f: "./data/tests/test1.csv"}},
+		{args: args{f: "./data/tests/test2.csv"}},
+		{args: args{f: "./data/tests/test3.csv"}},
+		{args: args{f: "./data/tests/test4.csv"}},
+		{args: args{f: "./data/tests/test5.csv"}},
+		{args: args{f: "./data/tests/test6.csv"}},
+		{args: args{f: "./data/tests/test7.csv"}},
+		{args: args{f: "./data/tests/test8.csv"}},
+		{args: args{f: "./data/tests/test9.csv"}},
+		{args: args{f: "./data/tests/test10.csv"}},
 	}
 	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
+		t.Run("", func(t *testing.T) {
 			tk := NewWordTokenizer()
 			file, _ := os.Open(tt.args.f)
 			defer file.Close()

@@ -24,22 +24,22 @@ func TestRule_print(t *testing.T) {
 		n string
 	}
 	tests := []struct {
-		name   string
+		
 		fields fields
 		args   args
 		want   string
 	}{
-		{name: "", fields: fields{pre: []string{}, root: []string{}, suf: []string{}, isPublic: false}, args: args{n: ""}, want: ""},
-		{name: "", fields: fields{pre: []string{}, root: []string{}, suf: []string{}, isPublic: true}, args: args{n: ""}, want: ""},
-		{name: "", fields: fields{pre: []string{""}, root: []string{""}, suf: []string{""}, isPublic: true}, args: args{n: ""}, want: ""},
-		{name: "", fields: fields{pre: []string{"", "", "", ""}, root: []string{"", "", "", ""}, suf: []string{"", "", "", ""}, isPublic: true}, args: args{n: ""}, want: "public <> = [||] [||] [||];"},
-		{name: "", fields: fields{pre: []string{"a", "b", "c", ""}, root: []string{"a", "b", "c", "d"}, suf: []string{}, isPublic: false}, args: args{n: "1"}, want: "<1> = [a|b|c] (a|b|c|d);"},
-		{name: "", fields: fields{pre: []string{}, root: []string{"a", "b", "c", ""}, suf: []string{"a", "b", "c", "d"}, isPublic: true}, args: args{n: "2"}, want: "public <2> = [a|b|c] (a|b|c|d);"},
-		{name: "", fields: fields{pre: []string{"a", "b", "c", "d"}, root: []string{}, suf: []string{"a", "b", "c", ""}, isPublic: false}, args: args{n: " "}, want: "< > = (a|b|c|d) [a|b|c];"},
-		{name: "", fields: fields{pre: []string{}, root: []string{"a", "b", "c", "d"}, suf: []string{}, isPublic: true}, args: args{n: "  "}, want: "public <  > = (a|b|c|d);"},
+		{fields: fields{pre: []string{}, root: []string{}, suf: []string{}, isPublic: false}, args: args{n: ""}, want: ""},
+		{fields: fields{pre: []string{}, root: []string{}, suf: []string{}, isPublic: true}, args: args{n: ""}, want: ""},
+		{fields: fields{pre: []string{""}, root: []string{""}, suf: []string{""}, isPublic: true}, args: args{n: ""}, want: ""},
+		{fields: fields{pre: []string{"", "", "", ""}, root: []string{"", "", "", ""}, suf: []string{"", "", "", ""}, isPublic: true}, args: args{n: ""}, want: "public <> = [||] [||] [||];"},
+		{fields: fields{pre: []string{"a", "b", "c", ""}, root: []string{"a", "b", "c", "d"}, suf: []string{}, isPublic: false}, args: args{n: "1"}, want: "<1> = [a|b|c] (a|b|c|d);"},
+		{fields: fields{pre: []string{}, root: []string{"a", "b", "c", ""}, suf: []string{"a", "b", "c", "d"}, isPublic: true}, args: args{n: "2"}, want: "public <2> = [a|b|c] (a|b|c|d);"},
+		{fields: fields{pre: []string{"a", "b", "c", "d"}, root: []string{}, suf: []string{"a", "b", "c", ""}, isPublic: false}, args: args{n: " "}, want: "< > = (a|b|c|d) [a|b|c];"},
+		{fields: fields{pre: []string{}, root: []string{"a", "b", "c", "d"}, suf: []string{}, isPublic: true}, args: args{n: "  "}, want: "public <  > = (a|b|c|d);"},
 	}
 	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
+		t.Run("", func(t *testing.T) {
 			r := &Rule{
 				root:     tt.fields.root,
 				pre:      tt.fields.pre,
@@ -58,49 +58,49 @@ func TestRule_isEmpty(t *testing.T) {
 		suf  []string
 	}
 	tests := []struct {
-		name   string
+		
 		fields fields
 		want   bool
 	}{
-		{name: "", fields: fields{
+		{fields: fields{
 			pre: []string{}, root: []string{}, suf: []string{},
 		}, want: true},
-		{name: "", fields: fields{
+		{fields: fields{
 			pre: []string{""}, root: []string{}, suf: []string{},
 		}, want: true},
-		{name: "", fields: fields{
+		{fields: fields{
 			pre: []string{}, root: []string{""}, suf: []string{},
 		}, want: true},
-		{name: "", fields: fields{
+		{fields: fields{
 			pre: []string{}, root: []string{}, suf: []string{""},
 		}, want: true},
-		{name: "", fields: fields{
+		{fields: fields{
 			pre: []string{""}, root: []string{""}, suf: []string{""},
 		}, want: true},
-		{name: "", fields: fields{
+		{fields: fields{
 			pre: []string{"a"}, root: []string{"1", "2"}, suf: []string{"c"},
 		}, want: false},
-		{name: "", fields: fields{
+		{fields: fields{
 			pre: []string{"1", "2"}, root: []string{"a"}, suf: []string{"c"},
 		}, want: false},
-		{name: "", fields: fields{
+		{fields: fields{
 			pre: []string{"c"}, root: []string{"a"}, suf: []string{"1", "2"},
 		}, want: false},
-		{name: "", fields: fields{
+		{fields: fields{
 			pre: []string{"1", "2"}, root: []string{"1", "2"}, suf: []string{"a"},
 		}, want: false},
-		{name: "", fields: fields{
+		{fields: fields{
 			pre: []string{"a"}, root: []string{"1", "2"}, suf: []string{"1", "2"},
 		}, want: false},
-		{name: "", fields: fields{
+		{fields: fields{
 			pre: []string{"1", "2"}, root: []string{"a"}, suf: []string{"1", "2"},
 		}, want: false},
-		{name: "", fields: fields{
+		{fields: fields{
 			pre: []string{"1", "2"}, root: []string{"1", "2"}, suf: []string{"1", "2"},
 		}, want: false},
 	}
 	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
+		t.Run("", func(t *testing.T) {
 			r := &Rule{
 				pre:  tt.fields.pre,
 				root: tt.fields.root,
@@ -116,21 +116,21 @@ func TestRule_name(t *testing.T) {
 		r Rule
 	}
 	tests := []struct {
-		name string
+		
 		args args
 		want string
 	}{
-		{name: "", args: args{r: Rule{pre: []string{}, root: []string{}, suf: []string{}}}, want: ""},
-		{name: "", args: args{r: Rule{pre: []string{}, root: []string{}, suf: []string{}}}, want: ""},
-		{name: "", args: args{r: Rule{pre: []string{""}, root: []string{""}, suf: []string{""}}}, want: ""},
-		{name: "", args: args{r: Rule{pre: []string{"", "", "", ""}, root: []string{"", "", "", ""}, suf: []string{"", "", "", ""}}}, want: "___"},
-		{name: "", args: args{r: Rule{pre: []string{"a", "b", "c", ""}, root: []string{"a", "b", "c", "d"}, suf: []string{}}}, want: "a_b_c_d"},
-		{name: "", args: args{r: Rule{pre: []string{}, root: []string{"a", "b", "c", ""}, suf: []string{"a", "b", "c", "d"}}}, want: "a_b_c_"},
-		{name: "", args: args{r: Rule{pre: []string{"a", "b", "c", "d"}, root: []string{}, suf: []string{"a", "b", "c", ""}}}, want: ""},
-		{name: "", args: args{r: Rule{pre: []string{}, root: []string{"a", "b", "c", "d"}, suf: []string{}}}, want: "a_b_c_d"},
+		{args: args{r: Rule{pre: []string{}, root: []string{}, suf: []string{}}}, want: ""},
+		{args: args{r: Rule{pre: []string{}, root: []string{}, suf: []string{}}}, want: ""},
+		{args: args{r: Rule{pre: []string{""}, root: []string{""}, suf: []string{""}}}, want: ""},
+		{args: args{r: Rule{pre: []string{"", "", "", ""}, root: []string{"", "", "", ""}, suf: []string{"", "", "", ""}}}, want: "___"},
+		{args: args{r: Rule{pre: []string{"a", "b", "c", ""}, root: []string{"a", "b", "c", "d"}, suf: []string{}}}, want: "a_b_c_d"},
+		{args: args{r: Rule{pre: []string{}, root: []string{"a", "b", "c", ""}, suf: []string{"a", "b", "c", "d"}}}, want: "a_b_c_"},
+		{args: args{r: Rule{pre: []string{"a", "b", "c", "d"}, root: []string{}, suf: []string{"a", "b", "c", ""}}}, want: ""},
+		{args: args{r: Rule{pre: []string{}, root: []string{"a", "b", "c", "d"}, suf: []string{}}}, want: "a_b_c_d"},
 	}
 	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
+		t.Run("", func(t *testing.T) {
 			assert.Equal(t, tt.want, tt.args.r.name())
 		})
 	}
@@ -141,14 +141,14 @@ func TestSetIDs(t *testing.T) {
 		f string
 	}
 	tests := []struct {
-		name string
+		
 		args args
 		want []Rule
 	}{
-		{name: "", args: args{f: "./data/tests/test5.csv"}, want: []Rule{
+		{args: args{f: "./data/tests/test5.csv"}, want: []Rule{
 			{pre: []string{""}, root: []string{"I don't have an online account"}, suf: []string{""}, isPublic: true, id: 0},
 		}},
-		{name: "", args: args{f: "./data/tests/test6.csv"}, want: []Rule{
+		{args: args{f: "./data/tests/test6.csv"}, want: []Rule{
 			{pre: []string{""}, root: []string{"I don't have an online account"}, suf: []string{""}, isPublic: true, id: 0},
 			{pre: []string{""}, root: []string{"I don't understand you"}, suf: []string{""}, isPublic: true, id: 1},
 			{pre: []string{""}, root: []string{"I got an error message when I attempted to make a payment"}, suf: []string{""}, isPublic: true, id: 2},
@@ -161,9 +161,9 @@ func TestSetIDs(t *testing.T) {
 			{pre: []string{""}, root: []string{"i want to know wat the email of Customer Service is"}, suf: []string{""}, isPublic: true, id: 9},
 			{pre: []string{""}, root: []string{"where can i leave an opinion for a service ?"}, suf: []string{""}, isPublic: true, id: 10},
 		}},
-		{name: "", args: args{f: "./data/tests/test7.csv"}, want: []Rule{}},
-		{name: "", args: args{f: "./data/tests/test8.csv"}, want: []Rule{}},
-		{name: "", args: args{f: "./data/tests/test9.csv"}, want: []Rule{
+		{args: args{f: "./data/tests/test7.csv"}, want: []Rule{}},
+		{args: args{f: "./data/tests/test8.csv"}, want: []Rule{}},
+		{args: args{f: "./data/tests/test9.csv"}, want: []Rule{
 			{pre: []string{""}, root: []string{"I don't have an online account"}, suf: []string{""}, isPublic: true, id: 0},
 			{pre: []string{""}, root: []string{"I have a question"}, suf: []string{""}, isPublic: true, id: 1},
 			{pre: []string{""}, root: []string{"I ordered an item and Id like to modify my fucking order"}, suf: []string{""}, isPublic: true, id: 2},
@@ -176,10 +176,10 @@ func TestSetIDs(t *testing.T) {
 			{pre: []string{""}, root: []string{"where do i check the delivery options ?"}, suf: []string{""}, isPublic: true, id: 9},
 			{pre: []string{""}, root: []string{"you arent helping"}, suf: []string{""}, isPublic: true, id: 10},
 		}},
-		{name: "", args: args{f: "./data/tests/test10.csv"}, want: []Rule{}},
+		{args: args{f: "./data/tests/test10.csv"}, want: []Rule{}},
 	}
 	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
+		t.Run("", func(t *testing.T) {
 			tk := NewWordTokenizer()
 			file, _ := os.Open(tt.args.f)
 			defer file.Close()
