@@ -16,7 +16,7 @@ import (
 )
 
 func TestCollectTransitions(t *testing.T) {
-	var tok *tokenizer.Tokenizer = NewUnigramTokenizer()
+	var tok *tokenizer.Tokenizer = NewWordTokenizer()
 
 	type args struct {
 		c []Text
@@ -124,17 +124,17 @@ func TestCollectChunks(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			tk := NewUnigramTokenizer()
+			tk := NewWordTokenizer()
 			file, _ := os.Open(tt.args.f)
 			defer file.Close()
 			s := bufio.NewScanner(file)
 			tx := ReadTexts(s)
 			for i, t := range tx {
-				tx[i].text = UnigramNormalize(t.text, tk)
+				tx[i].text = WordNormalize(t.text, tk)
 			}
 			tr := CollectTransitions(tx, tk)
 			for i, t := range tx {
-				tx[i].chunk = TransitionChunk(UnigramTokenize(t.text, tk), tr, 0.1)
+				tx[i].chunk = TransitionChunk(WordTokenize(t.text, tk), tr, 0.1)
 			}
 			ng := CollectChunks(tx)
 			slices.Sort(ng)

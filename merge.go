@@ -7,9 +7,83 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"slices"
 	"strings"
+
+	"github.com/bzick/tokenizer"
 )
+
+type EqualityFunction func(g1, g2 []string) bool
+
+func LiteralEqual(l *log.Logger) EqualityFunction {
+	return func(g1, g2 []string) bool {
+		if slices.Equal(g1, g2) {
+			l.Printf("%v and %v merged with equality function %s\n", g1, g2, "LiteralEqual")
+			return true
+		}
+		return false
+	}
+}
+
+func DummyEqual(l *log.Logger) EqualityFunction {
+	return func(g1, g2 []string) bool {
+		return true
+	}
+}
+
+func CharacterLevenshteinThreshold(t float64, l *log.Logger) EqualityFunction {
+	return func(g1, g2 []string) bool {
+		s1 := strings.Join(g1, " ")
+		s2 := strings.Join(g2, " ")
+		sim := CharacterLevenshtein(s1, s2)
+		if sim >= t {
+			l.Printf("%v and %v merged with equality function %s, threshold %v, similarity %v\n", g1, g2, "CharacterLevenshteinThreshold", t, sim)
+			return true
+		}
+		return false
+	}
+}
+
+func TokenLevenshteinThreshold(t float64, l *log.Logger) EqualityFunction {
+	return func(g1, g2 []string) bool {
+		g1 = strings.Split(strings.Join(g1, " "), " ")
+		g2 = strings.Split(strings.Join(g2, " "), " ")
+		sim := TokenLevenshtein(g1, g2)
+		if sim >= t {
+			l.Printf("%v and %v merged with equality function %s, threshold %v, similarity %v\n", g1, g2, "TokenLevenshteinThreshold", t, sim)
+			return true
+		}
+		return false
+	}
+}
+
+func TFIDFCosineThreshold(t float64, v []string, tk *tokenizer.Tokenizer, idf map[string]float64, l *log.Logger) EqualityFunction {
+	return func(g1, g2 []string) bool {
+		v1, err := CountEmbed(strings.Join(g1, " "), v, tk)
+		if err != nil {
+			fmt.Println(err)
+			return false
+		}
+		v2, err := CountEmbed(strings.Join(g2, " "), v, tk)
+		if err != nil {
+			fmt.Println(err)
+			return false
+		}
+		v1 = TFIDFTransform(v1, v, idf)
+		v2 = TFIDFTransform(v2, v, idf)
+		sim, err := CosineSimilarity(v1, v2)
+		if err != nil {
+			fmt.Println(err)
+			return false
+		}
+		if sim >= t {
+			l.Printf("%v and %v merged with equality function %s, threshold %v, similarity %v\n", g1, g2, "TFIDFCosineThreshold", t, sim)
+			return true
+		}
+		return false
+	}
+}
 
 func SortPR(r []Rule) {
 	slices.SortStableFunc(r, func(r1 Rule, r2 Rule) int {
@@ -51,34 +125,23 @@ func SortPRS(r []Rule) {
 	})
 }
 
-func MergeP(r []Rule) []Rule {
-	check := func(r1 Rule, r2 Rule) bool { return slices.Equal(r1.pre, r2.pre) }
+func MergeP(r []Rule, e EqualityFunction) []Rule {
+	check := func(r1 Rule, r2 Rule) bool { return e(r1.pre, r2.pre) }
 	merge := func(r1 Rule, r2 Rule) Rule {
 		var r Rule
 
 		r.pre = r1.pre
 		r.isPublic = true
 
-		for _, i := range r1.root {
-			if !slices.Contains(r.root, i) {
-				r.root = append(r.root, i)
-			}
-		}
-		for _, i := range r2.root {
-			if !slices.Contains(r.root, i) {
-				r.root = append(r.root, i)
-			}
-		}
-		for _, i := range r1.suf {
-			if !slices.Contains(r.suf, i) {
-				r.suf = append(r.suf, i)
-			}
-		}
-		for _, i := range r2.suf {
-			if !slices.Contains(r.suf, i) {
-				r.suf = append(r.suf, i)
-			}
-		}
+		r.root = append(r.root, r1.root...)
+		r.root = append(r.root, r2.root...)
+		slices.Sort(r.root)
+		r.root = slices.Compact(r.root)
+
+		r.suf = append(r.suf, r1.suf...)
+		r.suf = append(r.suf, r2.suf...)
+		slices.Sort(r.suf)
+		r.suf = slices.Compact(r.suf)
 
 		return r
 	}
@@ -98,34 +161,23 @@ func MergeP(r []Rule) []Rule {
 	return r
 }
 
-func MergeR(r []Rule) []Rule {
-	check := func(r1 Rule, r2 Rule) bool { return slices.Equal(r1.root, r2.root) }
+func MergeR(r []Rule, e EqualityFunction) []Rule {
+	check := func(r1 Rule, r2 Rule) bool { return e(r1.root, r2.root) }
 	merge := func(r1 Rule, r2 Rule) Rule {
 		var r Rule
 
 		r.root = r1.root
 		r.isPublic = true
 
-		for _, i := range r1.pre {
-			if !slices.Contains(r.pre, i) {
-				r.pre = append(r.pre, i)
-			}
-		}
-		for _, i := range r2.pre {
-			if !slices.Contains(r.pre, i) {
-				r.pre = append(r.pre, i)
-			}
-		}
-		for _, i := range r1.suf {
-			if !slices.Contains(r.suf, i) {
-				r.suf = append(r.suf, i)
-			}
-		}
-		for _, i := range r2.suf {
-			if !slices.Contains(r.suf, i) {
-				r.suf = append(r.suf, i)
-			}
-		}
+		r.pre = append(r.pre, r1.pre...)
+		r.pre = append(r.pre, r2.pre...)
+		slices.Sort(r.pre)
+		r.pre = slices.Compact(r.pre)
+
+		r.suf = append(r.suf, r1.suf...)
+		r.suf = append(r.suf, r2.suf...)
+		slices.Sort(r.suf)
+		r.suf = slices.Compact(r.suf)
 
 		return r
 	}
@@ -145,34 +197,23 @@ func MergeR(r []Rule) []Rule {
 	return r
 }
 
-func MergeS(r []Rule) []Rule {
-	check := func(r1 Rule, r2 Rule) bool { return slices.Equal(r1.suf, r2.suf) }
+func MergeS(r []Rule, e EqualityFunction) []Rule {
+	check := func(r1 Rule, r2 Rule) bool { return e(r1.suf, r2.suf) }
 	merge := func(r1 Rule, r2 Rule) Rule {
 		var r Rule
 
 		r.suf = r1.suf
 		r.isPublic = true
 
-		for _, i := range r1.pre {
-			if !slices.Contains(r.pre, i) {
-				r.pre = append(r.pre, i)
-			}
-		}
-		for _, i := range r2.pre {
-			if !slices.Contains(r.pre, i) {
-				r.pre = append(r.pre, i)
-			}
-		}
-		for _, i := range r1.root {
-			if !slices.Contains(r.root, i) {
-				r.root = append(r.root, i)
-			}
-		}
-		for _, i := range r2.root {
-			if !slices.Contains(r.root, i) {
-				r.root = append(r.root, i)
-			}
-		}
+		r.pre = append(r.pre, r1.pre...)
+		r.pre = append(r.pre, r2.pre...)
+		slices.Sort(r.pre)
+		r.pre = slices.Compact(r.pre)
+
+		r.root = append(r.root, r1.root...)
+		r.root = append(r.root, r2.root...)
+		slices.Sort(r.root)
+		r.root = slices.Compact(r.root)
 
 		return r
 	}
@@ -192,28 +233,21 @@ func MergeS(r []Rule) []Rule {
 	return r
 }
 
-func MergePR(r []Rule) []Rule {
+func MergePR(r []Rule, e EqualityFunction) []Rule {
 	check := func(r1 Rule, r2 Rule) bool {
-		return slices.Equal(r1.pre, r2.pre) && slices.Equal(r1.root, r2.root)
+		return e(r1.pre, r2.pre) && e(r1.root, r2.root)
 	}
 	merge := func(r1 Rule, r2 Rule) Rule {
 		var r Rule
 
 		r.pre = r1.pre
 		r.root = r1.root
-		r.suf = []string{}
 		r.isPublic = true
 
-		for _, i := range r1.suf {
-			if !slices.Contains(r.suf, i) {
-				r.suf = append(r.suf, i)
-			}
-		}
-		for _, i := range r2.suf {
-			if !slices.Contains(r.suf, i) {
-				r.suf = append(r.suf, i)
-			}
-		}
+		r.suf = append(r.suf, r1.suf...)
+		r.suf = append(r.suf, r2.suf...)
+		slices.Sort(r.suf)
+		r.suf = slices.Compact(r.suf)
 
 		return r
 	}
@@ -233,28 +267,21 @@ func MergePR(r []Rule) []Rule {
 	return r
 }
 
-func MergePS(r []Rule) []Rule {
+func MergePS(r []Rule, e EqualityFunction) []Rule {
 	check := func(r1 Rule, r2 Rule) bool {
-		return slices.Equal(r1.pre, r2.pre) && slices.Equal(r1.suf, r2.suf)
+		return e(r1.pre, r2.pre) && e(r1.suf, r2.suf)
 	}
 	merge := func(r1 Rule, r2 Rule) Rule {
 		var r Rule
 
 		r.pre = r1.pre
-		r.root = []string{}
 		r.suf = r1.suf
 		r.isPublic = true
 
-		for _, i := range r1.root {
-			if !slices.Contains(r.root, i) {
-				r.root = append(r.root, i)
-			}
-		}
-		for _, i := range r2.root {
-			if !slices.Contains(r.root, i) {
-				r.root = append(r.root, i)
-			}
-		}
+		r.root = append(r.root, r1.root...)
+		r.root = append(r.root, r2.root...)
+		slices.Sort(r.root)
+		r.root = slices.Compact(r.root)
 
 		return r
 	}
@@ -274,28 +301,21 @@ func MergePS(r []Rule) []Rule {
 	return r
 }
 
-func MergeRS(r []Rule) []Rule {
+func MergeRS(r []Rule, e EqualityFunction) []Rule {
 	check := func(r1 Rule, r2 Rule) bool {
-		return slices.Equal(r1.root, r2.root) && slices.Equal(r1.suf, r2.suf)
+		return e(r1.root, r2.root) && e(r1.suf, r2.suf)
 	}
 	merge := func(r1 Rule, r2 Rule) Rule {
 		var r Rule
 
-		r.pre = []string{}
 		r.root = r1.root
 		r.suf = r1.suf
 		r.isPublic = true
 
-		for _, i := range r1.pre {
-			if !slices.Contains(r.pre, i) {
-				r.pre = append(r.pre, i)
-			}
-		}
-		for _, i := range r2.pre {
-			if !slices.Contains(r.pre, i) {
-				r.pre = append(r.pre, i)
-			}
-		}
+		r.pre = append(r.pre, r1.pre...)
+		r.pre = append(r.pre, r2.pre...)
+		slices.Sort(r.pre)
+		r.pre = slices.Compact(r.pre)
 
 		return r
 	}
@@ -315,7 +335,7 @@ func MergeRS(r []Rule) []Rule {
 	return r
 }
 
-func MergePRS(r []Rule) []Rule {
+func MergeMisc(r []Rule, e EqualityFunction) []Rule {
 	check := func(r Rule) bool {
 		return len(r.pre) <= 1 && len(r.root) <= 1 && len(r.suf) <= 1
 	}

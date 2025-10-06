@@ -124,7 +124,7 @@ func CollectTransitions(t []Text, tk *tokenizer.Tokenizer) Transitions {
 	)
 
 	for _, ss := range t {
-		bb = toBigrams(UnigramTokenize(ss.text, tk))
+		bb = toBigrams(WordTokenize(ss.text, tk))
 		if len(bb) != 0 {
 			b = append(b, bb...)
 		}

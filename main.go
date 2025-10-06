@@ -6,6 +6,7 @@
 package main
 
 import (
+	"bufio"
 	"context"
 	"fmt"
 	"log"
@@ -16,7 +17,6 @@ import (
 )
 
 func main() {
-	log.SetFlags(log.LstdFlags | log.Lshortfile)
 	app := &cli.Command{
 		Name:                  "c2g",
 		Usage:                 "Convert natural language expressions to a context free grammar",
@@ -24,161 +24,161 @@ func main() {
 		EnableShellCompletion: true,
 		Suggest:               true,
 		Commands: []*cli.Command{
-			{
-				Name:                  "clone",
-				Usage:                 "Create a grammar such that each expression is contained in one rule, with no rule merging or factoring applied. This mode will not produce outputs not found in the source corpus.",
-				UsageText:             "c2g clone [OPTIONS] example.txt",
-				EnableShellCompletion: true,
-				Suggest:               true,
-				Before:                prepareContext,
-				Flags: []cli.Flag{
-					&inFile,
-					&outFile,
-					&printMain},
-				Action: func(ctx context.Context, cmd *cli.Command) error {
-					var (
-						start = time.Now()
-						rules []Rule
-						g     Grammar
-						err   error
-					)
+			// {
+			// 	Name:                  "clone",
+			// 	Usage:                 "Create a grammar such that each expression is contained in one rule, with no rule merging or factoring applied. This mode will not produce outputs not found in the source corpus.",
+			// 	UsageText:             "c2g clone [OPTIONS] example.txt",
+			// 	EnableShellCompletion: true,
+			// 	Suggest:               true,
+			// 	Before:                prepareContext,
+			// 	Flags: []cli.Flag{
+			// 		&inFile,
+			// 		&outFile,
+			// 		&printMain},
+			// 	Action: func(ctx context.Context, cmd *cli.Command) error {
+			// 		var (
+			// 			start = time.Now()
+			// 			rules []Rule
+			// 			g     Grammar
+			// 			err   error
+			// 		)
 
-					rules, err = buildRules(cmd)
-					if err != nil {
-						return err
-					}
+			// 		rules, err = buildRules(cmd)
+			// 		if err != nil {
+			// 			return err
+			// 		}
 
-					rules = SetIDs(rules)
-					g = Grammar{Rules: rules}
-					g.write(cmd)
+			// 		rules = SetIDs(rules)
+			// 		g = Grammar{Rules: rules}
+			// 		g.write(cmd)
 
-					fmt.Println(time.Since(start))
-					return nil
-				},
-			},
-			{
-				Name:                  "compress",
-				Usage:                 "Create a grammar with rule merging and factoring applied to rules sharing 2 or more chunks. This mode will not produce outputs not found in the source corpus.",
-				UsageText:             "c2g compress [OPTIONS] example.txt",
-				EnableShellCompletion: true,
-				Suggest:               true,
-				Before:                prepareContext,
-				Flags: []cli.Flag{
-					&inFile,
-					&outFile,
-					&prob,
-					&factor,
-					&printMain},
-				Action: func(ctx context.Context, cmd *cli.Command) error {
-					var (
-						start = time.Now()
-						rules []Rule
-						g     Grammar
-						err   error
-					)
+			// 		fmt.Println(time.Since(start))
+			// 		return nil
+			// 	},
+			// },
+			// {
+			// 	Name:                  "compress",
+			// 	Usage:                 "Create a grammar with rule merging and factoring applied to rules sharing 2 or more chunks. This mode will not produce outputs not found in the source corpus.",
+			// 	UsageText:             "c2g compress [OPTIONS] example.txt",
+			// 	EnableShellCompletion: true,
+			// 	Suggest:               true,
+			// 	Before:                prepareContext,
+			// 	Flags: []cli.Flag{
+			// 		&inFile,
+			// 		&outFile,
+			// 		&prob,
+			// 		&factor,
+			// 		&printMain},
+			// 	Action: func(ctx context.Context, cmd *cli.Command) error {
+			// 		var (
+			// 			start = time.Now()
+			// 			rules []Rule
+			// 			g     Grammar
+			// 			err   error
+			// 		)
 
-					rules, err = buildRules(cmd)
-					if err != nil {
-						return err
-					}
+			// 		rules, err = buildRules(cmd)
+			// 		if err != nil {
+			// 			return err
+			// 		}
 
-					rules = MergePR(rules)
-					rules = MergePS(rules)
-					rules = MergeRS(rules)
-					rules = MergePRS(rules)
-					rules = SetIDs(rules)
-					rules = Factor(rules, cmd.Int("factor"))
-					g = Grammar{Rules: rules}
-					g.write(cmd)
+			// 		rules = MergePR(rules)
+			// 		rules = MergePS(rules)
+			// 		rules = MergeRS(rules)
+			// 		rules = MergePRS(rules)
+			// 		rules = SetIDs(rules)
+			// 		rules = Factor(rules, cmd.Int("factor"))
+			// 		g = Grammar{Rules: rules}
+			// 		g.write(cmd)
 
-					fmt.Println(time.Since(start))
-					return nil
-				},
-			},
-			{
-				Name:                  "interpolate",
-				Usage:                 "Create a grammar with rule merging and factoring applied to rules sharing 1 or more chunks. This mode will produce outputs not found in the source corpus.",
-				UsageText:             "c2g interpolate [OPTIONS] example.txt",
-				EnableShellCompletion: true,
-				Suggest:               true,
-				Before:                prepareContext,
-				Flags: []cli.Flag{
-					&inFile,
-					&outFile,
-					&prob,
-					&factor,
-					&printMain},
-				Action: func(ctx context.Context, cmd *cli.Command) error {
-					var (
-						start = time.Now()
-						rules []Rule
-						g     Grammar
-						err   error
-					)
+			// 		fmt.Println(time.Since(start))
+			// 		return nil
+			// 	},
+			// },
+			// {
+			// 	Name:                  "interpolate",
+			// 	Usage:                 "Create a grammar with rule merging and factoring applied to rules sharing 1 or more chunks. This mode will produce outputs not found in the source corpus.",
+			// 	UsageText:             "c2g interpolate [OPTIONS] example.txt",
+			// 	EnableShellCompletion: true,
+			// 	Suggest:               true,
+			// 	Before:                prepareContext,
+			// 	Flags: []cli.Flag{
+			// 		&inFile,
+			// 		&outFile,
+			// 		&prob,
+			// 		&factor,
+			// 		&printMain},
+			// 	Action: func(ctx context.Context, cmd *cli.Command) error {
+			// 		var (
+			// 			start = time.Now()
+			// 			rules []Rule
+			// 			g     Grammar
+			// 			err   error
+			// 		)
 
-					rules, err = buildRules(cmd)
-					if err != nil {
-						return err
-					}
+			// 		rules, err = buildRules(cmd)
+			// 		if err != nil {
+			// 			return err
+			// 		}
 
-					rules = MergePR(rules)
-					rules = MergePS(rules)
-					rules = MergeRS(rules)
+			// 		rules = MergePR(rules)
+			// 		rules = MergePS(rules)
+			// 		rules = MergeRS(rules)
 
-					rules = MergeP(rules)
-					rules = MergeR(rules)
-					rules = MergeS(rules)
+			// 		rules = MergeP(rules)
+			// 		rules = MergeR(rules)
+			// 		rules = MergeS(rules)
 
-					rules = MergePRS(rules)
+			// 		rules = MergePRS(rules)
 
-					rules = SetIDs(rules)
-					rules = Factor(rules, cmd.Int("factor"))
-					g = Grammar{Rules: rules}
-					g.write(cmd)
+			// 		rules = SetIDs(rules)
+			// 		rules = Factor(rules, cmd.Int("factor"))
+			// 		g = Grammar{Rules: rules}
+			// 		g.write(cmd)
 
-					fmt.Println(time.Since(start))
-					return nil
-				},
-			},
-			{
-				Name:                  "extrapolate",
-				Usage:                 "Create a grammar with rule merging, factoring, and expansion applied to rules sharing 1 or more chunks. This mode will produce outputs not found in the source corpus.",
-				UsageText:             "c2g extrapolate [OPTIONS] example.txt",
-				EnableShellCompletion: true,
-				Suggest:               true,
-				Before:                prepareContext,
-				Flags: []cli.Flag{
-					&inFile,
-					&outFile,
-					&prob,
-					&factor,
-					&printMain},
-				Action: func(ctx context.Context, cmd *cli.Command) error {
-					var (
-						start = time.Now()
-						rules []Rule
-						g     Grammar
-						err   error
-					)
+			// 		fmt.Println(time.Since(start))
+			// 		return nil
+			// 	},
+			// },
+			// {
+			// 	Name:                  "extrapolate",
+			// 	Usage:                 "Create a grammar with rule merging, factoring, and expansion applied to rules sharing 1 or more chunks. This mode will produce outputs not found in the source corpus.",
+			// 	UsageText:             "c2g extrapolate [OPTIONS] example.txt",
+			// 	EnableShellCompletion: true,
+			// 	Suggest:               true,
+			// 	Before:                prepareContext,
+			// 	Flags: []cli.Flag{
+			// 		&inFile,
+			// 		&outFile,
+			// 		&prob,
+			// 		&factor,
+			// 		&printMain},
+			// 	Action: func(ctx context.Context, cmd *cli.Command) error {
+			// 		var (
+			// 			start = time.Now()
+			// 			rules []Rule
+			// 			g     Grammar
+			// 			err   error
+			// 		)
 
-					rules, err = buildRules(cmd)
-					if err != nil {
-						return err
-					}
+			// 		rules, err = buildRules(cmd)
+			// 		if err != nil {
+			// 			return err
+			// 		}
 
-					rules = MergePR(rules)
-					rules = MergePS(rules)
-					rules = MergeRS(rules)
-					rules = MergePRS(rules)
-					rules = SetIDs(rules)
-					rules = Factor(rules, cmd.Int("factor"))
-					g = Grammar{Rules: rules}
-					g.write(cmd)
+			// 		rules = MergePR(rules)
+			// 		rules = MergePS(rules)
+			// 		rules = MergeRS(rules)
+			// 		rules = MergePRS(rules)
+			// 		rules = SetIDs(rules)
+			// 		rules = Factor(rules, cmd.Int("factor"))
+			// 		g = Grammar{Rules: rules}
+			// 		g.write(cmd)
 
-					fmt.Println(time.Since(start))
-					return nil
-				},
-			},
+			// 		fmt.Println(time.Since(start))
+			// 		return nil
+			// 	},
+			// },
 			{
 				Name:                  "custom",
 				Usage:                 "Create a grammar with a custom set of options.",
@@ -195,24 +195,55 @@ func main() {
 				Action: func(ctx context.Context, cmd *cli.Command) error {
 					var (
 						start = time.Now()
-						rules []Rule
-						g     Grammar
-						err   error
+						// rules []Rule
+						// g     Grammar
+						err error
 					)
 
-					rules, err = buildRules(cmd)
+					// rules, err = buildRules(cmd)
+					// if err != nil {
+					// 	return err
+					// }
+
+					var (
+						file      *os.File
+						scanner   *bufio.Scanner
+						texts     []Text
+						tokenizer = NewWordTokenizer()
+					)
+
+					rules, err := buildRules(cmd)
 					if err != nil {
 						return err
 					}
 
-					rules = MergePR(rules)
-					rules = MergePS(rules)
-					rules = MergeRS(rules)
-					rules = MergePRS(rules)
-					rules = SetIDs(rules)
-					rules = Factor(rules, cmd.Int("factor"))
-					g = Grammar{Rules: rules}
-					g.write(cmd)
+					file, err = os.Open(cmd.String("inFile"))
+					if err != nil {
+						log.Fatal(err)
+					}
+					defer file.Close()
+					scanner = bufio.NewScanner(file)
+					texts = ReadTexts(scanner)
+					for i, t := range texts {
+						texts[i].text = WordNormalize(t.text, tokenizer)
+					}
+					transitions := CollectTransitions(texts, tokenizer)
+					for i, t := range texts {
+						tokens := WordTokenize(t.text, tokenizer)
+						texts[i].chunk = TransitionChunk(tokens, transitions, cmd.Float("prob"))
+					}
+					vocab := CollectVocab(texts, tokenizer)
+					idf := CollectIDF(texts, tokenizer)
+
+					fmt.Println(len(rules))
+					rules = MergeP(rules, TFIDFCosineThreshold(0.8, vocab, tokenizer, idf, NewNilLogger()))
+					fmt.Println(len(rules))
+
+					// SortPRS(rules)
+					// rules = SetIDs(rules)
+					// rules = Factor(rules, cmd.Int("factor"))
+					// g = Grammar{Rules: rules}
+					// g.write(cmd)
 
 					fmt.Println(time.Since(start))
 					return nil

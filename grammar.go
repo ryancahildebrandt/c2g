@@ -25,6 +25,7 @@ func (g *Grammar) frontMatter(c *cli.Command) string {
 	b.WriteString("#JSGF V1.0 ISO8859-1 en;\n")
 	b.WriteString("#created using c2g\n")
 	b.WriteString("#cfg: {")
+	b.WriteString(fmt.Sprintf("\"command\":%v, ", c.Name))
 	b.WriteString(fmt.Sprintf("\"inFile\":%v, ", c.String("inFile")))
 
 	for _, f := range c.Root().VisibleFlags() {

@@ -37,8 +37,8 @@ func TestValidateTokenizerString(t *testing.T) {
 	}
 }
 
-func TestUnigramTokenize(t *testing.T) {
-	tok := NewUnigramTokenizer()
+func TestWordTokenize(t *testing.T) {
+	tok := NewWordTokenizer()
 
 	type args struct {
 		e string
@@ -60,12 +60,12 @@ func TestUnigramTokenize(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			assert.Equal(t, tt.want, UnigramTokenize(tt.args.e, tt.args.t))
+			assert.Equal(t, tt.want, WordTokenize(tt.args.e, tt.args.t))
 		})
 	}
 }
 
-func TestUnigramNormalize(t *testing.T) {
+func TestWordNormalize(t *testing.T) {
 	type args struct {
 		e string
 	}
@@ -85,8 +85,8 @@ func TestUnigramNormalize(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			tk := NewUnigramTokenizer()
-			assert.Equal(t, tt.want, UnigramNormalize(tt.args.e, tk))
+			tk := NewWordTokenizer()
+			assert.Equal(t, tt.want, WordNormalize(tt.args.e, tk))
 		})
 	}
 }

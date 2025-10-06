@@ -22,10 +22,11 @@ const (
 var (
 	boundaryChars   []string = []string{".", ",", "?", "!", ":", ";"}
 	whiteSpaceChars []string = []string{" ", "\t", "\n", "\r"}
+	preTokenizedSep []string = []string{"<SEP>"}
 )
 
 // Returns a whitespace and punctuation based tokenizer
-func NewUnigramTokenizer() *tokenizer.Tokenizer {
+func NewWordTokenizer() *tokenizer.Tokenizer {
 	var lexer *tokenizer.Tokenizer = tokenizer.New()
 
 	lexer.SetWhiteSpaces([]byte{})
@@ -36,7 +37,7 @@ func NewUnigramTokenizer() *tokenizer.Tokenizer {
 	return lexer
 }
 
-func UnigramTokenize(e string, t *tokenizer.Tokenizer) []string {
+func WordTokenize(e string, t *tokenizer.Tokenizer) []string {
 	var (
 		res     string
 		builder strings.Builder
@@ -68,8 +69,8 @@ func UnigramTokenize(e string, t *tokenizer.Tokenizer) []string {
 	return out
 }
 
-func UnigramNormalize(e string, t *tokenizer.Tokenizer) string {
-	return strings.Join(UnigramTokenize(e, t), " ")
+func WordNormalize(e string, t *tokenizer.Tokenizer) string {
+	return strings.Join(WordTokenize(e, t), " ")
 }
 
 // Helper function to get current contents of strings.Builder and reset

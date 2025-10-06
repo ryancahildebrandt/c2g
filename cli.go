@@ -96,7 +96,7 @@ func buildRules(cmd *cli.Command) ([]Rule, error) {
 		tokens      []string
 		chunks      []string
 		rules       []Rule
-		tokenizer   = NewUnigramTokenizer()
+		tokenizer   = NewWordTokenizer()
 	)
 
 	file, err = os.Open(cmd.String("inFile"))
@@ -107,11 +107,11 @@ func buildRules(cmd *cli.Command) ([]Rule, error) {
 	scanner = bufio.NewScanner(file)
 	texts = ReadTexts(scanner)
 	for i, t := range texts {
-		texts[i].text = UnigramNormalize(t.text, tokenizer)
+		texts[i].text = WordNormalize(t.text, tokenizer)
 	}
 	transitions = CollectTransitions(texts, tokenizer)
 	for i, t := range texts {
-		tokens = UnigramTokenize(t.text, tokenizer)
+		tokens = WordTokenize(t.text, tokenizer)
 		texts[i].chunk = TransitionChunk(tokens, transitions, cmd.Float("prob"))
 	}
 	chunks = CollectChunks(texts)

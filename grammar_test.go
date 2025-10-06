@@ -36,18 +36,18 @@ func TestGrammar_body(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			tk := NewUnigramTokenizer()
+			tk := NewWordTokenizer()
 			file, _ := os.Open(tt.args.f)
 			defer file.Close()
 			s := bufio.NewScanner(file)
 			tx := ReadTexts(s)
 			for i, t := range tx {
-				t.text = UnigramNormalize(t.text, tk)
+				t.text = WordNormalize(t.text, tk)
 				tx[i] = t
 			}
 			tr := CollectTransitions(tx, tk)
 			for i, t := range tx {
-				tx[i].chunk = TransitionChunk(UnigramTokenize(t.text, tk), tr, 0.1)
+				tx[i].chunk = TransitionChunk(WordTokenize(t.text, tk), tr, 0.1)
 			}
 			ng := CollectChunks(tx)
 			for i, t := range tx {
@@ -87,18 +87,18 @@ func TestGrammar_bodyMain(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			tk := NewUnigramTokenizer()
+			tk := NewWordTokenizer()
 			file, _ := os.Open(tt.args.f)
 			defer file.Close()
 			s := bufio.NewScanner(file)
 			tx := ReadTexts(s)
 			for i, t := range tx {
-				t.text = UnigramNormalize(t.text, tk)
+				t.text = WordNormalize(t.text, tk)
 				tx[i] = t
 			}
 			tr := CollectTransitions(tx, tk)
 			for i, t := range tx {
-				tx[i].chunk = TransitionChunk(UnigramTokenize(t.text, tk), tr, 0.1)
+				tx[i].chunk = TransitionChunk(WordTokenize(t.text, tk), tr, 0.1)
 			}
 			ng := CollectChunks(tx)
 			for i, t := range tx {
@@ -125,16 +125,16 @@ func TestGrammar_frontMatter(t *testing.T) {
 		args args
 		want string
 	}{
-		{name: "", args: args{o: map[string]string{"infile": "a", "outFile": "a", "factor": "1", "prob": "", "main": "true"}}, want: "#JSGF V1.0 ISO8859-1 en;\n#created using c2g\n#cfg: {\"inFile\":, \"factor\":1, \"infile\":a, \"main\":true, \"outFile\":a, \"prob\":, }\n\ngrammar main;\n\n"},
-		{name: "", args: args{o: map[string]string{"infile": "b", "outFile": "", "factor": "2", "prob": "9", "main": "false"}}, want: "#JSGF V1.0 ISO8859-1 en;\n#created using c2g\n#cfg: {\"inFile\":, \"factor\":2, \"infile\":b, \"main\":false, \"outFile\":, \"prob\":9, }\n\ngrammar main;\n\n"},
-		{name: "", args: args{o: map[string]string{"infile": "c", "outFile": "b", "factor": "3", "prob": "8", "main": ""}}, want: "#JSGF V1.0 ISO8859-1 en;\n#created using c2g\n#cfg: {\"inFile\":, \"factor\":3, \"infile\":c, \"main\":, \"outFile\":b, \"prob\":8, }\n\ngrammar main;\n\n"},
-		{name: "", args: args{o: map[string]string{"infile": "d", "outFile": "", "factor": "4", "prob": "7", "main": "true"}}, want: "#JSGF V1.0 ISO8859-1 en;\n#created using c2g\n#cfg: {\"inFile\":, \"factor\":4, \"infile\":d, \"main\":true, \"outFile\":, \"prob\":7, }\n\ngrammar main;\n\n"},
-		{name: "", args: args{o: map[string]string{"infile": "e", "outFile": "c", "factor": "5", "prob": "6", "main": "false"}}, want: "#JSGF V1.0 ISO8859-1 en;\n#created using c2g\n#cfg: {\"inFile\":, \"factor\":5, \"infile\":e, \"main\":false, \"outFile\":c, \"prob\":6, }\n\ngrammar main;\n\n"},
-		{name: "", args: args{o: map[string]string{"infile": "", "outFile": "", "factor": "6", "prob": "5", "main": "true"}}, want: "#JSGF V1.0 ISO8859-1 en;\n#created using c2g\n#cfg: {\"inFile\":, \"factor\":6, \"infile\":, \"main\":true, \"outFile\":, \"prob\":5, }\n\ngrammar main;\n\n"},
-		{name: "", args: args{o: map[string]string{"infile": "", "outFile": "d", "factor": "7", "prob": "4", "main": "false"}}, want: "#JSGF V1.0 ISO8859-1 en;\n#created using c2g\n#cfg: {\"inFile\":, \"factor\":7, \"infile\":, \"main\":false, \"outFile\":d, \"prob\":4, }\n\ngrammar main;\n\n"},
-		{name: "", args: args{o: map[string]string{"infile": "", "outFile": "", "factor": "8", "prob": "3", "main": ""}}, want: "#JSGF V1.0 ISO8859-1 en;\n#created using c2g\n#cfg: {\"inFile\":, \"factor\":8, \"infile\":, \"main\":, \"outFile\":, \"prob\":3, }\n\ngrammar main;\n\n"},
-		{name: "", args: args{o: map[string]string{"infile": "", "outFile": "e", "factor": "9", "prob": "2", "main": "true"}}, want: "#JSGF V1.0 ISO8859-1 en;\n#created using c2g\n#cfg: {\"inFile\":, \"factor\":9, \"infile\":, \"main\":true, \"outFile\":e, \"prob\":2, }\n\ngrammar main;\n\n"},
-		{name: "", args: args{o: map[string]string{"infile": "", "outFile": "", "factor": "", "prob": "1", "main": "false"}}, want: "#JSGF V1.0 ISO8859-1 en;\n#created using c2g\n#cfg: {\"inFile\":, \"factor\":, \"infile\":, \"main\":false, \"outFile\":, \"prob\":1, }\n\ngrammar main;\n\n"},
+		{name: "", args: args{o: map[string]string{"infile": "a", "outFile": "a", "factor": "1", "prob": "", "main": "true"}}, want: "#JSGF V1.0 ISO8859-1 en;\n#created using c2g\n#cfg: {\"command\":, \"inFile\":, \"factor\":1, \"infile\":a, \"main\":true, \"outFile\":a, \"prob\":, }\n\ngrammar main;\n\n"},
+		{name: "", args: args{o: map[string]string{"infile": "b", "outFile": "", "factor": "2", "prob": "9", "main": "false"}}, want: "#JSGF V1.0 ISO8859-1 en;\n#created using c2g\n#cfg: {\"command\":, \"inFile\":, \"factor\":2, \"infile\":b, \"main\":false, \"outFile\":, \"prob\":9, }\n\ngrammar main;\n\n"},
+		{name: "", args: args{o: map[string]string{"infile": "c", "outFile": "b", "factor": "3", "prob": "8", "main": ""}}, want: "#JSGF V1.0 ISO8859-1 en;\n#created using c2g\n#cfg: {\"command\":, \"inFile\":, \"factor\":3, \"infile\":c, \"main\":, \"outFile\":b, \"prob\":8, }\n\ngrammar main;\n\n"},
+		{name: "", args: args{o: map[string]string{"infile": "d", "outFile": "", "factor": "4", "prob": "7", "main": "true"}}, want: "#JSGF V1.0 ISO8859-1 en;\n#created using c2g\n#cfg: {\"command\":, \"inFile\":, \"factor\":4, \"infile\":d, \"main\":true, \"outFile\":, \"prob\":7, }\n\ngrammar main;\n\n"},
+		{name: "", args: args{o: map[string]string{"infile": "e", "outFile": "c", "factor": "5", "prob": "6", "main": "false"}}, want: "#JSGF V1.0 ISO8859-1 en;\n#created using c2g\n#cfg: {\"command\":, \"inFile\":, \"factor\":5, \"infile\":e, \"main\":false, \"outFile\":c, \"prob\":6, }\n\ngrammar main;\n\n"},
+		{name: "", args: args{o: map[string]string{"infile": "", "outFile": "", "factor": "6", "prob": "5", "main": "true"}}, want: "#JSGF V1.0 ISO8859-1 en;\n#created using c2g\n#cfg: {\"command\":, \"inFile\":, \"factor\":6, \"infile\":, \"main\":true, \"outFile\":, \"prob\":5, }\n\ngrammar main;\n\n"},
+		{name: "", args: args{o: map[string]string{"infile": "", "outFile": "d", "factor": "7", "prob": "4", "main": "false"}}, want: "#JSGF V1.0 ISO8859-1 en;\n#created using c2g\n#cfg: {\"command\":, \"inFile\":, \"factor\":7, \"infile\":, \"main\":false, \"outFile\":d, \"prob\":4, }\n\ngrammar main;\n\n"},
+		{name: "", args: args{o: map[string]string{"infile": "", "outFile": "", "factor": "8", "prob": "3", "main": ""}}, want: "#JSGF V1.0 ISO8859-1 en;\n#created using c2g\n#cfg: {\"command\":, \"inFile\":, \"factor\":8, \"infile\":, \"main\":, \"outFile\":, \"prob\":3, }\n\ngrammar main;\n\n"},
+		{name: "", args: args{o: map[string]string{"infile": "", "outFile": "e", "factor": "9", "prob": "2", "main": "true"}}, want: "#JSGF V1.0 ISO8859-1 en;\n#created using c2g\n#cfg: {\"command\":, \"inFile\":, \"factor\":9, \"infile\":, \"main\":true, \"outFile\":e, \"prob\":2, }\n\ngrammar main;\n\n"},
+		{name: "", args: args{o: map[string]string{"infile": "", "outFile": "", "factor": "", "prob": "1", "main": "false"}}, want: "#JSGF V1.0 ISO8859-1 en;\n#created using c2g\n#cfg: {\"command\":, \"inFile\":, \"factor\":, \"infile\":, \"main\":false, \"outFile\":, \"prob\":1, }\n\ngrammar main;\n\n"},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

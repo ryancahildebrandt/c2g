@@ -57,17 +57,17 @@ func TestSortPR(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			tk := NewUnigramTokenizer()
+			tk := NewWordTokenizer()
 			file, _ := os.Open(tt.args.f)
 			defer file.Close()
 			s := bufio.NewScanner(file)
 			tx := ReadTexts(s)
 			for i, t := range tx {
-				tx[i].text = UnigramNormalize(t.text, tk)
+				tx[i].text = WordNormalize(t.text, tk)
 			}
 			tr := CollectTransitions(tx, tk)
 			for i, t := range tx {
-				tx[i].chunk = TransitionChunk(UnigramTokenize(t.text, tk), tr, 0.1)
+				tx[i].chunk = TransitionChunk(WordTokenize(t.text, tk), tr, 0.1)
 			}
 			ng := CollectChunks(tx)
 			for i, t := range tx {
@@ -124,17 +124,17 @@ func TestSortPS(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			tk := NewUnigramTokenizer()
+			tk := NewWordTokenizer()
 			file, _ := os.Open(tt.args.f)
 			defer file.Close()
 			s := bufio.NewScanner(file)
 			tx := ReadTexts(s)
 			for i, t := range tx {
-				tx[i].text = UnigramNormalize(t.text, tk)
+				tx[i].text = WordNormalize(t.text, tk)
 			}
 			tr := CollectTransitions(tx, tk)
 			for i, t := range tx {
-				tx[i].chunk = TransitionChunk(UnigramTokenize(t.text, tk), tr, 0.1)
+				tx[i].chunk = TransitionChunk(WordTokenize(t.text, tk), tr, 0.1)
 			}
 			ng := CollectChunks(tx)
 			for i, t := range tx {
@@ -191,17 +191,17 @@ func TestSortRS(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			tk := NewUnigramTokenizer()
+			tk := NewWordTokenizer()
 			file, _ := os.Open(tt.args.f)
 			defer file.Close()
 			s := bufio.NewScanner(file)
 			tx := ReadTexts(s)
 			for i, t := range tx {
-				tx[i].text = UnigramNormalize(t.text, tk)
+				tx[i].text = WordNormalize(t.text, tk)
 			}
 			tr := CollectTransitions(tx, tk)
 			for i, t := range tx {
-				tx[i].chunk = TransitionChunk(UnigramTokenize(t.text, tk), tr, 0.1)
+				tx[i].chunk = TransitionChunk(WordTokenize(t.text, tk), tr, 0.1)
 			}
 			ng := CollectChunks(tx)
 			for i, t := range tx {
@@ -258,17 +258,17 @@ func TestSortPRS(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			tk := NewUnigramTokenizer()
+			tk := NewWordTokenizer()
 			file, _ := os.Open(tt.args.f)
 			defer file.Close()
 			s := bufio.NewScanner(file)
 			tx := ReadTexts(s)
 			for i, t := range tx {
-				tx[i].text = UnigramNormalize(t.text, tk)
+				tx[i].text = WordNormalize(t.text, tk)
 			}
 			tr := CollectTransitions(tx, tk)
 			for i, t := range tx {
-				tx[i].chunk = TransitionChunk(UnigramTokenize(t.text, tk), tr, 0.1)
+				tx[i].chunk = TransitionChunk(WordTokenize(t.text, tk), tr, 0.1)
 			}
 			ng := CollectChunks(tx)
 			for i, t := range tx {
@@ -305,17 +305,17 @@ func TestMergeP(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			tk := NewUnigramTokenizer()
+			tk := NewWordTokenizer()
 			file, _ := os.Open(tt.args.f)
 			defer file.Close()
 			s := bufio.NewScanner(file)
 			tx := ReadTexts(s)
 			for i, t := range tx {
-				tx[i].text = UnigramNormalize(t.text, tk)
+				tx[i].text = WordNormalize(t.text, tk)
 			}
 			tr := CollectTransitions(tx, tk)
 			for i, t := range tx {
-				tx[i].chunk = TransitionChunk(UnigramTokenize(t.text, tk), tr, 0.1)
+				tx[i].chunk = TransitionChunk(WordTokenize(t.text, tk), tr, 0.1)
 			}
 			ng := CollectChunks(tx)
 			for i, t := range tx {
@@ -325,7 +325,7 @@ func TestMergeP(t *testing.T) {
 			for _, t := range tx {
 				rules = append(rules, ToRule(t))
 			}
-			res := MergeP(rules)
+			res := MergeP(rules, LiteralEqual(NewNilLogger()))
 			assert.Equal(t, tt.want, res)
 		})
 	}
@@ -374,17 +374,17 @@ func TestMergeR(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			tk := NewUnigramTokenizer()
+			tk := NewWordTokenizer()
 			file, _ := os.Open(tt.args.f)
 			defer file.Close()
 			s := bufio.NewScanner(file)
 			tx := ReadTexts(s)
 			for i, t := range tx {
-				tx[i].text = UnigramNormalize(t.text, tk)
+				tx[i].text = WordNormalize(t.text, tk)
 			}
 			tr := CollectTransitions(tx, tk)
 			for i, t := range tx {
-				tx[i].chunk = TransitionChunk(UnigramTokenize(t.text, tk), tr, 0.1)
+				tx[i].chunk = TransitionChunk(WordTokenize(t.text, tk), tr, 0.1)
 			}
 			ng := CollectChunks(tx)
 			for i, t := range tx {
@@ -394,7 +394,7 @@ func TestMergeR(t *testing.T) {
 			for _, t := range tx {
 				rules = append(rules, ToRule(t))
 			}
-			res := MergeR(rules)
+			res := MergeR(rules, LiteralEqual(NewNilLogger()))
 			assert.Equal(t, tt.want, res)
 		})
 	}
@@ -424,17 +424,17 @@ func TestMergeS(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			tk := NewUnigramTokenizer()
+			tk := NewWordTokenizer()
 			file, _ := os.Open(tt.args.f)
 			defer file.Close()
 			s := bufio.NewScanner(file)
 			tx := ReadTexts(s)
 			for i, t := range tx {
-				tx[i].text = UnigramNormalize(t.text, tk)
+				tx[i].text = WordNormalize(t.text, tk)
 			}
 			tr := CollectTransitions(tx, tk)
 			for i, t := range tx {
-				tx[i].chunk = TransitionChunk(UnigramTokenize(t.text, tk), tr, 0.1)
+				tx[i].chunk = TransitionChunk(WordTokenize(t.text, tk), tr, 0.1)
 			}
 			ng := CollectChunks(tx)
 			for i, t := range tx {
@@ -444,7 +444,7 @@ func TestMergeS(t *testing.T) {
 			for _, t := range tx {
 				rules = append(rules, ToRule(t))
 			}
-			res := MergeS(rules)
+			res := MergeS(rules, LiteralEqual(NewNilLogger()))
 			assert.Equal(t, tt.want, res)
 		})
 	}
@@ -492,17 +492,17 @@ func TestMergePR(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			tk := NewUnigramTokenizer()
+			tk := NewWordTokenizer()
 			file, _ := os.Open(tt.args.f)
 			defer file.Close()
 			s := bufio.NewScanner(file)
 			tx := ReadTexts(s)
 			for i, t := range tx {
-				tx[i].text = UnigramNormalize(t.text, tk)
+				tx[i].text = WordNormalize(t.text, tk)
 			}
 			tr := CollectTransitions(tx, tk)
 			for i, t := range tx {
-				tx[i].chunk = TransitionChunk(UnigramTokenize(t.text, tk), tr, 0.1)
+				tx[i].chunk = TransitionChunk(WordTokenize(t.text, tk), tr, 0.1)
 			}
 			ng := CollectChunks(tx)
 			for i, t := range tx {
@@ -512,7 +512,7 @@ func TestMergePR(t *testing.T) {
 			for _, t := range tx {
 				rules = append(rules, ToRule(t))
 			}
-			res := MergePR(rules)
+			res := MergePR(rules, LiteralEqual(NewNilLogger()))
 			assert.Equal(t, tt.want, res)
 		})
 	}
@@ -540,17 +540,17 @@ func TestMergePS(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			tk := NewUnigramTokenizer()
+			tk := NewWordTokenizer()
 			file, _ := os.Open(tt.args.f)
 			defer file.Close()
 			s := bufio.NewScanner(file)
 			tx := ReadTexts(s)
 			for i, t := range tx {
-				tx[i].text = UnigramNormalize(t.text, tk)
+				tx[i].text = WordNormalize(t.text, tk)
 			}
 			tr := CollectTransitions(tx, tk)
 			for i, t := range tx {
-				tx[i].chunk = TransitionChunk(UnigramTokenize(t.text, tk), tr, 0.1)
+				tx[i].chunk = TransitionChunk(WordTokenize(t.text, tk), tr, 0.1)
 			}
 			ng := CollectChunks(tx)
 			for i, t := range tx {
@@ -560,7 +560,7 @@ func TestMergePS(t *testing.T) {
 			for _, t := range tx {
 				rules = append(rules, ToRule(t))
 			}
-			res := MergePS(rules)
+			res := MergePS(rules, LiteralEqual(NewNilLogger()))
 			assert.Equal(t, tt.want, res)
 		})
 	}
@@ -608,17 +608,17 @@ func TestMergeRS(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			tk := NewUnigramTokenizer()
+			tk := NewWordTokenizer()
 			file, _ := os.Open(tt.args.f)
 			defer file.Close()
 			s := bufio.NewScanner(file)
 			tx := ReadTexts(s)
 			for i, t := range tx {
-				tx[i].text = UnigramNormalize(t.text, tk)
+				tx[i].text = WordNormalize(t.text, tk)
 			}
 			tr := CollectTransitions(tx, tk)
 			for i, t := range tx {
-				tx[i].chunk = TransitionChunk(UnigramTokenize(t.text, tk), tr, 0.1)
+				tx[i].chunk = TransitionChunk(WordTokenize(t.text, tk), tr, 0.1)
 			}
 			ng := CollectChunks(tx)
 			for i, t := range tx {
@@ -628,13 +628,13 @@ func TestMergeRS(t *testing.T) {
 			for _, t := range tx {
 				rules = append(rules, ToRule(t))
 			}
-			res := MergeRS(rules)
+			res := MergeRS(rules, LiteralEqual(NewNilLogger()))
 			assert.Equal(t, tt.want, res)
 		})
 	}
 }
 
-func TestMergePRS(t *testing.T) {
+func TestMergeMisc(t *testing.T) {
 	type args struct {
 		f string
 	}
@@ -666,17 +666,17 @@ func TestMergePRS(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			tk := NewUnigramTokenizer()
+			tk := NewWordTokenizer()
 			file, _ := os.Open(tt.args.f)
 			defer file.Close()
 			s := bufio.NewScanner(file)
 			tx := ReadTexts(s)
 			for i, t := range tx {
-				tx[i].text = UnigramNormalize(t.text, tk)
+				tx[i].text = WordNormalize(t.text, tk)
 			}
 			tr := CollectTransitions(tx, tk)
 			for i, t := range tx {
-				tx[i].chunk = TransitionChunk(UnigramTokenize(t.text, tk), tr, 0.1)
+				tx[i].chunk = TransitionChunk(WordTokenize(t.text, tk), tr, 0.1)
 			}
 			ng := CollectChunks(tx)
 			for i, t := range tx {
@@ -686,7 +686,7 @@ func TestMergePRS(t *testing.T) {
 			for _, t := range tx {
 				rules = append(rules, ToRule(t))
 			}
-			res := MergePRS(rules)
+			res := MergeMisc(rules, DummyEqual(NewNilLogger()))
 			assert.Equal(t, tt.want, res)
 		})
 	}
@@ -818,17 +818,17 @@ func TestFactor(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			tk := NewUnigramTokenizer()
+			tk := NewWordTokenizer()
 			file, _ := os.Open(tt.args.f)
 			defer file.Close()
 			s := bufio.NewScanner(file)
 			tx := ReadTexts(s)
 			for i, t := range tx {
-				tx[i].text = UnigramNormalize(t.text, tk)
+				tx[i].text = WordNormalize(t.text, tk)
 			}
 			tr := CollectTransitions(tx, tk)
 			for i, t := range tx {
-				tx[i].chunk = TransitionChunk(UnigramTokenize(t.text, tk), tr, 0.1)
+				tx[i].chunk = TransitionChunk(WordTokenize(t.text, tk), tr, 0.1)
 			}
 			ng := CollectChunks(tx)
 			for i, t := range tx {
