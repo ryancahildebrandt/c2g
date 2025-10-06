@@ -18,12 +18,14 @@ const (
 	Boundary = iota + 1
 	WhiteSpace
 	Sep
+	POSSep
 )
 
 var (
 	boundaryChars   []string = []string{".", ",", "?", "!", ":", ";"}
 	whiteSpaceChars []string = []string{" ", "\t", "\n", "\r"}
 	preTokenizedSep []string = []string{"<SEP>"}
+	posSep          []string = []string{"-"}
 )
 
 type Tokenizer interface {
@@ -121,8 +123,52 @@ func (t sepTokenizer) tokenize(s string) []string {
 }
 
 func (t sepTokenizer) normalize(s string) string {
-	// return strings.Join(t.tokenize(s), "<SEP>")
 	return strings.Join(t.tokenize(s), " ")
+}
+
+type posTokenizer struct{ *tokenizer.Tokenizer }
+
+func NewPOSTokenizer() posTokenizer {
+	var tok = posTokenizer{tokenizer.New()}
+
+	tok.SetWhiteSpaces([]byte{})
+	tok.DefineTokens(POSSep, posSep)
+
+	return tok
+}
+
+func (t posTokenizer) tokenize(s string) []string {
+	var (
+		builder strings.Builder
+		out                       = []string{}
+		stream  *tokenizer.Stream = t.ParseString(s)
+	)
+
+	if s == "" {
+		return out
+	}
+	if !strings.Contains(s, "-") {
+		return []string{s}
+	}
+
+	for stream.IsValid() {
+		switch {
+		case stream.CurrentToken().Is(POSSep):
+			builder, out = flushBuilder(builder, out)
+			stream.GoNext()
+		default:
+			builder.WriteString(stream.CurrentToken().ValueUnescapedString())
+			stream.GoNext()
+		}
+	}
+	builder, out = flushBuilder(builder, out)
+
+	return out
+
+}
+
+func (t posTokenizer) normalize(s string) string {
+	return strings.Join(t.tokenize(s), "-")
 }
 
 // Helper function to get current contents of strings.Builder and reset

@@ -134,3 +134,53 @@ func Test_sepTokenizer_normalize(t *testing.T) {
 		})
 	}
 }
+
+func Test_posTokenizer_tokenize(t *testing.T) {
+	type args struct {
+		s string
+	}
+	tests := []struct {
+		args args
+		want []string
+	}{
+		{args: args{s: ""}, want: []string{}},
+		{args: args{s: "-"}, want: []string{}},
+		{args: args{s: " -	"}, want: []string{" ", "\t"}},
+		{args: args{s: "."}, want: []string{"."}},
+		{args: args{s: ".-.?"}, want: []string{".", ".?"}},
+		{args: args{s: "a-.b-"}, want: []string{"a", ".b"}},
+		{args: args{s: "a . -b"}, want: []string{"a . ", "b"}},
+		{args: args{s: " -a.- b"}, want: []string{" ", "a.", " b"}},
+	}
+	for _, tt := range tests {
+		t.Run("", func(t *testing.T) {
+			tk := NewPOSTokenizer()
+			assert.Equal(t, tt.want, tk.tokenize(tt.args.s))
+		})
+	}
+}
+
+func Test_posTokenizer_normalize(t *testing.T) {
+	type args struct {
+		s string
+	}
+	tests := []struct {
+		args args
+		want string
+	}{
+		{args: args{s: ""}, want: ""},
+		{args: args{s: "--"}, want: ""},
+		{args: args{s: " -	"}, want: " -	"},
+		{args: args{s: "."}, want: "."},
+		{args: args{s: ".-.?"}, want: ".-.?"},
+		{args: args{s: "a--.b-"}, want: "a-.b"},
+		{args: args{s: "a . -b-"}, want: "a . -b"},
+		{args: args{s: " --a.- b"}, want: " -a.- b"},
+	}
+	for _, tt := range tests {
+		t.Run("", func(t *testing.T) {
+			tk := NewPOSTokenizer()
+			assert.Equal(t, tt.want, tk.normalize(tt.args.s))
+		})
+	}
+}

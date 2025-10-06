@@ -44,9 +44,10 @@ func TestGrammar_body(t *testing.T) {
 				t.text = tk.normalize(t.text)
 				tx[i] = t
 			}
-			tr := CollectTransitions(tx, tk)
+			tr := CollectTransitions(tx, TokenSplit(tk))
 			for i, t := range tx {
-				tx[i].chunk = TransitionChunk(tk.tokenize(t.text), tr, 0.1)
+				tokens := tk.tokenize(t.text)
+				tx[i].chunk = TransitionChunk(tokens, tokens, tr, 0.1)
 			}
 			ng := CollectChunks(tx)
 			for i, t := range tx {
@@ -94,9 +95,10 @@ func TestGrammar_bodyMain(t *testing.T) {
 				t.text = tk.normalize(t.text)
 				tx[i] = t
 			}
-			tr := CollectTransitions(tx, tk)
+			tr := CollectTransitions(tx, TokenSplit(tk))
 			for i, t := range tx {
-				tx[i].chunk = TransitionChunk(tk.tokenize(t.text), tr, 0.1)
+				tokens := tk.tokenize(t.text)
+				tx[i].chunk = TransitionChunk(tokens, tokens, tr, 0.1)
 			}
 			ng := CollectChunks(tx)
 			for i, t := range tx {

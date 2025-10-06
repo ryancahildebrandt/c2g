@@ -23,118 +23,155 @@ type ConstituencyRule struct {
 	tag  string
 }
 
-func (c *SyntacticTagger) POS(s string) string {
+func (t *SyntacticTagger) POS(s string) ([]string, []string) {
 	var tags []string
-	var tokens = c.tokenize(s)
+	var tokens = t.tokenize(s)
 
-	for _, t := range c.Tag(tokens) {
-		tags = append(tags, t.Tag)
+	if len(tokens) == 0 {
+		return []string{}, []string{}
 	}
-	tags = append(tags, "")
 
-	return strings.Join(tags, "()")
+	for _, tt := range t.Tag(tokens) {
+		tags = append(tags, tt.Tag)
+	}
+
+	return tags, tokens
 }
 
-func (c *SyntacticTagger) Constituency(s string) string {
-	var sig = c.POS(s)
+func (t *SyntacticTagger) Constituency(s string) ([]string, []string) {
+	scanSubseq := func(s1, s2 []string) ([]int, bool) {
+		var res []int
 
-	for j := range c.rules {
-		tag := c.rules[j].tag
-		ss := strings.Join(c.rules[j].rule, "()")
-		sig = strings.ReplaceAll(sig, ss, tag)
+		if len(s1) < len(s2) {
+			return res, false
+		}
+
+		for i := range s2 {
+			if !slices.Contains(s1, s2[i]) {
+				return res, false
+			}
+		}
+
+		for i := 0; i <= len(s1)-len(s2); i++ {
+			win := s1[i : i+len(s2)]
+			if slices.Equal(s2, win) {
+				return []int{i, i + len(s2)}, true
+			}
+		}
+
+		return res, false
 	}
 
-	return sig
+	tags, tokens := t.POS(s)
+
+	if len(tokens) == 0 {
+		return []string{}, []string{}
+	}
+
+	for j := range t.rules {
+		tag := t.rules[j].tag
+		rule := t.rules[j].rule
+		for {
+			ind, found := scanSubseq(tags, rule)
+			if !found {
+				break
+			}
+			tags = slices.Replace(tags, ind[0], ind[1], tag)
+			tokens = slices.Replace(tokens, ind[0], ind[1], strings.Join(tokens[ind[0]:ind[1]], " "))
+		}
+	}
+
+	return tags, tokens
 }
 
 func NewSyntacticTagger(m *tag.PerceptronTagger, t Tokenizer) SyntacticTagger {
 	var rules = []ConstituencyRule{
-		ConstituencyRule{tag: "ADJP", rule: []string{"NP", "JJ"}},
-		ConstituencyRule{tag: "ADJP", rule: []string{"JJ", "JJ"}},
-		ConstituencyRule{tag: "ADJP", rule: []string{"RB", "JJ"}},
-		ConstituencyRule{tag: "ADJP", rule: []string{"RB", "VBN"}},
-		ConstituencyRule{tag: "ADJP", rule: []string{"RB", "JJR"}},
-		ConstituencyRule{tag: "ADJP", rule: []string{"JJ", "PP"}},
-		ConstituencyRule{tag: "ADJP", rule: []string{"CD", "NN"}},
-		ConstituencyRule{tag: "ADJP", rule: []string{"QP", "NN"}},
-		ConstituencyRule{tag: "ADJP", rule: []string{"ADJP", "PP"}},
-		ConstituencyRule{tag: "ADJP", rule: []string{"RBR", "JJ"}},
-		ConstituencyRule{tag: "ADJP", rule: []string{"RBS", "JJ"}},
-		ConstituencyRule{tag: "ADJP", rule: []string{"JJ", "CC", "JJ"}},
-		ConstituencyRule{tag: "ADJP", rule: []string{"NNP", ",", "JJ"}},
-		ConstituencyRule{tag: "ADJP", rule: []string{"CD", "CD", "NN"}},
-		ConstituencyRule{tag: "ADVP", rule: []string{"RB", "PP"}},
-		ConstituencyRule{tag: "ADVP", rule: []string{"RB", "NP"}},
-		ConstituencyRule{tag: "ADVP", rule: []string{"RB", "RB"}},
-		ConstituencyRule{tag: "ADVP", rule: []string{"IN", "JJS"}},
-		ConstituencyRule{tag: "CONJP", rule: []string{"IN", "IN"}},
-		ConstituencyRule{tag: "CONJP", rule: []string{"RB", "RB"}},
-		ConstituencyRule{tag: "CONJP", rule: []string{"RB", "RB", "IN"}},
-		ConstituencyRule{tag: "CONJP", rule: []string{"CC", "RB"}},
-		ConstituencyRule{tag: "CONJP", rule: []string{"RB", "IN"}},
-		ConstituencyRule{tag: "CONJP", rule: []string{"RB", "TO", "VB"}},
-		ConstituencyRule{tag: "CONJP", rule: []string{"RB", "JJ"}},
-		ConstituencyRule{tag: "NP", rule: []string{"NNP", "NNP"}},
-		ConstituencyRule{tag: "NP", rule: []string{"CD", "NNS"}},
-		ConstituencyRule{tag: "NP", rule: []string{"DT", "NN"}},
-		ConstituencyRule{tag: "NP", rule: []string{"DT", "JJ", "NN"}},
-		ConstituencyRule{tag: "NP", rule: []string{"NP", "PP"}},
-		ConstituencyRule{tag: "NP", rule: []string{"JJ", "NN"}},
-		ConstituencyRule{tag: "NP", rule: []string{"NN", "NNS"}},
-		ConstituencyRule{tag: "NP", rule: []string{"DT", "NN", "NN"}},
-		ConstituencyRule{tag: "NP", rule: []string{"DT", "NNS"}},
-		ConstituencyRule{tag: "NP", rule: []string{"NP", "SBAR"}},
-		ConstituencyRule{tag: "NP", rule: []string{"NNP", "NNP", "NNP"}},
-		ConstituencyRule{tag: "NP", rule: []string{"NP", "CC", "NP"}},
-		ConstituencyRule{tag: "NP", rule: []string{"JJ", "NNS"}},
-		ConstituencyRule{tag: "NP", rule: []string{"NP", "VP"}},
-		ConstituencyRule{tag: "NP", rule: []string{"CD", "NN"}},
-		ConstituencyRule{tag: "PP", rule: []string{"IN", "NP"}},
-		ConstituencyRule{tag: "PP", rule: []string{"TO", "NP"}},
-		ConstituencyRule{tag: "PRN", rule: []string{":", "NP"}},
-		ConstituencyRule{tag: "PRN", rule: []string{",", "SINV", ","}},
-		ConstituencyRule{tag: "PRN", rule: []string{":", "PP", ":"}},
-		ConstituencyRule{tag: "PRN", rule: []string{",", "PP", ","}},
-		ConstituencyRule{tag: "PRN", rule: []string{":", "NP", ":"}},
-		ConstituencyRule{tag: "PRN", rule: []string{",", "S", ","}},
-		ConstituencyRule{tag: "PRN", rule: []string{"SINV", ","}},
-		ConstituencyRule{tag: "PRN", rule: []string{",", "ADVP", ","}},
-		ConstituencyRule{tag: "PRN", rule: []string{",", "''", "SINV", ","}},
-		ConstituencyRule{tag: "PRN", rule: []string{":", "SBAR", ":"}},
-		ConstituencyRule{tag: "PRN", rule: []string{",", "''", "S", ","}},
-		ConstituencyRule{tag: "PRN", rule: []string{":", "S", ":"}},
-		ConstituencyRule{tag: "QP", rule: []string{"RBR", "IN", "CD"}},
-		ConstituencyRule{tag: "QP", rule: []string{"CD", "CD"}},
-		ConstituencyRule{tag: "QP", rule: []string{"IN", "CD"}},
-		ConstituencyRule{tag: "QP", rule: []string{"$", "CD", "CD"}},
-		ConstituencyRule{tag: "QP", rule: []string{"IN", "$", "CD", "CD"}},
-		ConstituencyRule{tag: "QP", rule: []string{"IN", "CD", "CD"}},
-		ConstituencyRule{tag: "QP", rule: []string{"RB", "$", "CD", "CD"}},
-		ConstituencyRule{tag: "QP", rule: []string{"RB", "CD"}},
-		ConstituencyRule{tag: "QP", rule: []string{"JJR", "IN", "CD"}},
-		ConstituencyRule{tag: "QP", rule: []string{"CD", "TO", "CD"}},
-		ConstituencyRule{tag: "QP", rule: []string{"JJR", "IN", "$", "CD", "CD"}},
-		ConstituencyRule{tag: "QP", rule: []string{"CD", "NN", "TO", "CD", "NN"}},
-		ConstituencyRule{tag: "QP", rule: []string{"#", "CD", "CD"}},
-		ConstituencyRule{tag: "VP", rule: []string{"MD", "VP"}},
-		ConstituencyRule{tag: "VP", rule: []string{"VBD", "VP"}},
-		ConstituencyRule{tag: "VP", rule: []string{"TO", "VP"}},
-		ConstituencyRule{tag: "VP", rule: []string{"VB", "NP"}},
-		ConstituencyRule{tag: "VP", rule: []string{"VBZ", "VP"}},
-		ConstituencyRule{tag: "VP", rule: []string{"VBN", "NP"}},
-		ConstituencyRule{tag: "VP", rule: []string{"VBD", "SBAR"}},
-		ConstituencyRule{tag: "VP", rule: []string{"VBZ", "NP"}},
-		ConstituencyRule{tag: "VP", rule: []string{"VBG", "NP"}},
-		ConstituencyRule{tag: "VP", rule: []string{"VBP", "VP"}},
-		ConstituencyRule{tag: "VP", rule: []string{"VBD", "NP"}},
-		ConstituencyRule{tag: "VP", rule: []string{"VBP", "NP"}},
-		ConstituencyRule{tag: "VP", rule: []string{"VBD", "S"}},
-		ConstituencyRule{tag: "VP", rule: []string{"VP", "CC", "VP"}},
-		ConstituencyRule{tag: "VP", rule: []string{"VBZ", "S"}},
-		ConstituencyRule{tag: "VP", rule: []string{"VBN", "NP", "PP"}},
-		ConstituencyRule{tag: "VP", rule: []string{"VB", "VP"}},
-		ConstituencyRule{tag: "VP", rule: []string{"VBZ", "SBAR"}},
-		ConstituencyRule{tag: "VP", rule: []string{"VB", "S"}},
+		{tag: "ADJP", rule: []string{"NP", "JJ"}},
+		{tag: "ADJP", rule: []string{"JJ", "JJ"}},
+		{tag: "ADJP", rule: []string{"RB", "JJ"}},
+		{tag: "ADJP", rule: []string{"RB", "VBN"}},
+		{tag: "ADJP", rule: []string{"RB", "JJR"}},
+		{tag: "ADJP", rule: []string{"JJ", "PP"}},
+		{tag: "ADJP", rule: []string{"CD", "NN"}},
+		{tag: "ADJP", rule: []string{"QP", "NN"}},
+		{tag: "ADJP", rule: []string{"ADJP", "PP"}},
+		{tag: "ADJP", rule: []string{"RBR", "JJ"}},
+		{tag: "ADJP", rule: []string{"RBS", "JJ"}},
+		{tag: "ADJP", rule: []string{"JJ", "CC", "JJ"}},
+		{tag: "ADJP", rule: []string{"NNP", ",", "JJ"}},
+		{tag: "ADJP", rule: []string{"CD", "CD", "NN"}},
+		{tag: "ADVP", rule: []string{"RB", "PP"}},
+		{tag: "ADVP", rule: []string{"RB", "NP"}},
+		{tag: "ADVP", rule: []string{"RB", "RB"}},
+		{tag: "ADVP", rule: []string{"IN", "JJS"}},
+		{tag: "CONJP", rule: []string{"IN", "IN"}},
+		{tag: "CONJP", rule: []string{"RB", "RB"}},
+		{tag: "CONJP", rule: []string{"RB", "RB", "IN"}},
+		{tag: "CONJP", rule: []string{"CC", "RB"}},
+		{tag: "CONJP", rule: []string{"RB", "IN"}},
+		{tag: "CONJP", rule: []string{"RB", "TO", "VB"}},
+		{tag: "CONJP", rule: []string{"RB", "JJ"}},
+		{tag: "NP", rule: []string{"NNP", "NNP"}},
+		{tag: "NP", rule: []string{"CD", "NNS"}},
+		{tag: "NP", rule: []string{"DT", "NN"}},
+		{tag: "NP", rule: []string{"DT", "JJ", "NN"}},
+		{tag: "NP", rule: []string{"NP", "PP"}},
+		{tag: "NP", rule: []string{"JJ", "NN"}},
+		{tag: "NP", rule: []string{"NN", "NNS"}},
+		{tag: "NP", rule: []string{"DT", "NN", "NN"}},
+		{tag: "NP", rule: []string{"DT", "NNS"}},
+		{tag: "NP", rule: []string{"NP", "SBAR"}},
+		{tag: "NP", rule: []string{"NNP", "NNP", "NNP"}},
+		{tag: "NP", rule: []string{"NP", "CC", "NP"}},
+		{tag: "NP", rule: []string{"JJ", "NNS"}},
+		{tag: "NP", rule: []string{"NP", "VP"}},
+		{tag: "NP", rule: []string{"CD", "NN"}},
+		{tag: "PP", rule: []string{"IN", "NP"}},
+		{tag: "PP", rule: []string{"TO", "NP"}},
+		{tag: "PRN", rule: []string{":", "NP"}},
+		{tag: "PRN", rule: []string{",", "SINV", ","}},
+		{tag: "PRN", rule: []string{":", "PP", ":"}},
+		{tag: "PRN", rule: []string{",", "PP", ","}},
+		{tag: "PRN", rule: []string{":", "NP", ":"}},
+		{tag: "PRN", rule: []string{",", "S", ","}},
+		{tag: "PRN", rule: []string{"SINV", ","}},
+		{tag: "PRN", rule: []string{",", "ADVP", ","}},
+		{tag: "PRN", rule: []string{",", "''", "SINV", ","}},
+		{tag: "PRN", rule: []string{":", "SBAR", ":"}},
+		{tag: "PRN", rule: []string{",", "''", "S", ","}},
+		{tag: "PRN", rule: []string{":", "S", ":"}},
+		{tag: "QP", rule: []string{"RBR", "IN", "CD"}},
+		{tag: "QP", rule: []string{"CD", "CD"}},
+		{tag: "QP", rule: []string{"IN", "CD"}},
+		{tag: "QP", rule: []string{"$", "CD", "CD"}},
+		{tag: "QP", rule: []string{"IN", "$", "CD", "CD"}},
+		{tag: "QP", rule: []string{"IN", "CD", "CD"}},
+		{tag: "QP", rule: []string{"RB", "$", "CD", "CD"}},
+		{tag: "QP", rule: []string{"RB", "CD"}},
+		{tag: "QP", rule: []string{"JJR", "IN", "CD"}},
+		{tag: "QP", rule: []string{"CD", "TO", "CD"}},
+		{tag: "QP", rule: []string{"JJR", "IN", "$", "CD", "CD"}},
+		{tag: "QP", rule: []string{"CD", "NN", "TO", "CD", "NN"}},
+		{tag: "QP", rule: []string{"#", "CD", "CD"}},
+		{tag: "VP", rule: []string{"MD", "VP"}},
+		{tag: "VP", rule: []string{"VBD", "VP"}},
+		{tag: "VP", rule: []string{"TO", "VP"}},
+		{tag: "VP", rule: []string{"VB", "NP"}},
+		{tag: "VP", rule: []string{"VBZ", "VP"}},
+		{tag: "VP", rule: []string{"VBN", "NP"}},
+		{tag: "VP", rule: []string{"VBD", "SBAR"}},
+		{tag: "VP", rule: []string{"VBZ", "NP"}},
+		{tag: "VP", rule: []string{"VBG", "NP"}},
+		{tag: "VP", rule: []string{"VBP", "VP"}},
+		{tag: "VP", rule: []string{"VBD", "NP"}},
+		{tag: "VP", rule: []string{"VBP", "NP"}},
+		{tag: "VP", rule: []string{"VBD", "S"}},
+		{tag: "VP", rule: []string{"VP", "CC", "VP"}},
+		{tag: "VP", rule: []string{"VBZ", "S"}},
+		{tag: "VP", rule: []string{"VBN", "NP", "PP"}},
+		{tag: "VP", rule: []string{"VB", "VP"}},
+		{tag: "VP", rule: []string{"VBZ", "SBAR"}},
+		{tag: "VP", rule: []string{"VB", "S"}},
 	}
 	slices.SortStableFunc(rules, func(i, j ConstituencyRule) int { return len(i.rule) - len(j.rule) })
 	var c = SyntacticTagger{m, t, rules}

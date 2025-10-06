@@ -12,8 +12,31 @@ import (
 	"gonum.org/v1/gonum/floats"
 )
 
+type Transitions map[string]map[string]float64
+
+type TransitionSplitFunction func(string) ([]string, []string)
+
+func TokenSplit(tk Tokenizer) TransitionSplitFunction {
+	return func(s string) ([]string, []string) {
+		tokens := tk.tokenize(s)
+		return tokens, tokens
+	}
+}
+
+func POSSplit(tag SyntacticTagger) TransitionSplitFunction {
+	return func(s string) ([]string, []string) {
+		return tag.POS(s)
+	}
+}
+
+func ConstituencySplit(tag SyntacticTagger) TransitionSplitFunction {
+	return func(s string) ([]string, []string) {
+		return tag.Constituency(s)
+	}
+}
+
 // higher for smaller chunks, lower for larger chunks
-func TransitionChunk(tok []string, tra Transitions, p float64) []string {
+func TransitionChunk(tok []string, tag []string, tra Transitions, p float64) []string {
 	var (
 		b     strings.Builder
 		s     string
@@ -25,8 +48,8 @@ func TransitionChunk(tok []string, tra Transitions, p float64) []string {
 		return out
 	}
 
-	for i := range len(tok) - 1 {
-		probs = append(probs, tra[tok[i]][tok[i+1]])
+	for i := range len(tag) - 1 {
+		probs = append(probs, tra[tag[i]][tag[i+1]])
 	}
 
 	for i, pp := range probs {
@@ -72,10 +95,8 @@ func CollectChunks(t []Text) []string {
 	return n
 }
 
-type Transitions map[string]map[string]float64
-
 // Counts bigram co-occurrences and converts to probabilities
-func CollectTransitions(t []Text, tk Tokenizer) Transitions {
+func CollectTransitions(t []Text, f TransitionSplitFunction) Transitions {
 	toBigrams := func(e []string) [][]string {
 		var b [][]string
 
@@ -123,7 +144,8 @@ func CollectTransitions(t []Text, tk Tokenizer) Transitions {
 	)
 
 	for _, ss := range t {
-		bb = toBigrams(tk.tokenize(ss.text))
+		tags, _ := f(ss.text)
+		bb = toBigrams(tags)
 		if len(bb) != 0 {
 			b = append(b, bb...)
 		}

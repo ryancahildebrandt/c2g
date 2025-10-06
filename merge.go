@@ -34,8 +34,10 @@ func POSTagEqual(c SyntacticTagger, l *log.Logger) EqualityFunction {
 	return func(g1, g2 []string) bool {
 		s1 := strings.Join(g1, " ")
 		s2 := strings.Join(g2, " ")
-		sig1 := c.POS(s1)
-		sig2 := c.POS(s2)
+		ss1, _ := c.POS(s1)
+		ss2, _ := c.POS(s2)
+		sig1 := strings.Join(ss1, "-")
+		sig2 := strings.Join(ss2, "-")
 		if sig1 == sig2 {
 			l.Printf("%v and %v merged with equality function %s\n", g1, g2, "POSTagEqual")
 			return true
@@ -48,8 +50,10 @@ func ConstituencyTagEqual(c SyntacticTagger, l *log.Logger) EqualityFunction {
 	return func(g1, g2 []string) bool {
 		s1 := strings.Join(g1, " ")
 		s2 := strings.Join(g2, " ")
-		sig1 := c.POS(s1)
-		sig2 := c.POS(s2)
+		ss1, _ := c.Constituency(s1)
+		ss2, _ := c.Constituency(s2)
+		sig1 := strings.Join(ss1, "-")
+		sig2 := strings.Join(ss2, "-")
 		if sig1 == sig2 {
 			l.Printf("%v and %v merged with equality function %s\n", g1, g2, "ConstituencyTagEqual")
 			return true

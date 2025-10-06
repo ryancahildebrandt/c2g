@@ -28,7 +28,6 @@ func TestGrammarE2E(t *testing.T) {
 		f string
 	}
 	tests := []struct {
-		
 		args args
 	}{
 		{args: args{f: "./data/tests/test1.csv"}},
@@ -64,9 +63,10 @@ func TestGrammarE2E(t *testing.T) {
 			got = slices.DeleteFunc(got, func(i string) bool { return i == "" })
 			slices.Sort(got)
 			got = slices.Compact(got)
-			tr := CollectTransitions(tx, tk)
+			tr := CollectTransitions(tx, TokenSplit(tk))
 			for i, t := range tx {
-				tx[i].chunk = TransitionChunk(tk.tokenize(t.text), tr, 0.1)
+				tokens := tk.tokenize(t.text)
+				tx[i].chunk = TransitionChunk(tokens, tokens, tr, 0.1)
 			}
 			ng := CollectChunks(tx)
 			for i, t := range tx {
@@ -122,7 +122,6 @@ func TestGrammarMainE2E(t *testing.T) {
 		f string
 	}
 	tests := []struct {
-		
 		args args
 	}{
 		{args: args{f: "./data/tests/test1.csv"}},
@@ -158,9 +157,10 @@ func TestGrammarMainE2E(t *testing.T) {
 			got = slices.DeleteFunc(got, func(i string) bool { return i == "" })
 			slices.Sort(got)
 			got = slices.Compact(got)
-			tr := CollectTransitions(tx, tk)
+			tr := CollectTransitions(tx, TokenSplit(tk))
 			for i, t := range tx {
-				tx[i].chunk = TransitionChunk(tk.tokenize(t.text), tr, 0.1)
+				tokens := tk.tokenize(t.text)
+				tx[i].chunk = TransitionChunk(tokens, tokens, tr, 0.1)
 			}
 			ng := CollectChunks(tx)
 			for i, t := range tx {

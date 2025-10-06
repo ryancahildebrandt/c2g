@@ -19,7 +19,6 @@ func TestCollectTransitions(t *testing.T) {
 		c []Text
 	}
 	tests := []struct {
-		
 		args args
 		want Transitions
 	}{
@@ -32,7 +31,7 @@ func TestCollectTransitions(t *testing.T) {
 	for _, tt := range tests {
 		t.Run("", func(t *testing.T) {
 			tok := NewWordTokenizer()
-			assert.Equalf(t, tt.want, CollectTransitions(tt.args.c, tok), "NewTransitions(%v)", tt.args.c)
+			assert.Equalf(t, tt.want, CollectTransitions(tt.args.c, TokenSplit(tok)), "NewTransitions(%v)", tt.args.c)
 		})
 	}
 }
@@ -53,7 +52,6 @@ func TestTransitionChunk(t *testing.T) {
 		p float64
 	}
 	tests := []struct {
-		
 		args args
 		want []string
 	}{
@@ -75,7 +73,7 @@ func TestTransitionChunk(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run("", func(t *testing.T) {
-			assert.Equal(t, tt.want, TransitionChunk(tt.args.s, tt.args.t, tt.args.p))
+			assert.Equal(t, tt.want, TransitionChunk(tt.args.s, tt.args.s, tt.args.t, tt.args.p))
 		})
 	}
 }
@@ -85,7 +83,6 @@ func TestCollectChunks(t *testing.T) {
 		f string
 	}
 	tests := []struct {
-		
 		args args
 		want []string
 	}{
@@ -130,9 +127,10 @@ func TestCollectChunks(t *testing.T) {
 			for i, t := range tx {
 				tx[i].text = tk.normalize(t.text)
 			}
-			tr := CollectTransitions(tx, tk)
+			tr := CollectTransitions(tx, TokenSplit(tk))
 			for i, t := range tx {
-				tx[i].chunk = TransitionChunk(tk.tokenize(t.text), tr, 0.1)
+				tokens := tk.tokenize(t.text)
+				tx[i].chunk = TransitionChunk(tokens, tokens, tr, 0.1)
 			}
 			ng := CollectChunks(tx)
 			slices.Sort(ng)

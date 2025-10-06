@@ -6,11 +6,9 @@
 package main
 
 import (
-	"context"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	"github.com/urfave/cli/v3"
 )
 
 func TestValidateInFile(t *testing.T) {
@@ -62,4 +60,3 @@ func TestValidateOutFile(t *testing.T) {
 		})
 	}
 }
-

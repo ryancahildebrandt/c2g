@@ -21,7 +21,6 @@ func TestCharacterLevenshtein(t *testing.T) {
 		s2 string
 	}
 	tests := []struct {
-		
 		args args
 		want float64
 	}{
@@ -50,7 +49,6 @@ func TestTokenLevenshtein(t *testing.T) {
 		s2 []string
 	}
 	tests := []struct {
-		
 		args args
 		want float64
 	}{
@@ -79,7 +77,6 @@ func Test_levenshteinDistance(t *testing.T) {
 		s2 []string
 	}
 	tests := []struct {
-		
 		args args
 		want int
 	}{
@@ -107,7 +104,6 @@ func TestCollectVocab(t *testing.T) {
 		f string
 	}
 	tests := []struct {
-		
 		args args
 		want []string
 	}{
@@ -138,7 +134,6 @@ func TestCollectIDF(t *testing.T) {
 		f string
 	}
 	tests := []struct {
-		
 		args args
 		want map[string]float64
 	}{
@@ -174,7 +169,6 @@ func TestCountEmbed(t *testing.T) {
 		v []string
 	}
 	tests := []struct {
-		
 		args      args
 		want      []float64
 		assertion assert.ErrorAssertionFunc
@@ -207,7 +201,6 @@ func TestCosineSimilarity(t *testing.T) {
 		v2 []float64
 	}
 	tests := []struct {
-		
 		args      args
 		want      float64
 		assertion assert.ErrorAssertionFunc
@@ -245,7 +238,6 @@ func TestTFIDFTransform(t *testing.T) {
 		v []float64
 	}
 	tests := []struct {
-		
 		args args
 		want []float64
 	}{

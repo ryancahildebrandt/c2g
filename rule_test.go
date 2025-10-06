@@ -24,7 +24,6 @@ func TestRule_print(t *testing.T) {
 		n string
 	}
 	tests := []struct {
-		
 		fields fields
 		args   args
 		want   string
@@ -58,7 +57,6 @@ func TestRule_isEmpty(t *testing.T) {
 		suf  []string
 	}
 	tests := []struct {
-		
 		fields fields
 		want   bool
 	}{
@@ -116,7 +114,6 @@ func TestRule_name(t *testing.T) {
 		r Rule
 	}
 	tests := []struct {
-		
 		args args
 		want string
 	}{
@@ -141,7 +138,6 @@ func TestSetIDs(t *testing.T) {
 		f string
 	}
 	tests := []struct {
-		
 		args args
 		want []Rule
 	}{
@@ -188,9 +184,10 @@ func TestSetIDs(t *testing.T) {
 			for i, t := range tx {
 				tx[i].text = tk.normalize(t.text)
 			}
-			tr := CollectTransitions(tx, tk)
+			tr := CollectTransitions(tx, TokenSplit(tk))
 			for i, t := range tx {
-				tx[i].chunk = TransitionChunk(tk.tokenize(t.text), tr, 0.1)
+				tokens := tk.tokenize(t.text)
+				tx[i].chunk = TransitionChunk(tokens, tokens, tr, 0.1)
 			}
 			ng := CollectChunks(tx)
 			for i, t := range tx {

@@ -110,8 +110,7 @@ func buildRules(cmd *cli.Command) ([]Rule, error) {
 		tokens      []string
 		chunks      []string
 		rules       []Rule
-		// tokenizer   = NewSepTokenizer()
-		tokenizer = NewWordTokenizer()
+		tokenizer   = NewWordTokenizer()
 	)
 
 	file, err = os.Open(cmd.String("inFile"))
@@ -124,10 +123,11 @@ func buildRules(cmd *cli.Command) ([]Rule, error) {
 	for i, t := range texts {
 		texts[i].text = tokenizer.normalize(t.text)
 	}
-	transitions = CollectTransitions(texts, tokenizer)
+
+	transitions = CollectTransitions(texts, TokenSplit(tokenizer))
 	for i, t := range texts {
 		tokens = tokenizer.tokenize(t.text)
-		texts[i].chunk = TransitionChunk(tokens, transitions, cmd.Float("prob"))
+		texts[i].chunk = TransitionChunk(tokens, tokens, transitions, cmd.Float("prob"))
 	}
 	chunks = CollectChunks(texts)
 	for i, t := range texts {

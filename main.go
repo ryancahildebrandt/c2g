@@ -6,15 +6,16 @@
 package main
 
 import (
+	"bufio"
 	"context"
 	"fmt"
 	"log"
 	"os"
+	"strings"
 	"time"
 
-	"github.com/urfave/cli/v3"
 	"github.com/jdkato/prose/tag"
-
+	"github.com/urfave/cli/v3"
 )
 
 func main() {
@@ -196,21 +197,40 @@ func main() {
 				Action: func(ctx context.Context, cmd *cli.Command) error {
 					var (
 						start = time.Now()
-						rules []Rule
+						// rules []Rule
 						// g     Grammar
-						err error
-						wordtok = NewWordTokenizer()
-						model   = tag.NewPerceptronTagger()
-						tagger = NewSyntacticTagger(model, wordtok)
+						// err error
+						tokenizer = NewWordTokenizer()
+						// model   = tag.NewPerceptronTagger()
+						// tagger  = NewSyntacticTagger(model, wordtok)
 					)
-
-					rules, err = buildRules(cmd)
+					file, err := os.Open(cmd.String("inFile"))
 					if err != nil {
-						return err
+						log.Fatal(err)
 					}
+					defer file.Close()
+					scanner := bufio.NewScanner(file)
+					texts := ReadTexts(scanner)
+					for i, t := range texts {
+						texts[i].text = tokenizer.normalize(t.text)
+					}
+					model := tag.NewPerceptronTagger()
+					tagger := NewSyntacticTagger(model, tokenizer)
 
-					SortPRS(rules)
-					rules = MergeR(rules, ConstituencyTagEqual(tagger, stdoutLogger))
+					transitions := CollectTransitions(texts, ConstituencySplit(tagger))
+					for i, t := range texts {
+						tags, tokens := tagger.Constituency(t.text)
+						texts[i].chunk = TransitionChunk(tokens, tags, transitions, cmd.Float("prob"))
+						fmt.Println(strings.Join(texts[i].chunk, "||"))
+					}
+					// chunks := CollectChunks(texts)
+					// for i, t := range texts {
+					// 	texts[i] = ToTriplet(t, chunks)
+					// }
+					// rules := []Rule{}
+					// for _, t := range texts {
+					// 	rules = append(rules, ToRule(t))
+					// }
 
 					// rules = SetIDs(rules)
 					// rules = Factor(rules, cmd.Int("factor"))

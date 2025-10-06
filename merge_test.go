@@ -64,9 +64,10 @@ func TestSortPR(t *testing.T) {
 			for i, t := range tx {
 				tx[i].text = tk.normalize(t.text)
 			}
-			tr := CollectTransitions(tx, tk)
+			tr := CollectTransitions(tx, TokenSplit(tk))
 			for i, t := range tx {
-				tx[i].chunk = TransitionChunk(tk.tokenize(t.text), tr, 0.1)
+				tokens := tk.tokenize(t.text)
+				tx[i].chunk = TransitionChunk(tokens, tokens, tr, 0.1)
 			}
 			ng := CollectChunks(tx)
 			for i, t := range tx {
@@ -130,9 +131,10 @@ func TestSortPS(t *testing.T) {
 			for i, t := range tx {
 				tx[i].text = tk.normalize(t.text)
 			}
-			tr := CollectTransitions(tx, tk)
+			tr := CollectTransitions(tx, TokenSplit(tk))
 			for i, t := range tx {
-				tx[i].chunk = TransitionChunk(tk.tokenize(t.text), tr, 0.1)
+				tokens := tk.tokenize(t.text)
+				tx[i].chunk = TransitionChunk(tokens, tokens, tr, 0.1)
 			}
 			ng := CollectChunks(tx)
 			for i, t := range tx {
@@ -196,9 +198,10 @@ func TestSortRS(t *testing.T) {
 			for i, t := range tx {
 				tx[i].text = tk.normalize(t.text)
 			}
-			tr := CollectTransitions(tx, tk)
+			tr := CollectTransitions(tx, TokenSplit(tk))
 			for i, t := range tx {
-				tx[i].chunk = TransitionChunk(tk.tokenize(t.text), tr, 0.1)
+				tokens := tk.tokenize(t.text)
+				tx[i].chunk = TransitionChunk(tokens, tokens, tr, 0.1)
 			}
 			ng := CollectChunks(tx)
 			for i, t := range tx {
@@ -262,9 +265,10 @@ func TestSortPRS(t *testing.T) {
 			for i, t := range tx {
 				tx[i].text = tk.normalize(t.text)
 			}
-			tr := CollectTransitions(tx, tk)
+			tr := CollectTransitions(tx, TokenSplit(tk))
 			for i, t := range tx {
-				tx[i].chunk = TransitionChunk(tk.tokenize(t.text), tr, 0.1)
+				tokens := tk.tokenize(t.text)
+				tx[i].chunk = TransitionChunk(tokens, tokens, tr, 0.1)
 			}
 			ng := CollectChunks(tx)
 			for i, t := range tx {
@@ -308,9 +312,10 @@ func TestMergeP(t *testing.T) {
 			for i, t := range tx {
 				tx[i].text = tk.normalize(t.text)
 			}
-			tr := CollectTransitions(tx, tk)
+			tr := CollectTransitions(tx, TokenSplit(tk))
 			for i, t := range tx {
-				tx[i].chunk = TransitionChunk(tk.tokenize(t.text), tr, 0.1)
+				tokens := tk.tokenize(t.text)
+				tx[i].chunk = TransitionChunk(tokens, tokens, tr, 0.1)
 			}
 			ng := CollectChunks(tx)
 			for i, t := range tx {
@@ -376,9 +381,10 @@ func TestMergeR(t *testing.T) {
 			for i, t := range tx {
 				tx[i].text = tk.normalize(t.text)
 			}
-			tr := CollectTransitions(tx, tk)
+			tr := CollectTransitions(tx, TokenSplit(tk))
 			for i, t := range tx {
-				tx[i].chunk = TransitionChunk(tk.tokenize(t.text), tr, 0.1)
+				tokens := tk.tokenize(t.text)
+				tx[i].chunk = TransitionChunk(tokens, tokens, tr, 0.1)
 			}
 			ng := CollectChunks(tx)
 			for i, t := range tx {
@@ -425,9 +431,10 @@ func TestMergeS(t *testing.T) {
 			for i, t := range tx {
 				tx[i].text = tk.normalize(t.text)
 			}
-			tr := CollectTransitions(tx, tk)
+			tr := CollectTransitions(tx, TokenSplit(tk))
 			for i, t := range tx {
-				tx[i].chunk = TransitionChunk(tk.tokenize(t.text), tr, 0.1)
+				tokens := tk.tokenize(t.text)
+				tx[i].chunk = TransitionChunk(tokens, tokens, tr, 0.1)
 			}
 			ng := CollectChunks(tx)
 			for i, t := range tx {
@@ -492,9 +499,10 @@ func TestMergePR(t *testing.T) {
 			for i, t := range tx {
 				tx[i].text = tk.normalize(t.text)
 			}
-			tr := CollectTransitions(tx, tk)
+			tr := CollectTransitions(tx, TokenSplit(tk))
 			for i, t := range tx {
-				tx[i].chunk = TransitionChunk(tk.tokenize(t.text), tr, 0.1)
+				tokens := tk.tokenize(t.text)
+				tx[i].chunk = TransitionChunk(tokens, tokens, tr, 0.1)
 			}
 			ng := CollectChunks(tx)
 			for i, t := range tx {
@@ -539,9 +547,10 @@ func TestMergePS(t *testing.T) {
 			for i, t := range tx {
 				tx[i].text = tk.normalize(t.text)
 			}
-			tr := CollectTransitions(tx, tk)
+			tr := CollectTransitions(tx, TokenSplit(tk))
 			for i, t := range tx {
-				tx[i].chunk = TransitionChunk(tk.tokenize(t.text), tr, 0.1)
+				tokens := tk.tokenize(t.text)
+				tx[i].chunk = TransitionChunk(tokens, tokens, tr, 0.1)
 			}
 			ng := CollectChunks(tx)
 			for i, t := range tx {
@@ -606,9 +615,10 @@ func TestMergeRS(t *testing.T) {
 			for i, t := range tx {
 				tx[i].text = tk.normalize(t.text)
 			}
-			tr := CollectTransitions(tx, tk)
+			tr := CollectTransitions(tx, TokenSplit(tk))
 			for i, t := range tx {
-				tx[i].chunk = TransitionChunk(tk.tokenize(t.text), tr, 0.1)
+				tokens := tk.tokenize(t.text)
+				tx[i].chunk = TransitionChunk(tokens, tokens, tr, 0.1)
 			}
 			ng := CollectChunks(tx)
 			for i, t := range tx {
@@ -663,9 +673,10 @@ func TestMergeMisc(t *testing.T) {
 			for i, t := range tx {
 				tx[i].text = tk.normalize(t.text)
 			}
-			tr := CollectTransitions(tx, tk)
+			tr := CollectTransitions(tx, TokenSplit(tk))
 			for i, t := range tx {
-				tx[i].chunk = TransitionChunk(tk.tokenize(t.text), tr, 0.1)
+				tokens := tk.tokenize(t.text)
+				tx[i].chunk = TransitionChunk(tokens, tokens, tr, 0.1)
 			}
 			ng := CollectChunks(tx)
 			for i, t := range tx {
@@ -814,9 +825,10 @@ func TestFactor(t *testing.T) {
 			for i, t := range tx {
 				tx[i].text = tk.normalize(t.text)
 			}
-			tr := CollectTransitions(tx, tk)
+			tr := CollectTransitions(tx, TokenSplit(tk))
 			for i, t := range tx {
-				tx[i].chunk = TransitionChunk(tk.tokenize(t.text), tr, 0.1)
+				tokens := tk.tokenize(t.text)
+				tx[i].chunk = TransitionChunk(tokens, tokens, tr, 0.1)
 			}
 			ng := CollectChunks(tx)
 			for i, t := range tx {
@@ -832,5 +844,3 @@ func TestFactor(t *testing.T) {
 		})
 	}
 }
-
-
