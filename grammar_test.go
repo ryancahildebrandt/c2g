@@ -58,7 +58,7 @@ func TestGrammar_body(t *testing.T) {
 				rules = append(rules, ToRule(t))
 			}
 			rules = SetIDs(rules)
-			rules = GroupFactor(rules, 5, nilLogger)
+			rules = ExpressionFactor(5, nilLogger)(rules)
 			g := Grammar{Rules: rules}
 			assert.Equal(t, tt.want, g.body())
 		})
@@ -109,7 +109,7 @@ func TestGrammar_bodyMain(t *testing.T) {
 				rules = append(rules, ToRule(t))
 			}
 			rules = SetIDs(rules)
-			rules = GroupFactor(rules, 5, nilLogger)
+			rules = ExpressionFactor(5, nilLogger)(rules)
 			g := Grammar{Rules: rules}
 			assert.Equal(t, tt.want, g.bodyMain())
 		})

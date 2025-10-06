@@ -6,9 +6,6 @@
 package main
 
 import (
-	"bytes"
-	"errors"
-	"fmt"
 	"strings"
 
 	"github.com/bzick/tokenizer"
@@ -25,18 +22,19 @@ var (
 	boundaryChars   []string = []string{".", ",", "?", "!", ":", ";"}
 	whiteSpaceChars []string = []string{" ", "\t", "\n", "\r"}
 	preTokenizedSep []string = []string{"<SEP>"}
-	posSep          []string = []string{"-"}
 )
 
 type Tokenizer interface {
+	// Splits a string based on defined tokens
 	tokenize(s string) []string
+	// Splits string to tokens and joins tokens with single space
 	normalize(s string) string
 }
 
 type wordTokenizer struct{ *tokenizer.Tokenizer }
 
 func NewWordTokenizer() wordTokenizer {
-	var tok = wordTokenizer{tokenizer.New()}
+	tok := wordTokenizer{tokenizer.New()}
 
 	tok.SetWhiteSpaces([]byte{})
 	tok.DefineTokens(WhiteSpace, whiteSpaceChars)
@@ -45,12 +43,11 @@ func NewWordTokenizer() wordTokenizer {
 	return tok
 }
 
-func (t wordTokenizer) tokenize(s string) []string {
+func (tok wordTokenizer) tokenize(s string) []string {
 	var (
-		res     string
 		builder strings.Builder
 		out                       = []string{}
-		stream  *tokenizer.Stream = t.ParseString(s)
+		stream  *tokenizer.Stream = tok.ParseString(s)
 	)
 
 	if s == "" {
@@ -61,7 +58,7 @@ func (t wordTokenizer) tokenize(s string) []string {
 		switch {
 		case stream.CurrentToken().Is(Boundary):
 			builder, out = flushBuilder(builder, out)
-			res = stream.CurrentToken().ValueUnescapedString()
+			res := stream.CurrentToken().ValueUnescapedString()
 			out = append(out, res)
 			stream.GoNext()
 		case stream.CurrentToken().Is(WhiteSpace):
@@ -77,14 +74,14 @@ func (t wordTokenizer) tokenize(s string) []string {
 	return out
 }
 
-func (t wordTokenizer) normalize(s string) string {
-	return strings.Join(t.tokenize(s), " ")
+func (tok wordTokenizer) normalize(s string) string {
+	return strings.Join(tok.tokenize(s), " ")
 }
 
 type sepTokenizer struct{ *tokenizer.Tokenizer }
 
 func NewSepTokenizer() sepTokenizer {
-	var tok = sepTokenizer{tokenizer.New()}
+	tok := sepTokenizer{tokenizer.New()}
 
 	tok.SetWhiteSpaces([]byte{})
 	tok.DefineTokens(Sep, preTokenizedSep)
@@ -92,11 +89,11 @@ func NewSepTokenizer() sepTokenizer {
 	return tok
 }
 
-func (t sepTokenizer) tokenize(s string) []string {
+func (tok sepTokenizer) tokenize(s string) []string {
 	var (
 		builder strings.Builder
 		out                       = []string{}
-		stream  *tokenizer.Stream = t.ParseString(s)
+		stream  *tokenizer.Stream = tok.ParseString(s)
 	)
 
 	if s == "" {
@@ -122,75 +119,18 @@ func (t sepTokenizer) tokenize(s string) []string {
 
 }
 
-func (t sepTokenizer) normalize(s string) string {
-	return strings.Join(t.tokenize(s), " ")
-}
-
-type posTokenizer struct{ *tokenizer.Tokenizer }
-
-func NewPOSTokenizer() posTokenizer {
-	var tok = posTokenizer{tokenizer.New()}
-
-	tok.SetWhiteSpaces([]byte{})
-	tok.DefineTokens(POSSep, posSep)
-
-	return tok
-}
-
-func (t posTokenizer) tokenize(s string) []string {
-	var (
-		builder strings.Builder
-		out                       = []string{}
-		stream  *tokenizer.Stream = t.ParseString(s)
-	)
-
-	if s == "" {
-		return out
-	}
-	if !strings.Contains(s, "-") {
-		return []string{s}
-	}
-
-	for stream.IsValid() {
-		switch {
-		case stream.CurrentToken().Is(POSSep):
-			builder, out = flushBuilder(builder, out)
-			stream.GoNext()
-		default:
-			builder.WriteString(stream.CurrentToken().ValueUnescapedString())
-			stream.GoNext()
-		}
-	}
-	builder, out = flushBuilder(builder, out)
-
-	return out
-
-}
-
-func (t posTokenizer) normalize(s string) string {
-	return strings.Join(t.tokenize(s), "-")
+func (tok sepTokenizer) normalize(s string) string {
+	return strings.Join(tok.tokenize(s), " ")
 }
 
 // Helper function to get current contents of strings.Builder and reset
-func flushBuilder(b strings.Builder, o []string) (strings.Builder, []string) {
-	var str string = b.String()
+func flushBuilder(b strings.Builder, out []string) (strings.Builder, []string) {
+	str := b.String()
 
 	b.Reset()
 	if len(str) != 0 {
-		o = append(o, str)
+		out = append(out, str)
 	}
 
-	return b, o
-}
-
-// Checks that the provided string can be consumed by a tokenizer (is not empty and does not contain byte \x00)
-func ValidateTokenizerString(s string) error {
-	if s == "" {
-		return fmt.Errorf("error when calling ValidateTokenizerString(%v):\n%+w", s, errors.New("cannot tokenize empty string"))
-	}
-	if bytes.Contains([]byte(s), []byte("\x00")) {
-		return fmt.Errorf("error when calling ValidateTokenizerString(%v):\n%+w", s, errors.New("cannot tokenize string containing null char \x00"))
-	}
-
-	return nil
+	return b, out
 }

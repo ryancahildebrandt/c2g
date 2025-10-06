@@ -10,6 +10,7 @@ import (
 	"os"
 	"testing"
 
+	"github.com/jdkato/prose/tag"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -18,7 +19,6 @@ func TestReadTexts(t *testing.T) {
 		f string
 	}
 	tests := []struct {
-		
 		args args
 		want []Text
 	}{
@@ -69,7 +69,6 @@ func TestToTriplet(t *testing.T) {
 		n []string
 	}
 	tests := []struct {
-		
 		args args
 		want Text
 	}{
@@ -94,7 +93,6 @@ func TestToRule(t *testing.T) {
 		t Text
 	}
 	tests := []struct {
-		
 		args args
 		want Rule
 	}{
@@ -110,6 +108,52 @@ func TestToRule(t *testing.T) {
 	for _, tt := range tests {
 		t.Run("", func(t *testing.T) {
 			assert.Equal(t, tt.want, ToRule(tt.args.t))
+		})
+	}
+}
+
+func TestFilterTexts(t *testing.T) {
+	type args struct {
+		f string
+		q float64
+	}
+	tests := []struct {
+		args args
+		want []Text
+	}{
+		{args: args{f: "./data/tests/test5.csv", q: 0.0}, want: []Text{{pre: "", root: "", suf: "", text: "I don't have an online account", chunk: []string{}}}},
+		{args: args{f: "./data/tests/test5.csv", q: 0.4}, want: []Text{{pre: "", root: "", suf: "", text: "I don't have an online account", chunk: []string{}}}},
+		{args: args{f: "./data/tests/test5.csv", q: 0.6}, want: []Text{{pre: "", root: "", suf: "", text: "I don't have an online account", chunk: []string{}}}},
+		{args: args{f: "./data/tests/test5.csv", q: 1.0}, want: []Text{{pre: "", root: "", suf: "", text: "I don't have an online account", chunk: []string{}}}},
+		{args: args{f: "./data/tests/test6.csv", q: 0.0}, want: []Text{{pre: "", root: "", suf: "", text: "I don't have an online account", chunk: []string{}}, {pre: "", root: "", suf: "", text: "I don't understand you", chunk: []string{}}, {pre: "", root: "", suf: "", text: "I got an error message when I attempted to make a payment", chunk: []string{}}, {pre: "", root: "", suf: "", text: "I want an online accoynt", chunk: []string{}}, {pre: "", root: "", suf: "", text: "ask an agent to notify issues with my payment", chunk: []string{}}, {pre: "", root: "", suf: "", text: "can you show me information about the status of my refund ?", chunk: []string{}}, {pre: "", root: "", suf: "", text: "can you show me my invoices ?", chunk: []string{}}, {pre: "", root: "", suf: "", text: "can you tell me how I can get some bills ?", chunk: []string{}}, {pre: "", root: "", suf: "", text: "i dont want my profile", chunk: []string{}}, {pre: "", root: "", suf: "", text: "i want to know wat the email of Customer Service is", chunk: []string{}}, {pre: "", root: "", suf: "", text: "where can i leave an opinion for a service ?", chunk: []string{}}}},
+		{args: args{f: "./data/tests/test6.csv", q: 0.4}, want: []Text{{pre: "", root: "", suf: "", text: "I don't have an online account", chunk: []string{}}, {pre: "", root: "", suf: "", text: "I don't understand you", chunk: []string{}}, {pre: "", root: "", suf: "", text: "I got an error message when I attempted to make a payment", chunk: []string{}}, {pre: "", root: "", suf: "", text: "I want an online accoynt", chunk: []string{}}, {pre: "", root: "", suf: "", text: "ask an agent to notify issues with my payment", chunk: []string{}}, {pre: "", root: "", suf: "", text: "can you show me information about the status of my refund ?", chunk: []string{}}, {pre: "", root: "", suf: "", text: "can you show me my invoices ?", chunk: []string{}}, {pre: "", root: "", suf: "", text: "can you tell me how I can get some bills ?", chunk: []string{}}, {pre: "", root: "", suf: "", text: "i dont want my profile", chunk: []string{}}, {pre: "", root: "", suf: "", text: "i want to know wat the email of Customer Service is", chunk: []string{}}, {pre: "", root: "", suf: "", text: "where can i leave an opinion for a service ?", chunk: []string{}}}},
+		{args: args{f: "./data/tests/test6.csv", q: 0.6}, want: []Text{{pre: "", root: "", suf: "", text: "I don't have an online account", chunk: []string{}}, {pre: "", root: "", suf: "", text: "I don't understand you", chunk: []string{}}, {pre: "", root: "", suf: "", text: "I got an error message when I attempted to make a payment", chunk: []string{}}, {pre: "", root: "", suf: "", text: "I want an online accoynt", chunk: []string{}}, {pre: "", root: "", suf: "", text: "ask an agent to notify issues with my payment", chunk: []string{}}, {pre: "", root: "", suf: "", text: "can you show me information about the status of my refund ?", chunk: []string{}}, {pre: "", root: "", suf: "", text: "can you show me my invoices ?", chunk: []string{}}, {pre: "", root: "", suf: "", text: "can you tell me how I can get some bills ?", chunk: []string{}}, {pre: "", root: "", suf: "", text: "i dont want my profile", chunk: []string{}}, {pre: "", root: "", suf: "", text: "i want to know wat the email of Customer Service is", chunk: []string{}}, {pre: "", root: "", suf: "", text: "where can i leave an opinion for a service ?", chunk: []string{}}}},
+		{args: args{f: "./data/tests/test6.csv", q: 1.0}, want: []Text{{pre: "", root: "", suf: "", text: "I don't have an online account", chunk: []string{}}, {pre: "", root: "", suf: "", text: "I want an online accoynt", chunk: []string{}}}},
+		{args: args{f: "./data/tests/test7.csv", q: 0.0}, want: []Text{}},
+		{args: args{f: "./data/tests/test7.csv", q: 1.0}, want: []Text{}},
+		{args: args{f: "./data/tests/test8.csv", q: 0.0}, want: []Text{}},
+		{args: args{f: "./data/tests/test8.csv", q: 1.0}, want: []Text{}},
+		{args: args{f: "./data/tests/test9.csv", q: 0.0}, want: []Text{{pre: "", root: "", suf: "", text: "I don't have an online account", chunk: []string{}}, {pre: "", root: "", suf: "", text: "I have a question", chunk: []string{}}, {pre: "", root: "", suf: "", text: "I ordered an item and Id like to modify my fucking order", chunk: []string{}}, {pre: "", root: "", suf: "", text: "I want to download a bill", chunk: []string{}}, {pre: "", root: "", suf: "", text: "I want to know what the number of Customer Service is", chunk: []string{}}, {pre: "", root: "", suf: "", text: "I want to make a review for a service", chunk: []string{}}, {pre: "", root: "", suf: "", text: "how do I make changes to my shipping address ?", chunk: []string{}}, {pre: "", root: "", suf: "", text: "i get an error message when i ty to make a payment for my order", chunk: []string{}}, {pre: "", root: "", suf: "", text: "i want to request an invoice", chunk: []string{}}, {pre: "", root: "", suf: "", text: "where do i check the delivery options ?", chunk: []string{}}, {pre: "", root: "", suf: "", text: "you arent helping", chunk: []string{}}}},
+		{args: args{f: "./data/tests/test9.csv", q: 0.4}, want: []Text{{pre: "", root: "", suf: "", text: "I don't have an online account", chunk: []string{}}, {pre: "", root: "", suf: "", text: "I have a question", chunk: []string{}}, {pre: "", root: "", suf: "", text: "I ordered an item and Id like to modify my fucking order", chunk: []string{}}, {pre: "", root: "", suf: "", text: "I want to download a bill", chunk: []string{}}, {pre: "", root: "", suf: "", text: "I want to know what the number of Customer Service is", chunk: []string{}}, {pre: "", root: "", suf: "", text: "I want to make a review for a service", chunk: []string{}}, {pre: "", root: "", suf: "", text: "how do I make changes to my shipping address ?", chunk: []string{}}, {pre: "", root: "", suf: "", text: "i get an error message when i ty to make a payment for my order", chunk: []string{}}, {pre: "", root: "", suf: "", text: "i want to request an invoice", chunk: []string{}}, {pre: "", root: "", suf: "", text: "where do i check the delivery options ?", chunk: []string{}}, {pre: "", root: "", suf: "", text: "you arent helping", chunk: []string{}}}},
+		{args: args{f: "./data/tests/test9.csv", q: 0.6}, want: []Text{{pre: "", root: "", suf: "", text: "I don't have an online account", chunk: []string{}}, {pre: "", root: "", suf: "", text: "I have a question", chunk: []string{}}, {pre: "", root: "", suf: "", text: "I ordered an item and Id like to modify my fucking order", chunk: []string{}}, {pre: "", root: "", suf: "", text: "I want to download a bill", chunk: []string{}}, {pre: "", root: "", suf: "", text: "I want to know what the number of Customer Service is", chunk: []string{}}, {pre: "", root: "", suf: "", text: "I want to make a review for a service", chunk: []string{}}, {pre: "", root: "", suf: "", text: "how do I make changes to my shipping address ?", chunk: []string{}}, {pre: "", root: "", suf: "", text: "i get an error message when i ty to make a payment for my order", chunk: []string{}}, {pre: "", root: "", suf: "", text: "i want to request an invoice", chunk: []string{}}, {pre: "", root: "", suf: "", text: "where do i check the delivery options ?", chunk: []string{}}, {pre: "", root: "", suf: "", text: "you arent helping", chunk: []string{}}}},
+		{args: args{f: "./data/tests/test9.csv", q: 1.0}, want: []Text{{pre: "", root: "", suf: "", text: "I don't have an online account", chunk: []string{}}, {pre: "", root: "", suf: "", text: "I have a question", chunk: []string{}}, {pre: "", root: "", suf: "", text: "I ordered an item and Id like to modify my fucking order", chunk: []string{}}, {pre: "", root: "", suf: "", text: "I want to download a bill", chunk: []string{}}, {pre: "", root: "", suf: "", text: "I want to know what the number of Customer Service is", chunk: []string{}}, {pre: "", root: "", suf: "", text: "I want to make a review for a service", chunk: []string{}}, {pre: "", root: "", suf: "", text: "how do I make changes to my shipping address ?", chunk: []string{}}, {pre: "", root: "", suf: "", text: "i get an error message when i ty to make a payment for my order", chunk: []string{}}, {pre: "", root: "", suf: "", text: "i want to request an invoice", chunk: []string{}}, {pre: "", root: "", suf: "", text: "where do i check the delivery options ?", chunk: []string{}}, {pre: "", root: "", suf: "", text: "you arent helping", chunk: []string{}}}},
+		{args: args{f: "./data/tests/test10.csv", q: 0.0}, want: []Text{}},
+		{args: args{f: "./data/tests/test10.csv", q: 1.0}, want: []Text{}},
+	}
+	for _, tt := range tests {
+		t.Run("", func(t *testing.T) {
+			tokenizer := NewWordTokenizer()
+			model := tag.NewPerceptronTagger()
+			tagger := NewSyntacticTagger(model, tokenizer)
+			file, _ := os.Open(tt.args.f)
+			defer file.Close()
+			s := bufio.NewScanner(file)
+			tx := ReadTexts(s)
+			for i, t := range tx {
+				t.text = tokenizer.normalize(t.text)
+				tx[i] = t
+			}
+			assert.Equal(t, tt.want, FilterTexts(tx, tagger, tt.args.q))
 		})
 	}
 }

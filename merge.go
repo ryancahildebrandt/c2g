@@ -8,114 +8,116 @@ package main
 import (
 	"fmt"
 	"log"
-	"maps"
 	"slices"
 	"strings"
 )
 
-type EqualityFunction func(g1, g2 []string) bool
+// Function that determines if two expression groups can be considered equivalent
+type EqualityFunction func(e1, e2 []string) bool
 
+// Used for testing
 func DummyEqual(l *log.Logger) EqualityFunction {
-	return func(g1, g2 []string) bool {
+	return func(e1, e2 []string) bool {
 		return true
 	}
 }
 
+// Compares expressions for exact string match
 func LiteralEqual(l *log.Logger) EqualityFunction {
-	return func(g1, g2 []string) bool {
-		if slices.Equal(g1, g2) {
-			l.Printf("equality function %s matched %v and %v\n", "LiteralEqual", g1, g2)
+	return func(e1, e2 []string) bool {
+		if slices.Equal(e1, e2) {
+			l.Printf("equality function %s matched %v and %v\n", "LiteralEqual", e1, e2)
 			return true
 		}
 		return false
 	}
 }
 
+// Compares expressions for matching sequences of POS tags
 func POSTagEqual(c SyntacticTagger, l *log.Logger) EqualityFunction {
-	return func(g1, g2 []string) bool {
-		s1 := strings.Join(g1, " ")
-		s2 := strings.Join(g2, " ")
-		ss1, _ := c.POS(s1)
-		ss2, _ := c.POS(s2)
-		sig1 := strings.Join(ss1, "-")
-		sig2 := strings.Join(ss2, "-")
+	return func(e1, e2 []string) bool {
+		s1, _ := c.POS(strings.Join(e1, " "))
+		s2, _ := c.POS(strings.Join(e2, " "))
+		sig1 := strings.Join(s1, "-")
+		sig2 := strings.Join(s2, "-")
 		if sig1 == sig2 {
-			l.Printf("equality function %s matched %v and %v\n", "POSTagEqual", g1, g2)
+			l.Printf("equality function %s matched %v and %v\n", "POSTagEqual", e1, e2)
 			return true
 		}
 		return false
 	}
 }
 
+// Compares expressions for matching sequences of constituency tags
 func ConstituencyTagEqual(c SyntacticTagger, l *log.Logger) EqualityFunction {
-	return func(g1, g2 []string) bool {
-		s1 := strings.Join(g1, " ")
-		s2 := strings.Join(g2, " ")
-		ss1, _ := c.Constituency(s1)
-		ss2, _ := c.Constituency(s2)
-		sig1 := strings.Join(ss1, "-")
-		sig2 := strings.Join(ss2, "-")
+	return func(e1, e2 []string) bool {
+		s1, _ := c.Constituency(strings.Join(e1, " "))
+		s2, _ := c.Constituency(strings.Join(e2, " "))
+		sig1 := strings.Join(s1, "-")
+		sig2 := strings.Join(s2, "-")
 		if sig1 == sig2 {
-			l.Printf("equality function %s matched %v and %v\n", "ConstituencyTagEqual", g1, g2)
+			l.Printf("equality function %s matched %v and %v\n", "ConstituencyTagEqual", e1, e2)
 			return true
 		}
 		return false
 	}
 }
 
+// Compares expression similarity via character level levenshtein distance
 func CharacterLevenshteinThreshold(t float64, l *log.Logger) EqualityFunction {
-	return func(g1, g2 []string) bool {
-		s1 := strings.Join(g1, " ")
-		s2 := strings.Join(g2, " ")
-		sim := CharacterLevenshtein(s1, s2)
+	return func(e1, e2 []string) bool {
+		sim := CharacterLevenshtein(strings.Join(e1, " "), strings.Join(e2, " "))
 		if sim >= t {
-			l.Printf("equality function %s matched %v and %v, threshold %v, similarity %v\n", "CharacterLevenshteinThreshold", g1, g2, t, sim)
+			l.Printf("equality function %s matched %v and %v, threshold %v, similarity %v\n", "CharacterLevenshteinThreshold", e1, e2, t, sim)
 			return true
 		}
 		return false
 	}
 }
 
+// Compares expression similarity via token level levenshtein distance
 func TokenLevenshteinThreshold(t float64, l *log.Logger) EqualityFunction {
-	return func(g1, g2 []string) bool {
-		g1 = strings.Split(strings.Join(g1, " "), " ")
-		g2 = strings.Split(strings.Join(g2, " "), " ")
-		sim := TokenLevenshtein(g1, g2)
+	return func(e1, e2 []string) bool {
+		e1 = strings.Split(strings.Join(e1, " "), " ")
+		e2 = strings.Split(strings.Join(e2, " "), " ")
+		sim := TokenLevenshtein(e1, e2)
 		if sim >= t {
-			l.Printf("equality function %s matched %v and %v, threshold %v, similarity %v\n", "TokenLevenshteinThreshold", g1, g2, t, sim)
+			l.Printf("equality function %s matched %v and %v, threshold %v, similarity %v\n", "TokenLevenshteinThreshold", e1, e2, t, sim)
 			return true
 		}
 		return false
 	}
 }
 
-func TFIDFCosineThreshold(t float64, v []string, tk Tokenizer, idf map[string]float64, l *log.Logger) EqualityFunction {
-	return func(g1, g2 []string) bool {
-		v1, err := CountEmbed(strings.Join(g1, " "), v, tk)
+// Compares expression similarity via tfidf embeddings and cosine similarity
+func TFIDFCosineThreshold(thr float64, voc []string, tok Tokenizer, idf map[string]float64, l *log.Logger) EqualityFunction {
+	return func(e1, e2 []string) bool {
+		vec1, err := CountEmbed(strings.Join(e1, " "), voc, tok)
 		if err != nil {
 			fmt.Println(err)
 			return false
 		}
-		v2, err := CountEmbed(strings.Join(g2, " "), v, tk)
+		vec2, err := CountEmbed(strings.Join(e2, " "), voc, tok)
 		if err != nil {
 			fmt.Println(err)
 			return false
 		}
-		v1 = TFIDFTransform(v1, v, idf)
-		v2 = TFIDFTransform(v2, v, idf)
-		sim, err := CosineSimilarity(v1, v2)
+		vec1 = TFIDFTransform(vec1, voc, idf)
+		vec2 = TFIDFTransform(vec2, voc, idf)
+		sim, err := CosineSimilarity(vec1, vec2)
 		if err != nil {
 			fmt.Println(err)
 			return false
 		}
-		if sim >= t {
-			l.Printf("equality function %s matched %v and %v, threshold %v, similarity %v\n", "TFIDFCosineThreshold", g1, g2, t, sim)
+		if sim >= thr {
+			l.Printf("equality function %s matched %v and %v, threshold %v, similarity %v\n", "TFIDFCosineThreshold", e1, e2, thr, sim)
 			return true
 		}
 		return false
 	}
 }
 
+// Sort rules on prefixes and roots
 func SortPR(r []Rule) {
 	slices.SortStableFunc(r, func(r1 Rule, r2 Rule) int {
 		if slices.Equal(r1.pre, r2.pre) {
@@ -125,6 +127,7 @@ func SortPR(r []Rule) {
 	})
 }
 
+// Sort rules on prefixes and suffixes
 func SortPS(r []Rule) {
 	slices.SortStableFunc(r, func(r1 Rule, r2 Rule) int {
 		if slices.Equal(r1.pre, r2.pre) {
@@ -134,6 +137,7 @@ func SortPS(r []Rule) {
 	})
 }
 
+// Sort rules on roots and suffixes
 func SortRS(r []Rule) {
 	slices.SortStableFunc(r, func(r1 Rule, r2 Rule) int {
 		if slices.Equal(r1.root, r2.root) {
@@ -143,6 +147,7 @@ func SortRS(r []Rule) {
 	})
 }
 
+// Sort rules on prefixes, roots, and suffixes
 func SortPRS(r []Rule) {
 	slices.SortStableFunc(r, func(r1 Rule, r2 Rule) int {
 		switch {
@@ -156,6 +161,7 @@ func SortPRS(r []Rule) {
 	})
 }
 
+// Merge rules based on equality function match in rule prefix
 func MergeP(r []Rule, e EqualityFunction, l *log.Logger) []Rule {
 	check := func(r1 Rule, r2 Rule) bool { return e(r1.pre, r2.pre) }
 	merge := func(r1 Rule, r2 Rule) Rule {
@@ -177,14 +183,12 @@ func MergeP(r []Rule, e EqualityFunction, l *log.Logger) []Rule {
 		return r
 	}
 
-	var i int
-
 	SortPRS(r)
-	for i < len(r)-1 {
+	for i := 0; i < len(r)-1; {
 		if check(r[i], r[i+1]) {
-			rr := merge(r[i], r[i+1])
-			l.Printf("merge function %s replaced %v and %v with new rule %v\n", "MergeP", r[i], r[i+1], rr)
-			r[i] = rr
+			rule := merge(r[i], r[i+1])
+			l.Printf("merge function %s replaced %v and %v with new rule %v\n", "MergeP", r[i], r[i+1], rule)
+			r[i] = rule
 			r = slices.Delete(r, i+1, i+2)
 			continue
 		}
@@ -194,6 +198,7 @@ func MergeP(r []Rule, e EqualityFunction, l *log.Logger) []Rule {
 	return r
 }
 
+// Merge rules based on equality function match in rule root
 func MergeR(r []Rule, e EqualityFunction, l *log.Logger) []Rule {
 	check := func(r1 Rule, r2 Rule) bool { return e(r1.root, r2.root) }
 	merge := func(r1 Rule, r2 Rule) Rule {
@@ -215,14 +220,12 @@ func MergeR(r []Rule, e EqualityFunction, l *log.Logger) []Rule {
 		return r
 	}
 
-	var i int
-
 	SortPRS(r)
-	for i < len(r)-1 {
+	for i := 0; i < len(r)-1; {
 		if check(r[i], r[i+1]) {
-			rr := merge(r[i], r[i+1])
-			l.Printf("merge function %s replaced %v and %v with new rule %v\n", "MergeR", r[i], r[i+1], rr)
-			r[i] = rr
+			rule := merge(r[i], r[i+1])
+			l.Printf("merge function %s replaced %v and %v with new rule %v\n", "MergeR", r[i], r[i+1], rule)
+			r[i] = rule
 			r = slices.Delete(r, i+1, i+2)
 			continue
 		}
@@ -232,6 +235,7 @@ func MergeR(r []Rule, e EqualityFunction, l *log.Logger) []Rule {
 	return r
 }
 
+// Merge rules based on equality function match in rule suffix
 func MergeS(r []Rule, e EqualityFunction, l *log.Logger) []Rule {
 	check := func(r1 Rule, r2 Rule) bool { return e(r1.suf, r2.suf) }
 	merge := func(r1 Rule, r2 Rule) Rule {
@@ -253,14 +257,12 @@ func MergeS(r []Rule, e EqualityFunction, l *log.Logger) []Rule {
 		return r
 	}
 
-	var i int
-
 	SortPRS(r)
-	for i < len(r)-1 {
+	for i := 0; i < len(r)-1; {
 		if check(r[i], r[i+1]) {
-			rr := merge(r[i], r[i+1])
-			l.Printf("merge function %s replaced %v and %v with new rule %v\n", "MergeS", r[i], r[i+1], rr)
-			r[i] = rr
+			rule := merge(r[i], r[i+1])
+			l.Printf("merge function %s replaced %v and %v with new rule %v\n", "MergeS", r[i], r[i+1], rule)
+			r[i] = rule
 			r = slices.Delete(r, i+1, i+2)
 			continue
 		}
@@ -270,6 +272,7 @@ func MergeS(r []Rule, e EqualityFunction, l *log.Logger) []Rule {
 	return r
 }
 
+// Merge rules based on equality function match in rule prefix and root
 func MergePR(r []Rule, e EqualityFunction, l *log.Logger) []Rule {
 	check := func(r1 Rule, r2 Rule) bool {
 		return e(r1.pre, r2.pre) && e(r1.root, r2.root)
@@ -289,14 +292,12 @@ func MergePR(r []Rule, e EqualityFunction, l *log.Logger) []Rule {
 		return r
 	}
 
-	var i int
-
 	SortPR(r)
-	for i < len(r)-1 {
+	for i := 0; i < len(r)-1; {
 		if check(r[i], r[i+1]) {
-			rr := merge(r[i], r[i+1])
-			l.Printf("merge function %s replaced %v and %v with new rule %v\n", "MergePR", r[i], r[i+1], rr)
-			r[i] = rr
+			rule := merge(r[i], r[i+1])
+			l.Printf("merge function %s replaced %v and %v with new rule %v\n", "MergePR", r[i], r[i+1], rule)
+			r[i] = rule
 			r = slices.Delete(r, i+1, i+2)
 			continue
 		}
@@ -306,6 +307,7 @@ func MergePR(r []Rule, e EqualityFunction, l *log.Logger) []Rule {
 	return r
 }
 
+// Merge rules based on equality function match in rule prefix and suffix
 func MergePS(r []Rule, e EqualityFunction, l *log.Logger) []Rule {
 	check := func(r1 Rule, r2 Rule) bool {
 		return e(r1.pre, r2.pre) && e(r1.suf, r2.suf)
@@ -325,14 +327,12 @@ func MergePS(r []Rule, e EqualityFunction, l *log.Logger) []Rule {
 		return r
 	}
 
-	var i int
-
 	SortPS(r)
-	for i < len(r)-1 {
+	for i := 0; i < len(r)-1; {
 		if check(r[i], r[i+1]) {
-			rr := merge(r[i], r[i+1])
-			l.Printf("merge function %s replaced %v and %v with new rule %v\n", "MergePS", r[i], r[i+1], rr)
-			r[i] = rr
+			rule := merge(r[i], r[i+1])
+			l.Printf("merge function %s replaced %v and %v with new rule %v\n", "MergePS", r[i], r[i+1], rule)
+			r[i] = rule
 			r = slices.Delete(r, i+1, i+2)
 			continue
 		}
@@ -342,6 +342,7 @@ func MergePS(r []Rule, e EqualityFunction, l *log.Logger) []Rule {
 	return r
 }
 
+// Merge rules based on equality function match in rule root and suffix
 func MergeRS(r []Rule, e EqualityFunction, l *log.Logger) []Rule {
 	check := func(r1 Rule, r2 Rule) bool {
 		return e(r1.root, r2.root) && e(r1.suf, r2.suf)
@@ -361,14 +362,12 @@ func MergeRS(r []Rule, e EqualityFunction, l *log.Logger) []Rule {
 		return r
 	}
 
-	var i int
-
 	SortRS(r)
-	for i < len(r)-1 {
+	for i := 0; i < len(r)-1; {
 		if check(r[i], r[i+1]) {
-			rr := merge(r[i], r[i+1])
-			l.Printf("merge function %s replaced %v and %v with new rule %v\n", "MergeRS", r[i], r[i+1], rr)
-			r[i] = rr
+			rule := merge(r[i], r[i+1])
+			l.Printf("merge function %s replaced %v and %v with new rule %v\n", "MergeRS", r[i], r[i+1], rule)
+			r[i] = rule
 			r = slices.Delete(r, i+1, i+2)
 			continue
 		}
@@ -378,46 +377,45 @@ func MergeRS(r []Rule, e EqualityFunction, l *log.Logger) []Rule {
 	return r
 }
 
+// Merge rules where prefix, root, and suffix are all len==1 or empty into one rule
+// generally applied after all other megring strategies
 func MergeMisc(r []Rule, e EqualityFunction, l *log.Logger) []Rule {
 	check := func(r Rule) bool {
 		return len(r.pre) <= 1 && len(r.root) <= 1 && len(r.suf) <= 1
 	}
 	merge := func(rules ...Rule) Rule {
 		var (
-			r Rule
-			b strings.Builder
-			s string
+			rule Rule
+			b    strings.Builder
+			exp  string
 		)
 
-		for _, rule := range rules {
-			b.WriteString(strings.Join(rule.pre, " "))
+		for _, rr := range rules {
+			b.WriteString(strings.Join(rr.pre, " "))
 			b.WriteString(" ")
-			b.WriteString(strings.Join(rule.root, " "))
+			b.WriteString(strings.Join(rr.root, " "))
 			b.WriteString(" ")
-			b.WriteString(strings.Join(rule.suf, " "))
-			s = strings.TrimSpace(b.String())
-			if !slices.Contains(r.root, s) {
-				r.root = append(r.root, s)
+			b.WriteString(strings.Join(rr.suf, " "))
+			exp = strings.TrimSpace(b.String())
+			if !slices.Contains(rule.root, exp) {
+				rule.root = append(rule.root, exp)
 			}
 			b.Reset()
 		}
-		if r.root != nil {
-			r.pre = []string{}
-			r.suf = []string{}
-			r.isPublic = true
+		if rule.root != nil {
+			rule.pre = []string{}
+			rule.suf = []string{}
+			rule.isPublic = true
 		}
 
-		return r
+		return rule
 	}
 
-	var (
-		rr  []Rule
-		res Rule
-		i   int
-	)
+	var rr []Rule
+	var res Rule
 
 	SortPRS(r)
-	for i = 0; i < len(r); i++ {
+	for i := 0; i < len(r); i++ {
 		if check(r[i]) {
 			l.Printf("merge function %s added %v to new misc rule\n", "MergeMisc", r[i])
 			if !r[i].isEmpty() {
@@ -432,290 +430,4 @@ func MergeMisc(r []Rule, e EqualityFunction, l *log.Logger) []Rule {
 	}
 
 	return r
-}
-
-func GroupFactor(rules []Rule, f int, l *log.Logger) []Rule {
-	getCounts := func(r []Rule) map[string]int {
-		var counts = make(map[string]int)
-
-		slices.SortStableFunc(r, func(i, j Rule) int {
-			return strings.Compare(i.print(""), j.print(""))
-		})
-
-		for _, rule := range r {
-			rule = rule.sort()
-			counts[fmt.Sprint(strings.Join(rule.pre, "|"))]++
-			counts[fmt.Sprint(strings.Join(rule.root, "|"))]++
-			counts[fmt.Sprint(strings.Join(rule.suf, "|"))]++
-		}
-
-		return counts
-	}
-
-	getChunks := func(c map[string]int) []string {
-		var chunks = []string{}
-
-		for cc := range c {
-			switch {
-			case cc == "":
-				continue
-			case strings.HasPrefix(cc, "<"):
-				continue
-			case strings.HasSuffix(cc, ">"):
-				continue
-			default:
-				chunks = append(chunks, cc)
-			}
-		}
-		slices.SortStableFunc(chunks, func(i, j string) int {
-			if c[j] == c[i] {
-				return strings.Compare(i, j)
-			}
-			return c[j] - c[i]
-		})
-
-		return chunks
-	}
-	factor := func(r Rule, f Rule, l *log.Logger) Rule {
-		if slices.Equal(f.root, []string{}) {
-			return r
-		}
-		if slices.Equal(f.root, []string{""}) {
-			return r
-		}
-
-		r = r.sort()
-		f = f.sort()
-		if LiteralEqual(l)(r.pre, f.root) {
-			r.pre = []string{fmt.Sprintf("<%s>", f.name())}
-		}
-		if LiteralEqual(l)(r.root, f.root) {
-			r.root = []string{fmt.Sprintf("<%s>", f.name())}
-		}
-		if LiteralEqual(l)(r.suf, f.root) {
-			r.suf = []string{fmt.Sprintf("<%s>", f.name())}
-		}
-
-		return r
-	}
-
-	counts := getCounts(rules)
-	ngs := getChunks(counts)
-	for _, n := range ngs {
-		if counts[n] > f {
-			f := Rule{pre: []string{}, root: []string{n}, suf: []string{}, isPublic: false, id: len(rules) + 1}
-			l.Printf("FACTOR: factor function %s extracted %v to new rule\n", "GroupFactor", f)
-			for j := range rules {
-				rules[j] = factor(rules[j], f, l)
-			}
-			rules = append(rules, f)
-		}
-	}
-
-	return rules
-}
-
-func SynonymFactor(rules []Rule, syn Synonyms, tk Tokenizer, l *log.Logger) []Rule {
-	scanSubseq := func(s1, s2 []string) ([]int, bool) {
-		var res []int
-
-		if len(s1) < len(s2) {
-			return res, false
-		}
-
-		for i := range s2 {
-			if !slices.Contains(s1, s2[i]) {
-				return res, false
-			}
-		}
-
-		for i := 0; i <= len(s1)-len(s2); i++ {
-			win := s1[i : i+len(s2)]
-			if slices.Equal(s2, win) {
-				return []int{i, i + len(s2)}, true
-			}
-		}
-
-		return res, false
-	}
-	factor := func(r Rule, f Rule, tk Tokenizer, l *log.Logger) Rule {
-		if slices.Equal(f.root, []string{}) {
-			return r
-		}
-		if slices.Equal(f.root, []string{""}) {
-			return r
-		}
-
-		r = r.sort()
-		for i := range f.root {
-			for j := range r.pre {
-				for {
-					rtokens := tk.tokenize(r.pre[j])
-					ftokens := tk.tokenize(f.root[i])
-					ind, found := scanSubseq(rtokens, ftokens)
-					if !found {
-						break
-					}
-					r.pre[j] = strings.Join(slices.Replace(rtokens, ind[0], ind[1], fmt.Sprintf("<%s>", f.name())), " ")
-				}
-			}
-			for j := range r.root {
-				for {
-					rtokens := tk.tokenize(r.root[j])
-					ftokens := tk.tokenize(f.root[i])
-					ind, found := scanSubseq(rtokens, ftokens)
-					if !found {
-						break
-					}
-					r.root[j] = strings.Join(slices.Replace(rtokens, ind[0], ind[1], fmt.Sprintf("<%s>", f.name())), " ")
-				}
-			}
-			for j := range r.suf {
-				for {
-					rtokens := tk.tokenize(r.suf[j])
-					ftokens := tk.tokenize(f.root[i])
-					ind, found := scanSubseq(rtokens, ftokens)
-					if !found {
-						break
-					}
-					r.suf[j] = strings.Join(slices.Replace(rtokens, ind[0], ind[1], fmt.Sprintf("<%s>", f.name())), " ")
-				}
-			}
-		}
-
-		return r
-	}
-
-	keys := slices.Sorted(maps.Keys(syn))
-	for _, k := range keys {
-		vals := append(syn[k], k)
-		f := Rule{pre: []string{}, root: vals, suf: []string{}, isPublic: false, id: len(rules) + 1}
-		l.Printf("FACTOR: factor function %s extracted %v to new rule\n", "SynonymFactor", f)
-		for j := range rules {
-			if !strings.Contains(strings.Join([]string{strings.Join(rules[j].pre, ""), strings.Join(rules[j].root, ""), strings.Join(rules[j].suf, "")}, " "), k) {
-				continue
-			}
-			rules[j] = factor(rules[j], f, tk, l)
-		}
-		rules = append(rules, f)
-	}
-	return rules
-}
-
-func ConstituencyFactor(rules []Rule, tag SyntacticTagger, f int, l *log.Logger) []Rule {
-	getCounts := func(r []Rule) map[string]int {
-		var counts = make(map[string]int)
-
-		slices.SortStableFunc(r, func(i, j Rule) int {
-			return strings.Compare(i.print(""), j.print(""))
-		})
-
-		for _, rule := range r {
-			for i := range rule.pre {
-				tags, _ := tag.Constituency(rule.pre[i])
-				counts[strings.Join(tags, "-")]++
-			}
-			for i := range rule.root {
-				tags, _ := tag.Constituency(rule.root[i])
-				counts[strings.Join(tags, "-")]++
-			}
-			for i := range rule.suf {
-				tags, _ := tag.Constituency(rule.suf[i])
-				counts[strings.Join(tags, "-")]++
-			}
-		}
-		return counts
-	}
-
-	getChunks := func(c map[string]int) []string {
-		var chunks = []string{}
-
-		for cc := range c {
-			switch {
-			case cc == "":
-				continue
-			case strings.HasPrefix(cc, "<"):
-				continue
-			case strings.HasSuffix(cc, ">"):
-				continue
-			default:
-				chunks = append(chunks, cc)
-			}
-		}
-		slices.SortStableFunc(chunks, func(i, j string) int {
-			if c[j] == c[i] {
-				return strings.Compare(i, j)
-			}
-			return c[j] - c[i]
-		})
-
-		return chunks
-	}
-	getSyns := func(r []Rule, tag SyntacticTagger) map[string][]string {
-		var syn = make(map[string][]string)
-
-		for _, rule := range r {
-			for i := range rule.pre {
-				tags, tokens := tag.Constituency(rule.pre[i])
-				key := strings.Join(tags, "-")
-				val := strings.Join(tokens, " ")
-				syn[key] = append(syn[key], val)
-			}
-			for i := range rule.root {
-				tags, tokens := tag.Constituency(rule.root[i])
-				key := strings.Join(tags, "-")
-				val := strings.Join(tokens, " ")
-				syn[key] = append(syn[key], val)
-			}
-			for i := range rule.suf {
-				tags, tokens := tag.Constituency(rule.suf[i])
-				key := strings.Join(tags, "-")
-				val := strings.Join(tokens, " ")
-				syn[key] = append(syn[key], val)
-			}
-
-		}
-		for k, v := range syn {
-			slices.Sort(v)
-			syn[k] = slices.Compact(v)
-		}
-		return syn
-	}
-	factor := func(r Rule, f Rule, l *log.Logger) Rule {
-		if slices.Equal(f.root, []string{}) {
-			return r
-		}
-		if slices.Equal(f.root, []string{""}) {
-			return r
-		}
-
-		r = r.sort()
-
-		if ConstituencyTagEqual(tag, l)(r.pre, f.root) {
-			r.pre = []string{fmt.Sprintf("<%s>", f.name())}
-		}
-		if ConstituencyTagEqual(tag, l)(r.root, f.root) {
-			r.root = []string{fmt.Sprintf("<%s>", f.name())}
-		}
-		if ConstituencyTagEqual(tag, l)(r.suf, f.root) {
-			r.suf = []string{fmt.Sprintf("<%s>", f.name())}
-		}
-
-		return r
-	}
-
-	counts := getCounts(rules)
-	ngs := getChunks(counts)
-	syns := getSyns(rules, tag)
-	for _, n := range ngs {
-		if counts[n] > f {
-			f := Rule{pre: []string{}, root: syns[n], suf: []string{}, isPublic: false, id: len(rules) + 1}
-			l.Printf("FACTOR: factor function %s extracted %v to new rule\n", "ConstituencyFactor", f)
-			for j := range rules {
-				rules[j] = factor(rules[j], f, l)
-			}
-			rules = append(rules, f)
-		}
-	}
-	return rules
 }

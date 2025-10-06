@@ -14,6 +14,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/jdkato/prose/tag"
 	"github.com/stretchr/testify/assert"
 	"gonum.org/v1/gonum/stat/combin"
 )
@@ -64,49 +65,53 @@ func TestGrammarProductions(t *testing.T) {
 			got = slices.DeleteFunc(got, func(i string) bool { return i == "" })
 			slices.Sort(got)
 			got = slices.Compact(got)
-			tr := CollectTransitions(tx, TokenSplit(tk))
-			for i, t := range tx {
-				tokens := tk.tokenize(t.text)
-				tx[i].chunk = TransitionChunk(tokens, tokens, tr, 0.1)
-			}
-			ng := CollectChunks(tx)
-			for i, t := range tx {
-				tx[i] = ToTriplet(t, ng)
-			}
-			rules := []Rule{}
-			for _, t := range tx {
-				rules = append(rules, ToRule(t))
-			}
-			for _, p := range permutations {
-				rules1 := rules
-				for _, pp := range p {
-					rules1 = mergers[pp](rules, LiteralEqual(nilLogger), nilLogger)
+			model := tag.NewPerceptronTagger()
+			tagger := NewSyntacticTagger(model, tk)
+			for _, fn := range []TransitionSplitFunction{TokenSplit(tk), POSSplit(tagger), ConstituencySplit(tagger)} {
+				tr := CollectTransitions(tx, fn)
+				for i, t := range tx {
+					tokens := tk.tokenize(t.text)
+					tx[i].chunk = TransitionChunk(tokens, tokens, tr, 0.1)
 				}
-				rules1 = SetIDs(rules1)
-				rules1 = GroupFactor(rules1, 5, nilLogger)
-				g := Grammar{Rules: rules1}
-				os.WriteFile("./data/tests/out/tmp.jsgf", []byte(g.body()), 0644)
-				exec.Command("./data/tests/out/gsgf", "generate", "./data/tests/out/tmp.jsgf", "-o", "./data/tests/out/out.txt").Run()
-				file, _ = os.Open("./data/tests/out/out.txt")
-				defer file.Close()
-				s = bufio.NewScanner(file)
-				txx := ReadTexts(s)
-				for i, t := range txx {
-					t.text = tk.normalize(t.text)
-					txx[i] = t
+				ng := CollectChunks(tx)
+				for i, t := range tx {
+					tx[i] = ToTriplet(t, ng)
 				}
-				want := []string{}
-				for _, ttx := range txx {
-					want = append(want, ttx.text)
+				rules := []Rule{}
+				for _, t := range tx {
+					rules = append(rules, ToRule(t))
 				}
-				for i := range want {
-					want[i] = strings.TrimSpace(want[i])
-					want[i] = strings.ReplaceAll(want[i], "  ", " ")
+				for _, p := range permutations {
+					rules1 := rules
+					for _, pp := range p {
+						rules1 = mergers[pp](rules, LiteralEqual(nilLogger), nilLogger)
+					}
+					rules1 = SetIDs(rules1)
+					rules1 = ExpressionFactor(5, nilLogger)(rules1)
+					g := Grammar{Rules: rules1}
+					os.WriteFile("./data/tests/out/tmp.jsgf", []byte(g.body()), 0644)
+					exec.Command("./data/tests/out/gsgf", "generate", "./data/tests/out/tmp.jsgf", "-o", "./data/tests/out/out.txt").Run()
+					file, _ = os.Open("./data/tests/out/out.txt")
+					defer file.Close()
+					s = bufio.NewScanner(file)
+					txx := ReadTexts(s)
+					for i, t := range txx {
+						t.text = tk.normalize(t.text)
+						txx[i] = t
+					}
+					want := []string{}
+					for _, ttx := range txx {
+						want = append(want, ttx.text)
+					}
+					for i := range want {
+						want[i] = strings.TrimSpace(want[i])
+						want[i] = strings.ReplaceAll(want[i], "  ", " ")
+					}
+					want = slices.DeleteFunc(want, func(i string) bool { return i == "" })
+					slices.Sort(want)
+					want = slices.Compact(want)
+					assert.ElementsMatch(t, got, want)
 				}
-				want = slices.DeleteFunc(want, func(i string) bool { return i == "" })
-				slices.Sort(want)
-				want = slices.Compact(want)
-				assert.ElementsMatch(t, got, want)
 			}
 		})
 	}
@@ -158,49 +163,53 @@ func TestGrammarMainProductions(t *testing.T) {
 			got = slices.DeleteFunc(got, func(i string) bool { return i == "" })
 			slices.Sort(got)
 			got = slices.Compact(got)
-			tr := CollectTransitions(tx, TokenSplit(tk))
-			for i, t := range tx {
-				tokens := tk.tokenize(t.text)
-				tx[i].chunk = TransitionChunk(tokens, tokens, tr, 0.1)
-			}
-			ng := CollectChunks(tx)
-			for i, t := range tx {
-				tx[i] = ToTriplet(t, ng)
-			}
-			rules := []Rule{}
-			for _, t := range tx {
-				rules = append(rules, ToRule(t))
-			}
-			for _, p := range permutations {
-				rules1 := rules
-				for _, pp := range p {
-					rules1 = mergers[pp](rules, LiteralEqual(nilLogger), nilLogger)
+			model := tag.NewPerceptronTagger()
+			tagger := NewSyntacticTagger(model, tk)
+			for _, fn := range []TransitionSplitFunction{TokenSplit(tk), POSSplit(tagger), ConstituencySplit(tagger)} {
+				tr := CollectTransitions(tx, fn)
+				for i, t := range tx {
+					tokens := tk.tokenize(t.text)
+					tx[i].chunk = TransitionChunk(tokens, tokens, tr, 0.1)
 				}
-				rules1 = SetIDs(rules1)
-				rules1 = GroupFactor(rules1, 5, nilLogger)
-				g := Grammar{Rules: rules1}
-				os.WriteFile("./data/tests/out/tmpMain.jsgf", []byte(g.bodyMain()), 0644)
-				exec.Command("./data/tests/out/gsgf", "generate", "./data/tests/out/tmpMain.jsgf", "-o", "./data/tests/out/outMain.txt").Run()
-				file, _ = os.Open("./data/tests/out/outMain.txt")
-				defer file.Close()
-				s = bufio.NewScanner(file)
-				txx := ReadTexts(s)
-				for i, t := range txx {
-					t.text = tk.normalize(t.text)
-					txx[i] = t
+				ng := CollectChunks(tx)
+				for i, t := range tx {
+					tx[i] = ToTriplet(t, ng)
 				}
-				want := []string{}
-				for _, ttx := range txx {
-					want = append(want, ttx.text)
+				rules := []Rule{}
+				for _, t := range tx {
+					rules = append(rules, ToRule(t))
 				}
-				for i := range want {
-					want[i] = strings.TrimSpace(want[i])
-					want[i] = strings.ReplaceAll(want[i], "  ", " ")
+				for _, p := range permutations {
+					rules1 := rules
+					for _, pp := range p {
+						rules1 = mergers[pp](rules, LiteralEqual(nilLogger), nilLogger)
+					}
+					rules1 = SetIDs(rules1)
+					rules1 = ExpressionFactor(5, nilLogger)(rules1)
+					g := Grammar{Rules: rules1}
+					os.WriteFile("./data/tests/out/tmpMain.jsgf", []byte(g.bodyMain()), 0644)
+					exec.Command("./data/tests/out/gsgf", "generate", "./data/tests/out/tmpMain.jsgf", "-o", "./data/tests/out/outMain.txt").Run()
+					file, _ = os.Open("./data/tests/out/outMain.txt")
+					defer file.Close()
+					s = bufio.NewScanner(file)
+					txx := ReadTexts(s)
+					for i, t := range txx {
+						t.text = tk.normalize(t.text)
+						txx[i] = t
+					}
+					want := []string{}
+					for _, ttx := range txx {
+						want = append(want, ttx.text)
+					}
+					for i := range want {
+						want[i] = strings.TrimSpace(want[i])
+						want[i] = strings.ReplaceAll(want[i], "  ", " ")
+					}
+					want = slices.DeleteFunc(want, func(i string) bool { return i == "" })
+					slices.Sort(want)
+					want = slices.Compact(want)
+					assert.ElementsMatch(t, got, want)
 				}
-				want = slices.DeleteFunc(want, func(i string) bool { return i == "" })
-				slices.Sort(want)
-				want = slices.Compact(want)
-				assert.ElementsMatch(t, got, want)
 			}
 		})
 	}

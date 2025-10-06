@@ -12,30 +12,36 @@ import (
 	"gonum.org/v1/gonum/floats"
 )
 
+// Keeps track of transitional probabilities between tokens
 type Transitions map[string]map[string]float64
 
+// Function used to break a string into tokens and their corresponding pos/constituency tags
 type TransitionSplitFunction func(string) ([]string, []string)
 
-func TokenSplit(tk Tokenizer) TransitionSplitFunction {
+// Splits string into tokens
+func TokenSplit(tok Tokenizer) TransitionSplitFunction {
 	return func(s string) ([]string, []string) {
-		tokens := tk.tokenize(s)
+		tokens := tok.tokenize(s)
 		return tokens, tokens
 	}
 }
 
+// Splits string into tokens and POS tags
 func POSSplit(tag SyntacticTagger) TransitionSplitFunction {
 	return func(s string) ([]string, []string) {
 		return tag.POS(s)
 	}
 }
 
+// Splits string into tokens and constituency tags
 func ConstituencySplit(tag SyntacticTagger) TransitionSplitFunction {
 	return func(s string) ([]string, []string) {
 		return tag.Constituency(s)
 	}
 }
 
-// higher for smaller chunks, lower for larger chunks
+// Splits a sequence of tokens based on transitional probabilities between tokens or tags
+// higher p for smaller chunks, lower for larger chunks
 func TransitionChunk(tok []string, tag []string, tra Transitions, p float64) []string {
 	var (
 		b     strings.Builder
@@ -70,32 +76,34 @@ func TransitionChunk(tok []string, tag []string, tra Transitions, p float64) []s
 	return out
 }
 
+// Collects chunks from texts, ordered by decreasing frequency
 func CollectChunks(t []Text) []string {
-	var n = []string{}
-	var c = make(map[string]int)
+	var chunks = []string{}
+	var counts = make(map[string]int)
 
-	for _, text := range t {
-		for _, ng := range text.chunk {
-			n = append(n, ng)
-			c[ng]++
+	for i := range t {
+		for j := range t[i].chunk {
+			chunks = append(chunks, t[i].chunk[j])
+			counts[t[i].chunk[j]]++
 		}
 	}
 
-	slices.SortStableFunc(n, func(a, b string) int {
+	slices.SortStableFunc(chunks, func(i, j string) int {
 		switch {
-		case len(strings.Split(a, " ")) == len(strings.Split(b, " ")) && c[a] == c[b]:
-			return strings.Compare(a, b)
-		case len(strings.Split(a, " ")) == len(strings.Split(b, " ")):
-			return c[b] - c[a]
+		case len(strings.Split(i, " ")) == len(strings.Split(j, " ")) && counts[i] == counts[j]:
+			return strings.Compare(i, j)
+		case len(strings.Split(i, " ")) == len(strings.Split(j, " ")):
+			return counts[j] - counts[i]
 		default:
-			return len(strings.Split(b, " ")) - len(strings.Split(a, " "))
+			return len(strings.Split(j, " ")) - len(strings.Split(i, " "))
 		}
 	})
 
-	return n
+	return chunks
 }
 
 // Counts bigram co-occurrences and converts to probabilities
+// counts are normalized such that all probabilities sum to 1
 func CollectTransitions(t []Text, f TransitionSplitFunction) Transitions {
 	toBigrams := func(e []string) [][]string {
 		var b [][]string
@@ -113,50 +121,42 @@ func CollectTransitions(t []Text, f TransitionSplitFunction) Transitions {
 		}
 	}
 
-	// Convert transition counts to transition probabilities such that all probabilities sum to 1
 	normalizeCounts := func(p map[string]float64) map[string]float64 {
 		var (
 			out  map[string]float64 = make(map[string]float64)
-			l    int                = len(p)
-			ks   []string
-			vs   []float64
-			norm []float64 = make([]float64, l)
+			keys []string
+			vals []float64
+			norm []float64 = make([]float64, len(p))
 		)
 
 		for k, v := range p {
-			ks = append(ks, k)
-			vs = append(vs, v)
+			keys = append(keys, k)
+			vals = append(vals, v)
 		}
 
-		floats.DivTo(norm, vs, slices.Repeat([]float64{floats.Sum(vs)}, l))
+		floats.DivTo(norm, vals, slices.Repeat([]float64{floats.Sum(vals)}, len(p)))
 
-		for i := range l {
-			out[ks[i]] = norm[i]
+		for i := range len(p) {
+			out[keys[i]] = norm[i]
 		}
 
 		return out
 	}
 
-	var (
-		b   [][]string
-		bb  [][]string
-		tra Transitions = make(Transitions)
-	)
+	var bigrams [][]string
+	tra := make(Transitions)
 
-	for _, ss := range t {
-		tags, _ := f(ss.text)
-		bb = toBigrams(tags)
-		if len(bb) != 0 {
-			b = append(b, bb...)
-		}
+	for i := range t {
+		tags, _ := f(t[i].text)
+		bigrams = append(bigrams, toBigrams(tags)...)
 	}
 
-	for _, bb := range b {
-		_, ok := tra[bb[0]]
+	for i := range bigrams {
+		_, ok := tra[bigrams[i][0]]
 		if !ok {
-			tra[bb[0]] = make(map[string]float64)
+			tra[bigrams[i][0]] = make(map[string]float64)
 		}
-		tra[bb[0]][bb[1]]++
+		tra[bigrams[i][0]][bigrams[i][1]]++
 	}
 
 	for k, v := range tra {

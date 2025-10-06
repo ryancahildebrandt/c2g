@@ -12,32 +12,36 @@ import (
 	"github.com/jdkato/prose/tag"
 )
 
+// Applies POS and constituency tags based on provided tokenizer and Penn Treebank derived constituency rules
 type SyntacticTagger struct {
 	*tag.PerceptronTagger
 	Tokenizer
 	rules []ConstituencyRule
 }
 
+// Constituency tag and the equivaelent sequence of POS tags
 type ConstituencyRule struct {
 	rule []string
 	tag  string
 }
 
+// Lookup POS tags for string
 func (t *SyntacticTagger) POS(s string) ([]string, []string) {
 	var tags []string
-	var tokens = t.tokenize(s)
+	tokens := t.tokenize(s)
 
 	if len(tokens) == 0 {
 		return []string{}, []string{}
 	}
 
-	for _, tt := range t.Tag(tokens) {
-		tags = append(tags, tt.Tag)
+	for _, tag := range t.Tag(tokens) {
+		tags = append(tags, tag.Tag)
 	}
 
 	return tags, tokens
 }
 
+// Lookup constituency tags for string
 func (t *SyntacticTagger) Constituency(s string) ([]string, []string) {
 	scanSubseq := func(s1, s2 []string) ([]int, bool) {
 		var res []int
@@ -68,9 +72,9 @@ func (t *SyntacticTagger) Constituency(s string) ([]string, []string) {
 		return []string{}, []string{}
 	}
 
-	for j := range t.rules {
-		tag := t.rules[j].tag
-		rule := t.rules[j].rule
+	for i := range t.rules {
+		tag := t.rules[i].tag
+		rule := t.rules[i].rule
 		for {
 			ind, found := scanSubseq(tags, rule)
 			if !found {
@@ -85,7 +89,7 @@ func (t *SyntacticTagger) Constituency(s string) ([]string, []string) {
 }
 
 func NewSyntacticTagger(m *tag.PerceptronTagger, t Tokenizer) SyntacticTagger {
-	var rules = []ConstituencyRule{
+	rules := []ConstituencyRule{
 		{tag: "ADJP", rule: []string{"NP", "JJ"}},
 		{tag: "ADJP", rule: []string{"JJ", "JJ"}},
 		{tag: "ADJP", rule: []string{"RB", "JJ"}},
@@ -174,7 +178,6 @@ func NewSyntacticTagger(m *tag.PerceptronTagger, t Tokenizer) SyntacticTagger {
 		{tag: "VP", rule: []string{"VB", "S"}},
 	}
 	slices.SortStableFunc(rules, func(i, j ConstituencyRule) int { return len(i.rule) - len(j.rule) })
-	var c = SyntacticTagger{m, t, rules}
 
-	return c
+	return SyntacticTagger{m, t, rules}
 }
