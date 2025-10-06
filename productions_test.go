@@ -7,6 +7,7 @@ package main
 
 import (
 	"bufio"
+	"log"
 	"os"
 	"os/exec"
 	"slices"
@@ -17,8 +18,8 @@ import (
 	"gonum.org/v1/gonum/stat/combin"
 )
 
-func TestGrammarE2E(t *testing.T) {
-	var mergers = []func(r []Rule, e EqualityFunction) []Rule{MergePR, MergePS, MergeRS, MergeMisc}
+func TestGrammarProductions(t *testing.T) {
+	var mergers = []func(r []Rule, e EqualityFunction, l *log.Logger) []Rule{MergePR, MergePS, MergeRS, MergeMisc}
 	var permutations [][]int
 	for i := range 4 {
 		permutations = append(permutations, combin.Permutations(4, i+1)...)
@@ -79,10 +80,10 @@ func TestGrammarE2E(t *testing.T) {
 			for _, p := range permutations {
 				rules1 := rules
 				for _, pp := range p {
-					rules1 = mergers[pp](rules, LiteralEqual(nilLogger))
+					rules1 = mergers[pp](rules, LiteralEqual(nilLogger), nilLogger)
 				}
 				rules1 = SetIDs(rules1)
-				rules1 = Factor(rules1, 5)
+				rules1 = GroupFactor(rules1, 5, nilLogger)
 				g := Grammar{Rules: rules1}
 				os.WriteFile("./data/tests/out/tmp.jsgf", []byte(g.body()), 0644)
 				exec.Command("./data/tests/out/gsgf", "generate", "./data/tests/out/tmp.jsgf", "-o", "./data/tests/out/out.txt").Run()
@@ -111,8 +112,8 @@ func TestGrammarE2E(t *testing.T) {
 	}
 }
 
-func TestGrammarMainE2E(t *testing.T) {
-	var mergers = []func(r []Rule, e EqualityFunction) []Rule{MergePR, MergePS, MergeRS, MergeMisc}
+func TestGrammarMainProductions(t *testing.T) {
+	var mergers = []func(r []Rule, e EqualityFunction, l *log.Logger) []Rule{MergePR, MergePS, MergeRS, MergeMisc}
 	var permutations [][]int
 	for i := range 4 {
 		permutations = append(permutations, combin.Permutations(4, i+1)...)
@@ -173,10 +174,10 @@ func TestGrammarMainE2E(t *testing.T) {
 			for _, p := range permutations {
 				rules1 := rules
 				for _, pp := range p {
-					rules1 = mergers[pp](rules, LiteralEqual(nilLogger))
+					rules1 = mergers[pp](rules, LiteralEqual(nilLogger), nilLogger)
 				}
 				rules1 = SetIDs(rules1)
-				rules1 = Factor(rules1, 5)
+				rules1 = GroupFactor(rules1, 5, nilLogger)
 				g := Grammar{Rules: rules1}
 				os.WriteFile("./data/tests/out/tmpMain.jsgf", []byte(g.bodyMain()), 0644)
 				exec.Command("./data/tests/out/gsgf", "generate", "./data/tests/out/tmpMain.jsgf", "-o", "./data/tests/out/outMain.txt").Run()

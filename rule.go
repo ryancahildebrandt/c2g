@@ -51,6 +51,7 @@ func (r *Rule) print(n string) string {
 		var o bool
 		var i int
 
+		slices.Sort(g)
 		for j := range g {
 			g[j] = joinBoundaries(g[j])
 		}
@@ -111,6 +112,13 @@ func (r *Rule) name() string {
 	}
 
 	return fmt.Sprintf("%.*s", 20, b)
+}
+
+func (r *Rule) sort() Rule {
+	slices.Sort(r.pre)
+	slices.Sort(r.root)
+	slices.Sort(r.suf)
+	return *r
 }
 
 func SetIDs(rules []Rule) []Rule {

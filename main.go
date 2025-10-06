@@ -6,15 +6,12 @@
 package main
 
 import (
-	"bufio"
 	"context"
 	"fmt"
 	"log"
 	"os"
-	"strings"
 	"time"
 
-	"github.com/jdkato/prose/tag"
 	"github.com/urfave/cli/v3"
 )
 
@@ -196,33 +193,30 @@ func main() {
 					&printMain},
 				Action: func(ctx context.Context, cmd *cli.Command) error {
 					var (
-						start = time.Now()
-						// rules []Rule
-						// g     Grammar
-						// err error
-						tokenizer = NewWordTokenizer()
-						// model   = tag.NewPerceptronTagger()
-						// tagger  = NewSyntacticTagger(model, wordtok)
+						start   = time.Now()
+						rules   []Rule
+						grammar Grammar
+						err     error
+						// tokenizer = NewWordTokenizer()
+						// model     = tag.NewPerceptronTagger()
+						// tagger    = NewSyntacticTagger(model, tokenizer)
 					)
-					file, err := os.Open(cmd.String("inFile"))
+
+					_, err = ReadSynonyms("synonyms.json")
 					if err != nil {
 						log.Fatal(err)
 					}
-					defer file.Close()
-					scanner := bufio.NewScanner(file)
-					texts := ReadTexts(scanner)
-					for i, t := range texts {
-						texts[i].text = tokenizer.normalize(t.text)
+					rules, err = buildRules(cmd)
+					if err != nil {
+						return err
 					}
-					model := tag.NewPerceptronTagger()
-					tagger := NewSyntacticTagger(model, tokenizer)
 
-					transitions := CollectTransitions(texts, ConstituencySplit(tagger))
-					for i, t := range texts {
-						tags, tokens := tagger.Constituency(t.text)
-						texts[i].chunk = TransitionChunk(tokens, tags, transitions, cmd.Float("prob"))
-						fmt.Println(strings.Join(texts[i].chunk, "||"))
-					}
+					// transitions := CollectTransitions(texts, ConstituencySplit(tagger))
+					// for i, t := range texts {
+					// 	tags, tokens := tagger.Constituency(t.text)
+					// 	texts[i].chunk = TransitionChunk(tokens, tags, transitions, cmd.Float("prob"))
+					// 	fmt.Println(strings.Join(texts[i].chunk, "||"))
+					// }
 					// chunks := CollectChunks(texts)
 					// for i, t := range texts {
 					// 	texts[i] = ToTriplet(t, chunks)
@@ -232,10 +226,12 @@ func main() {
 					// 	rules = append(rules, ToRule(t))
 					// }
 
-					// rules = SetIDs(rules)
-					// rules = Factor(rules, cmd.Int("factor"))
-					// g = Grammar{Rules: rules}
-					// g.write(cmd)
+					rules = SetIDs(rules)
+					// rules = ConstituencyFactor(rules, tagger, cmd.Int("factor"), nilLogger)
+					// rules = SynonymFactor(rules, syn, tokenizer)
+					rules = GroupFactor(rules, cmd.Int("factor"), stdoutLogger)
+					grammar = Grammar{Rules: rules}
+					grammar.write(cmd)
 
 					fmt.Println(time.Since(start))
 					return nil
