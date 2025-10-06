@@ -7,7 +7,6 @@ package main
 
 import (
 	"fmt"
-	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -18,7 +17,6 @@ func TestValidateTokenizerString(t *testing.T) {
 		s string
 	}
 	tests := []struct {
-		
 		args      args
 		assertion assert.ErrorAssertionFunc
 	}{
@@ -42,7 +40,6 @@ func Test_wordTokenizer_tokenize(t *testing.T) {
 		s string
 	}
 	tests := []struct {
-		
 		args args
 		want []string
 	}{
@@ -68,7 +65,6 @@ func Test_wordTokenizer_normalize(t *testing.T) {
 		s string
 	}
 	tests := []struct {
-		
 		args args
 		want string
 	}{
@@ -94,7 +90,6 @@ func Test_sepTokenizer_tokenize(t *testing.T) {
 		s string
 	}
 	tests := []struct {
-		
 		args args
 		want []string
 	}{
@@ -120,7 +115,6 @@ func Test_sepTokenizer_normalize(t *testing.T) {
 		s string
 	}
 	tests := []struct {
-		
 		args args
 		want string
 	}{
@@ -137,27 +131,6 @@ func Test_sepTokenizer_normalize(t *testing.T) {
 		t.Run("", func(t *testing.T) {
 			tk := NewSepTokenizer()
 			assert.Equal(t, tt.want, tk.normalize(tt.args.s))
-		})
-	}
-}
-
-func Test_flushBuilder(t *testing.T) {
-	type args struct {
-		b strings.Builder
-		o []string
-	}
-	tests := []struct {
-		args  args
-		want  strings.Builder
-		want1 []string
-	}{
-		// TODO: Add test cases.
-	}
-	for _, tt := range tests {
-		t.Run("", func(t *testing.T) {
-			got, got1 := flushBuilder(tt.args.b, tt.args.o)
-			assert.Equal(t, tt.want, got)
-			assert.Equal(t, tt.want1, got1)
 		})
 	}
 }

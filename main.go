@@ -10,6 +10,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"slices"
 	"time"
 
 	"github.com/urfave/cli/v3"
@@ -195,8 +196,8 @@ func main() {
 					var (
 						start = time.Now()
 						rules []Rule
-						g     Grammar
-						err   error
+						// g     Grammar
+						err error
 						// wordtok = NewWordTokenizer()
 					)
 
@@ -205,11 +206,16 @@ func main() {
 						return err
 					}
 
+					// model := tag.NewPerceptronTagger()
 					SortPRS(rules)
-					rules = SetIDs(rules)
+					slices.SortStableFunc(constituencyRules, func(i, j ConstituencyRule) int { return len(i.rule) - len(j.rule) })
+					for _, r := range constituencyRules {
+						fmt.Println(r)
+					}
+					// rules = SetIDs(rules)
 					// rules = Factor(rules, cmd.Int("factor"))
-					g = Grammar{Rules: rules}
-					g.write(cmd)
+					// g = Grammar{Rules: rules}
+					// g.write(cmd)
 
 					fmt.Println(time.Since(start))
 					return nil

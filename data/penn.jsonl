@@ -1,0 +1,73 @@
+{"ADJP": ["JJ", "JJ"]}
+{"ADJP": ["RB", "JJ"]}
+{"ADJP": ["RB", "VBN"]}
+{"ADJP": ["RB", "JJR"]}
+{"ADJP": ["CD", "NN"]}
+{"ADJP": ["RBR", "JJ"]}
+{"ADJP": ["RBS", "JJ"]}
+{"ADJP": ["JJ", "CC", "JJ"]}
+{"ADJP": ["NNP", ",", "JJ"]}
+{"ADJP": ["CD", "CD", "NN"]}
+{"ADVP": ["RB", "RB"]}
+{"ADVP": ["IN", "JJS"]}
+{"CONJP": ["IN", "IN"]}
+{"CONJP": ["RB", "RB"]}
+{"CONJP": ["RB", "RB", "IN"]}
+{"CONJP": ["CC", "RB"]}
+{"CONJP": ["RB", "IN"]}
+{"CONJP": ["RB", "TO", "VB"]}
+{"CONJP": ["RB", "JJ"]}
+{"INTJ": ["VB", ",", "RB"]}
+{"INTJ": ["NN", ",", "NN", ",", "NN", ",", "NN", ",", "NN", ",", "NN"]}
+{"INTJ": ["RB", "JJ"]}
+{"LST": ["LS", ":"]}
+{"LST": ["LS", "."]}
+{"NP": ["NNP", "NNP"]}
+{"NP": ["CD", "NNS"]}
+{"NP": ["DT", "NN"]}
+{"NP": ["DT", "JJ", "NN"]}
+{"NP": ["JJ", "NN"]}
+{"NP": ["NN", "NNS"]}
+{"NP": ["DT", "NN", "NN"]}
+{"NP": ["DT", "NNS"]}
+{"NP": ["NNP", "NNP", "NNP"]}
+{"NP": ["JJ", "NNS"]}
+{"NP": ["CD", "NN"]}
+{"NX": ["NN", "NN"]}
+{"NX": ["NNP", "NNP"]}
+{"NX": ["JJ", "NNS"]}
+{"NX": ["NN", "NNS"]}
+{"NX": ["JJ", "NN", "NN"]}
+{"NX": ["JJ", "NN"]}
+{"QP": ["RBR", "IN", "CD"]}
+{"QP": ["CD", "CD"]}
+{"QP": ["IN", "CD"]}
+{"QP": ["$", "CD", "CD"]}
+{"QP": ["IN", "$", "CD", "CD"]}
+{"QP": ["IN", "CD", "CD"]}
+{"QP": ["RB", "$", "CD", "CD"]}
+{"QP": ["RB", "CD"]}
+{"QP": ["JJR", "IN", "CD"]}
+{"QP": ["CD", "TO", "CD"]}
+{"QP": ["JJR", "IN", "$", "CD", "CD"]}
+{"QP": ["CD", "NN", "TO", "CD", "NN"]}
+{"QP": ["#", "CD", "CD"]}
+{"UCP": ["NN", "CC", "JJ"]}
+{"UCP": ["JJ", "CC", "NN"]}
+{"UCP": ["JJ", "CC", "NNP", "NNP"]}
+{"UCP": ["JJ", ",", "NN", ",", "NN", "CC", "JJ"]}
+{"UCP": ["NN", ",", "NN", "CC", "JJ"]}
+{"UCP": ["NNP", "CC", "JJ"]}
+{"UCP": ["NN", ",", "JJ", "NN", ",", "NNS", "CC", "NN"]}
+{"UCP": ["JJ", ",", "NN", "CC", "NN"]}
+{"UCP": ["NN", "CC", "NNS"]}
+{"UCP": ["JJ", ",", "NN", "CC", "JJ"]}
+{"UCP": ["JJ", "CC", "NN", "NN"]}
+{"UCP": ["NN", ",", "JJ", "CC", "NN", "NNS"]}
+{"WHADJP": ["WRB", "JJ"]}
+{"WHNP": ["WRB", "JJ"]}
+{"WHNP": ["WDT", "NNS"]}
+{"WHNP": ["WP$", "NN", "NN"]}
+{"WHNP": ["DT", "NN"]}
+{"WHNP": ["WRB", "RB"]}
+{"WHNP": ["WP$", "NNS"]}

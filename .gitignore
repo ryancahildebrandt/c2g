@@ -30,3 +30,6 @@ scratch.txt
 outputs/*
 data/tests/out/*
 .vscode/
+
+.venv/
+ruff.toml

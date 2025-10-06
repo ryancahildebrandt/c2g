@@ -7,9 +7,11 @@ package main
 
 import (
 	"bufio"
+	"log"
 	"os"
 	"testing"
 
+	"github.com/jdkato/prose/tag"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -18,7 +20,6 @@ func TestSortPR(t *testing.T) {
 		f string
 	}
 	tests := []struct {
-		
 		args args
 		want []Rule
 	}{
@@ -88,7 +89,6 @@ func TestSortPS(t *testing.T) {
 		f string
 	}
 	tests := []struct {
-		
 		args args
 		want []Rule
 	}{
@@ -155,7 +155,6 @@ func TestSortRS(t *testing.T) {
 		f string
 	}
 	tests := []struct {
-		
 		args args
 		want []Rule
 	}{
@@ -222,7 +221,6 @@ func TestSortPRS(t *testing.T) {
 		f string
 	}
 	tests := []struct {
-		
 		args args
 		want []Rule
 	}{
@@ -289,7 +287,6 @@ func TestMergeP(t *testing.T) {
 		f string
 	}
 	tests := []struct {
-		
 		args args
 		want []Rule
 	}{
@@ -336,7 +333,6 @@ func TestMergeR(t *testing.T) {
 		f string
 	}
 	tests := []struct {
-		
 		args args
 		want []Rule
 	}{
@@ -405,7 +401,6 @@ func TestMergeS(t *testing.T) {
 		f string
 	}
 	tests := []struct {
-		
 		args args
 		want []Rule
 	}{
@@ -455,7 +450,6 @@ func TestMergePR(t *testing.T) {
 		f string
 	}
 	tests := []struct {
-		
 		args args
 		want []Rule
 	}{
@@ -523,7 +517,6 @@ func TestMergePS(t *testing.T) {
 		f string
 	}
 	tests := []struct {
-		
 		args args
 		want []Rule
 	}{
@@ -571,7 +564,6 @@ func TestMergeRS(t *testing.T) {
 		f string
 	}
 	tests := []struct {
-		
 		args args
 		want []Rule
 	}{
@@ -639,7 +631,6 @@ func TestMergeMisc(t *testing.T) {
 		f string
 	}
 	tests := []struct {
-		
 		args args
 		want []Rule
 	}{
@@ -698,7 +689,6 @@ func TestFactor(t *testing.T) {
 		ff int
 	}
 	tests := []struct {
-		
 		args args
 		want []Rule
 	}{
@@ -841,6 +831,116 @@ func TestFactor(t *testing.T) {
 			res := Factor(rules, tt.args.ff)
 			SortPRS(res)
 			assert.Equal(t, tt.want, res)
+		})
+	}
+}
+
+func TestDummyEqual(t *testing.T) {
+	type args struct {
+		l *log.Logger
+	}
+	tests := []struct {
+		args args
+		want EqualityFunction
+	}{
+		// TODO: Add test cases.
+	}
+	for _, tt := range tests {
+		t.Run("", func(t *testing.T) {
+			assert.Equal(t, tt.want, DummyEqual(tt.args.l))
+		})
+	}
+}
+
+func TestLiteralEqual(t *testing.T) {
+	type args struct {
+		l *log.Logger
+	}
+	tests := []struct {
+		args args
+		want EqualityFunction
+	}{
+		// TODO: Add test cases.
+	}
+	for _, tt := range tests {
+		t.Run("", func(t *testing.T) {
+			assert.Equal(t, tt.want, LiteralEqual(tt.args.l))
+		})
+	}
+}
+
+func TestPOSSignatureEqual(t *testing.T) {
+	type args struct {
+		t Tokenizer
+		m *tag.PerceptronTagger
+		l *log.Logger
+	}
+	tests := []struct {
+		args args
+		want EqualityFunction
+	}{
+		// TODO: Add test cases.
+	}
+	for _, tt := range tests {
+		t.Run("", func(t *testing.T) {
+			assert.Equal(t, tt.want, POSSignatureEqual(tt.args.t, tt.args.m, tt.args.l))
+		})
+	}
+}
+
+func TestCharacterLevenshteinThreshold(t *testing.T) {
+	type args struct {
+		t float64
+		l *log.Logger
+	}
+	tests := []struct {
+		args args
+		want EqualityFunction
+	}{
+		// TODO: Add test cases.
+	}
+	for _, tt := range tests {
+		t.Run("", func(t *testing.T) {
+			assert.Equal(t, tt.want, CharacterLevenshteinThreshold(tt.args.t, tt.args.l))
+		})
+	}
+}
+
+func TestTokenLevenshteinThreshold(t *testing.T) {
+	type args struct {
+		t float64
+		l *log.Logger
+	}
+	tests := []struct {
+		args args
+		want EqualityFunction
+	}{
+		// TODO: Add test cases.
+	}
+	for _, tt := range tests {
+		t.Run("", func(t *testing.T) {
+			assert.Equal(t, tt.want, TokenLevenshteinThreshold(tt.args.t, tt.args.l))
+		})
+	}
+}
+
+func TestTFIDFCosineThreshold(t *testing.T) {
+	type args struct {
+		t   float64
+		v   []string
+		tk  Tokenizer
+		idf map[string]float64
+		l   *log.Logger
+	}
+	tests := []struct {
+		args args
+		want EqualityFunction
+	}{
+		// TODO: Add test cases.
+	}
+	for _, tt := range tests {
+		t.Run("", func(t *testing.T) {
+			assert.Equal(t, tt.want, TFIDFCosineThreshold(tt.args.t, tt.args.v, tt.args.tk, tt.args.idf, tt.args.l))
 		})
 	}
 }

@@ -10,9 +10,17 @@ import (
 	"log"
 	"slices"
 	"strings"
+
+	"github.com/jdkato/prose/tag"
 )
 
 type EqualityFunction func(g1, g2 []string) bool
+
+func DummyEqual(l *log.Logger) EqualityFunction {
+	return func(g1, g2 []string) bool {
+		return true
+	}
+}
 
 func LiteralEqual(l *log.Logger) EqualityFunction {
 	return func(g1, g2 []string) bool {
@@ -24,9 +32,17 @@ func LiteralEqual(l *log.Logger) EqualityFunction {
 	}
 }
 
-func DummyEqual(l *log.Logger) EqualityFunction {
+func POSSignatureEqual(t Tokenizer, m *tag.PerceptronTagger, l *log.Logger) EqualityFunction {
 	return func(g1, g2 []string) bool {
-		return true
+		s1 := strings.Join(g1, " ")
+		s2 := strings.Join(g2, " ")
+		sig1 := posSignature(t.tokenize(s1), m)
+		sig2 := posSignature(t.tokenize(s2), m)
+		if sig1 == sig2 {
+			l.Printf("%v and %v merged with equality function %s\n", g1, g2, "POSSignatureEqual")
+			return true
+		}
+		return false
 	}
 }
 
