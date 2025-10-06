@@ -136,7 +136,6 @@ func TestRule_name(t *testing.T) {
 	}
 }
 
-
 func TestSetIDs(t *testing.T) {
 	type args struct {
 		f string
@@ -187,11 +186,11 @@ func TestSetIDs(t *testing.T) {
 			s := bufio.NewScanner(file)
 			tx := ReadTexts(s)
 			for i, t := range tx {
-				tx[i].text = WordNormalize(t.text, tk)
+				tx[i].text = tk.normalize(t.text)
 			}
 			tr := CollectTransitions(tx, tk)
 			for i, t := range tx {
-				tx[i].chunk = TransitionChunk(WordTokenize(t.text, tk), tr, 0.1)
+				tx[i].chunk = TransitionChunk(tk.tokenize(t.text), tr, 0.1)
 			}
 			ng := CollectChunks(tx)
 			for i, t := range tx {

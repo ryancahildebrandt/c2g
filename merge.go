@@ -10,8 +10,6 @@ import (
 	"log"
 	"slices"
 	"strings"
-
-	"github.com/bzick/tokenizer"
 )
 
 type EqualityFunction func(g1, g2 []string) bool
@@ -58,7 +56,7 @@ func TokenLevenshteinThreshold(t float64, l *log.Logger) EqualityFunction {
 	}
 }
 
-func TFIDFCosineThreshold(t float64, v []string, tk *tokenizer.Tokenizer, idf map[string]float64, l *log.Logger) EqualityFunction {
+func TFIDFCosineThreshold(t float64, v []string, tk Tokenizer, idf map[string]float64, l *log.Logger) EqualityFunction {
 	return func(g1, g2 []string) bool {
 		v1, err := CountEmbed(strings.Join(g1, " "), v, tk)
 		if err != nil {

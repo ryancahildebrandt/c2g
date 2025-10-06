@@ -6,7 +6,6 @@
 package main
 
 import (
-	"bufio"
 	"context"
 	"fmt"
 	"log"
@@ -195,55 +194,22 @@ func main() {
 				Action: func(ctx context.Context, cmd *cli.Command) error {
 					var (
 						start = time.Now()
-						// rules []Rule
-						// g     Grammar
-						err error
+						rules []Rule
+						g     Grammar
+						err   error
+						// wordtok = NewWordTokenizer()
 					)
 
-					// rules, err = buildRules(cmd)
-					// if err != nil {
-					// 	return err
-					// }
-
-					var (
-						file      *os.File
-						scanner   *bufio.Scanner
-						texts     []Text
-						tokenizer = NewWordTokenizer()
-					)
-
-					rules, err := buildRules(cmd)
+					rules, err = buildRules(cmd)
 					if err != nil {
 						return err
 					}
 
-					file, err = os.Open(cmd.String("inFile"))
-					if err != nil {
-						log.Fatal(err)
-					}
-					defer file.Close()
-					scanner = bufio.NewScanner(file)
-					texts = ReadTexts(scanner)
-					for i, t := range texts {
-						texts[i].text = WordNormalize(t.text, tokenizer)
-					}
-					transitions := CollectTransitions(texts, tokenizer)
-					for i, t := range texts {
-						tokens := WordTokenize(t.text, tokenizer)
-						texts[i].chunk = TransitionChunk(tokens, transitions, cmd.Float("prob"))
-					}
-					vocab := CollectVocab(texts, tokenizer)
-					idf := CollectIDF(texts, tokenizer)
-
-					fmt.Println(len(rules))
-					rules = MergeP(rules, TFIDFCosineThreshold(0.8, vocab, tokenizer, idf, NewNilLogger()))
-					fmt.Println(len(rules))
-
-					// SortPRS(rules)
-					// rules = SetIDs(rules)
+					SortPRS(rules)
+					rules = SetIDs(rules)
 					// rules = Factor(rules, cmd.Int("factor"))
-					// g = Grammar{Rules: rules}
-					// g.write(cmd)
+					g = Grammar{Rules: rules}
+					g.write(cmd)
 
 					fmt.Println(time.Since(start))
 					return nil

@@ -63,11 +63,11 @@ func TestSortPR(t *testing.T) {
 			s := bufio.NewScanner(file)
 			tx := ReadTexts(s)
 			for i, t := range tx {
-				tx[i].text = WordNormalize(t.text, tk)
+				tx[i].text = tk.normalize(t.text)
 			}
 			tr := CollectTransitions(tx, tk)
 			for i, t := range tx {
-				tx[i].chunk = TransitionChunk(WordTokenize(t.text, tk), tr, 0.1)
+				tx[i].chunk = TransitionChunk(tk.tokenize(t.text), tr, 0.1)
 			}
 			ng := CollectChunks(tx)
 			for i, t := range tx {
@@ -130,11 +130,11 @@ func TestSortPS(t *testing.T) {
 			s := bufio.NewScanner(file)
 			tx := ReadTexts(s)
 			for i, t := range tx {
-				tx[i].text = WordNormalize(t.text, tk)
+				tx[i].text = tk.normalize(t.text)
 			}
 			tr := CollectTransitions(tx, tk)
 			for i, t := range tx {
-				tx[i].chunk = TransitionChunk(WordTokenize(t.text, tk), tr, 0.1)
+				tx[i].chunk = TransitionChunk(tk.tokenize(t.text), tr, 0.1)
 			}
 			ng := CollectChunks(tx)
 			for i, t := range tx {
@@ -197,11 +197,11 @@ func TestSortRS(t *testing.T) {
 			s := bufio.NewScanner(file)
 			tx := ReadTexts(s)
 			for i, t := range tx {
-				tx[i].text = WordNormalize(t.text, tk)
+				tx[i].text = tk.normalize(t.text)
 			}
 			tr := CollectTransitions(tx, tk)
 			for i, t := range tx {
-				tx[i].chunk = TransitionChunk(WordTokenize(t.text, tk), tr, 0.1)
+				tx[i].chunk = TransitionChunk(tk.tokenize(t.text), tr, 0.1)
 			}
 			ng := CollectChunks(tx)
 			for i, t := range tx {
@@ -264,11 +264,11 @@ func TestSortPRS(t *testing.T) {
 			s := bufio.NewScanner(file)
 			tx := ReadTexts(s)
 			for i, t := range tx {
-				tx[i].text = WordNormalize(t.text, tk)
+				tx[i].text = tk.normalize(t.text)
 			}
 			tr := CollectTransitions(tx, tk)
 			for i, t := range tx {
-				tx[i].chunk = TransitionChunk(WordTokenize(t.text, tk), tr, 0.1)
+				tx[i].chunk = TransitionChunk(tk.tokenize(t.text), tr, 0.1)
 			}
 			ng := CollectChunks(tx)
 			for i, t := range tx {
@@ -311,11 +311,11 @@ func TestMergeP(t *testing.T) {
 			s := bufio.NewScanner(file)
 			tx := ReadTexts(s)
 			for i, t := range tx {
-				tx[i].text = WordNormalize(t.text, tk)
+				tx[i].text = tk.normalize(t.text)
 			}
 			tr := CollectTransitions(tx, tk)
 			for i, t := range tx {
-				tx[i].chunk = TransitionChunk(WordTokenize(t.text, tk), tr, 0.1)
+				tx[i].chunk = TransitionChunk(tk.tokenize(t.text), tr, 0.1)
 			}
 			ng := CollectChunks(tx)
 			for i, t := range tx {
@@ -325,7 +325,7 @@ func TestMergeP(t *testing.T) {
 			for _, t := range tx {
 				rules = append(rules, ToRule(t))
 			}
-			res := MergeP(rules, LiteralEqual(NewNilLogger()))
+			res := MergeP(rules, LiteralEqual(nilLogger))
 			assert.Equal(t, tt.want, res)
 		})
 	}
@@ -380,11 +380,11 @@ func TestMergeR(t *testing.T) {
 			s := bufio.NewScanner(file)
 			tx := ReadTexts(s)
 			for i, t := range tx {
-				tx[i].text = WordNormalize(t.text, tk)
+				tx[i].text = tk.normalize(t.text)
 			}
 			tr := CollectTransitions(tx, tk)
 			for i, t := range tx {
-				tx[i].chunk = TransitionChunk(WordTokenize(t.text, tk), tr, 0.1)
+				tx[i].chunk = TransitionChunk(tk.tokenize(t.text), tr, 0.1)
 			}
 			ng := CollectChunks(tx)
 			for i, t := range tx {
@@ -394,7 +394,7 @@ func TestMergeR(t *testing.T) {
 			for _, t := range tx {
 				rules = append(rules, ToRule(t))
 			}
-			res := MergeR(rules, LiteralEqual(NewNilLogger()))
+			res := MergeR(rules, LiteralEqual(nilLogger))
 			assert.Equal(t, tt.want, res)
 		})
 	}
@@ -430,11 +430,11 @@ func TestMergeS(t *testing.T) {
 			s := bufio.NewScanner(file)
 			tx := ReadTexts(s)
 			for i, t := range tx {
-				tx[i].text = WordNormalize(t.text, tk)
+				tx[i].text = tk.normalize(t.text)
 			}
 			tr := CollectTransitions(tx, tk)
 			for i, t := range tx {
-				tx[i].chunk = TransitionChunk(WordTokenize(t.text, tk), tr, 0.1)
+				tx[i].chunk = TransitionChunk(tk.tokenize(t.text), tr, 0.1)
 			}
 			ng := CollectChunks(tx)
 			for i, t := range tx {
@@ -444,7 +444,7 @@ func TestMergeS(t *testing.T) {
 			for _, t := range tx {
 				rules = append(rules, ToRule(t))
 			}
-			res := MergeS(rules, LiteralEqual(NewNilLogger()))
+			res := MergeS(rules, LiteralEqual(nilLogger))
 			assert.Equal(t, tt.want, res)
 		})
 	}
@@ -498,11 +498,11 @@ func TestMergePR(t *testing.T) {
 			s := bufio.NewScanner(file)
 			tx := ReadTexts(s)
 			for i, t := range tx {
-				tx[i].text = WordNormalize(t.text, tk)
+				tx[i].text = tk.normalize(t.text)
 			}
 			tr := CollectTransitions(tx, tk)
 			for i, t := range tx {
-				tx[i].chunk = TransitionChunk(WordTokenize(t.text, tk), tr, 0.1)
+				tx[i].chunk = TransitionChunk(tk.tokenize(t.text), tr, 0.1)
 			}
 			ng := CollectChunks(tx)
 			for i, t := range tx {
@@ -512,7 +512,7 @@ func TestMergePR(t *testing.T) {
 			for _, t := range tx {
 				rules = append(rules, ToRule(t))
 			}
-			res := MergePR(rules, LiteralEqual(NewNilLogger()))
+			res := MergePR(rules, LiteralEqual(nilLogger))
 			assert.Equal(t, tt.want, res)
 		})
 	}
@@ -546,11 +546,11 @@ func TestMergePS(t *testing.T) {
 			s := bufio.NewScanner(file)
 			tx := ReadTexts(s)
 			for i, t := range tx {
-				tx[i].text = WordNormalize(t.text, tk)
+				tx[i].text = tk.normalize(t.text)
 			}
 			tr := CollectTransitions(tx, tk)
 			for i, t := range tx {
-				tx[i].chunk = TransitionChunk(WordTokenize(t.text, tk), tr, 0.1)
+				tx[i].chunk = TransitionChunk(tk.tokenize(t.text), tr, 0.1)
 			}
 			ng := CollectChunks(tx)
 			for i, t := range tx {
@@ -560,7 +560,7 @@ func TestMergePS(t *testing.T) {
 			for _, t := range tx {
 				rules = append(rules, ToRule(t))
 			}
-			res := MergePS(rules, LiteralEqual(NewNilLogger()))
+			res := MergePS(rules, LiteralEqual(nilLogger))
 			assert.Equal(t, tt.want, res)
 		})
 	}
@@ -614,11 +614,11 @@ func TestMergeRS(t *testing.T) {
 			s := bufio.NewScanner(file)
 			tx := ReadTexts(s)
 			for i, t := range tx {
-				tx[i].text = WordNormalize(t.text, tk)
+				tx[i].text = tk.normalize(t.text)
 			}
 			tr := CollectTransitions(tx, tk)
 			for i, t := range tx {
-				tx[i].chunk = TransitionChunk(WordTokenize(t.text, tk), tr, 0.1)
+				tx[i].chunk = TransitionChunk(tk.tokenize(t.text), tr, 0.1)
 			}
 			ng := CollectChunks(tx)
 			for i, t := range tx {
@@ -628,7 +628,7 @@ func TestMergeRS(t *testing.T) {
 			for _, t := range tx {
 				rules = append(rules, ToRule(t))
 			}
-			res := MergeRS(rules, LiteralEqual(NewNilLogger()))
+			res := MergeRS(rules, LiteralEqual(nilLogger))
 			assert.Equal(t, tt.want, res)
 		})
 	}
@@ -672,11 +672,11 @@ func TestMergeMisc(t *testing.T) {
 			s := bufio.NewScanner(file)
 			tx := ReadTexts(s)
 			for i, t := range tx {
-				tx[i].text = WordNormalize(t.text, tk)
+				tx[i].text = tk.normalize(t.text)
 			}
 			tr := CollectTransitions(tx, tk)
 			for i, t := range tx {
-				tx[i].chunk = TransitionChunk(WordTokenize(t.text, tk), tr, 0.1)
+				tx[i].chunk = TransitionChunk(tk.tokenize(t.text), tr, 0.1)
 			}
 			ng := CollectChunks(tx)
 			for i, t := range tx {
@@ -686,7 +686,7 @@ func TestMergeMisc(t *testing.T) {
 			for _, t := range tx {
 				rules = append(rules, ToRule(t))
 			}
-			res := MergeMisc(rules, DummyEqual(NewNilLogger()))
+			res := MergeMisc(rules, DummyEqual(nilLogger))
 			assert.Equal(t, tt.want, res)
 		})
 	}
@@ -824,11 +824,11 @@ func TestFactor(t *testing.T) {
 			s := bufio.NewScanner(file)
 			tx := ReadTexts(s)
 			for i, t := range tx {
-				tx[i].text = WordNormalize(t.text, tk)
+				tx[i].text = tk.normalize(t.text)
 			}
 			tr := CollectTransitions(tx, tk)
 			for i, t := range tx {
-				tx[i].chunk = TransitionChunk(WordTokenize(t.text, tk), tr, 0.1)
+				tx[i].chunk = TransitionChunk(tk.tokenize(t.text), tr, 0.1)
 			}
 			ng := CollectChunks(tx)
 			for i, t := range tx {

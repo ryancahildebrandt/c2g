@@ -11,7 +11,6 @@ import (
 	"slices"
 	"strings"
 
-	"github.com/bzick/tokenizer"
 	"gonum.org/v1/gonum/mat"
 )
 
@@ -81,44 +80,11 @@ func TokenLevenshtein(s1, s2 []string) float64 {
 	return 1 - (float64(dist) / float64(len(arr2)))
 }
 
-// type SparseVector struct {
-// 	vals [][]float64
-// 	len  int
-// }
-
-type DenseVector = mat.VecDense
-
-// func ToDense(v SparseVector) (mat.VecDense, error) {
-// 	if v.len == 0 {
-// 		return mat.VecDense{}, fmt.Errorf("zero length sparse vector cannot be converted to dense vector")
-// 	}
-// 	var vv = mat.NewVecDense(v.len, nil)
-// 	for _, tup := range v.vals {
-// 		if int(tup[0]) > v.len {
-// 			return *vv, errors.New("sparse vector index out of range of sparse vector len")
-// 		}
-// 		vv.SetVec(int(tup[0]), tup[1])
-// 	}
-
-// 	return *vv, nil
-// }
-
-// func ToSparse(v mat.VecDense) (SparseVector, error) {
-// 	var vv = SparseVector{vals: [][]float64{}, len: v.Len()}
-// 	for i := range v.Len() {
-// 		if v.AtVec(i) == 0 {
-// 			continue
-// 		}
-// 		vv.vals = append(vv.vals, []float64{float64(i), v.AtVec(i)})
-// 	}
-// 	return vv, nil
-// }
-
-func CollectVocab(t []Text, tk *tokenizer.Tokenizer) []string {
+func CollectVocab(t []Text, tk Tokenizer) []string {
 	var v = []string{}
 	var tok []string
 	for i := range t {
-		tok = WordTokenize(strings.ToLower(t[i].text), tk)
+		tok = tk.tokenize(strings.ToLower(t[i].text))
 		v = append(v, tok...)
 	}
 	slices.Sort(v)
@@ -126,12 +92,12 @@ func CollectVocab(t []Text, tk *tokenizer.Tokenizer) []string {
 	return v
 }
 
-func CollectIDF(t []Text, tk *tokenizer.Tokenizer) map[string]float64 {
+func CollectIDF(t []Text, tk Tokenizer) map[string]float64 {
 	var m = make(map[string]float64)
 	var tok []string
 
 	for i := range t {
-		tok = WordTokenize(strings.ToLower(t[i].text), tk)
+		tok = tk.tokenize(strings.ToLower(t[i].text))
 		slices.Sort(tok)
 		tok = slices.Compact(tok)
 		for j := range tok {
@@ -146,12 +112,12 @@ func CollectIDF(t []Text, tk *tokenizer.Tokenizer) map[string]float64 {
 	return m
 }
 
-func CountEmbed(s string, v []string, tk *tokenizer.Tokenizer) (DenseVector, error) {
+func CountEmbed(s string, v []string, tk Tokenizer) (mat.VecDense, error) {
 	if len(v) == 0 {
 		return mat.VecDense{}, fmt.Errorf("vocab is empty")
 	}
 	var e = mat.NewVecDense(len(v), nil)
-	var tok = WordTokenize(strings.ToLower(s), tk)
+	var tok = tk.tokenize(strings.ToLower(s))
 	var counts = make(map[int]int)
 	var ind int
 	var err error
@@ -170,8 +136,8 @@ func CountEmbed(s string, v []string, tk *tokenizer.Tokenizer) (DenseVector, err
 	return *e, err
 }
 
-func TFIDFTransform(v DenseVector, vv []string, idf map[string]float64) DenseVector {
-	collectTF := func(v DenseVector) map[string]float64 {
+func TFIDFTransform(v mat.VecDense, vv []string, idf map[string]float64) mat.VecDense {
+	collectTF := func(v mat.VecDense) map[string]float64 {
 		var n float64
 		var m = make(map[string]float64)
 		for i := range v.Len() {
@@ -202,7 +168,7 @@ func TFIDFTransform(v DenseVector, vv []string, idf map[string]float64) DenseVec
 	return v
 }
 
-func CosineSimilarity(v1, v2 DenseVector) (float64, error) {
+func CosineSimilarity(v1, v2 mat.VecDense) (float64, error) {
 	switch {
 	case v1.Len() != v2.Len():
 		return 0.0, fmt.Errorf("vectors v1 and v2 lengths differ. len(v1):%v len(v2):%v", v1.Len(), v2.Len())

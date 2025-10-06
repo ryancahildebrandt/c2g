@@ -10,6 +10,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"io"
 	"log"
 	"os"
 	"path/filepath"
@@ -42,7 +43,20 @@ var (
 		Value:   false,
 		Usage:   "format output grammar with single public rule",
 	}
+
+	// loggers
+	nilLogger    *log.Logger = log.New(io.Discard, "", log.LstdFlags)
+	stdoutLogger *log.Logger = log.New(os.Stdout, "INFO:", log.LstdFlags|log.Lmicroseconds|log.Llongfile)
 )
+
+func NewFileLogger(p string) (*log.Logger, error) {
+	f, err := os.OpenFile(p, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0644)
+	if err != nil {
+		return &log.Logger{}, err
+	}
+	defer f.Close()
+	return log.New(f, "INFO:", log.LstdFlags|log.Lmicroseconds|log.Llongfile), nil
+}
 
 // Checks that the provided path exists on disk and has extension txt/csv
 func ValidateInFile(p string) error {
@@ -96,7 +110,8 @@ func buildRules(cmd *cli.Command) ([]Rule, error) {
 		tokens      []string
 		chunks      []string
 		rules       []Rule
-		tokenizer   = NewWordTokenizer()
+		// tokenizer   = NewSepTokenizer()
+		tokenizer = NewWordTokenizer()
 	)
 
 	file, err = os.Open(cmd.String("inFile"))
@@ -107,11 +122,11 @@ func buildRules(cmd *cli.Command) ([]Rule, error) {
 	scanner = bufio.NewScanner(file)
 	texts = ReadTexts(scanner)
 	for i, t := range texts {
-		texts[i].text = WordNormalize(t.text, tokenizer)
+		texts[i].text = tokenizer.normalize(t.text)
 	}
 	transitions = CollectTransitions(texts, tokenizer)
 	for i, t := range texts {
-		tokens = WordTokenize(t.text, tokenizer)
+		tokens = tokenizer.tokenize(t.text)
 		texts[i].chunk = TransitionChunk(tokens, transitions, cmd.Float("prob"))
 	}
 	chunks = CollectChunks(texts)

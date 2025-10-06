@@ -9,7 +9,6 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/bzick/tokenizer"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -37,56 +36,106 @@ func TestValidateTokenizerString(t *testing.T) {
 	}
 }
 
-func TestWordTokenize(t *testing.T) {
-	tok := NewWordTokenizer()
-
+func Test_wordTokenizer_tokenize(t *testing.T) {
 	type args struct {
-		e string
-		t *tokenizer.Tokenizer
+		s string
 	}
 	tests := []struct {
 		name string
 		args args
 		want []string
 	}{
-		{name: "", args: args{e: "", t: tok}, want: []string{}},
-		{name: "", args: args{e: " ", t: tok}, want: []string{}},
-		{name: "", args: args{e: " 	", t: tok}, want: []string{}},
-		{name: "", args: args{e: ".", t: tok}, want: []string{"."}},
-		{name: "", args: args{e: "..?", t: tok}, want: []string{".", ".", "?"}},
-		{name: "", args: args{e: "a.b", t: tok}, want: []string{"a", ".", "b"}},
-		{name: "", args: args{e: "a . b", t: tok}, want: []string{"a", ".", "b"}},
-		{name: "", args: args{e: " a. b", t: tok}, want: []string{"a", ".", "b"}},
+		{name: "", args: args{s: ""}, want: []string{}},
+		{name: "", args: args{s: " "}, want: []string{}},
+		{name: "", args: args{s: " 	"}, want: []string{}},
+		{name: "", args: args{s: "."}, want: []string{"."}},
+		{name: "", args: args{s: "..?"}, want: []string{".", ".", "?"}},
+		{name: "", args: args{s: "a.b"}, want: []string{"a", ".", "b"}},
+		{name: "", args: args{s: "a . b"}, want: []string{"a", ".", "b"}},
+		{name: "", args: args{s: " a. b"}, want: []string{"a", ".", "b"}},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			assert.Equal(t, tt.want, WordTokenize(tt.args.e, tt.args.t))
+			tk := NewWordTokenizer()
+			assert.Equal(t, tt.want, tk.tokenize(tt.args.s))
 		})
 	}
 }
 
-func TestWordNormalize(t *testing.T) {
+func Test_wordTokenizer_normalize(t *testing.T) {
 	type args struct {
-		e string
+		s string
 	}
 	tests := []struct {
 		name string
 		args args
 		want string
 	}{
-		{name: "", args: args{e: ""}, want: ""},
-		{name: "", args: args{e: " "}, want: ""},
-		{name: "", args: args{e: " 	"}, want: ""},
-		{name: "", args: args{e: "."}, want: "."},
-		{name: "", args: args{e: "..?"}, want: ". . ?"},
-		{name: "", args: args{e: "a.b"}, want: "a . b"},
-		{name: "", args: args{e: "a . b"}, want: "a . b"},
-		{name: "", args: args{e: " a. b"}, want: "a . b"},
+		{name: "", args: args{s: ""}, want: ""},
+		{name: "", args: args{s: " "}, want: ""},
+		{name: "", args: args{s: " 	"}, want: ""},
+		{name: "", args: args{s: "."}, want: "."},
+		{name: "", args: args{s: "..?"}, want: ". . ?"},
+		{name: "", args: args{s: "a.b"}, want: "a . b"},
+		{name: "", args: args{s: "a . b"}, want: "a . b"},
+		{name: "", args: args{s: " a. b"}, want: "a . b"},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			tk := NewWordTokenizer()
-			assert.Equal(t, tt.want, WordNormalize(tt.args.e, tk))
+			assert.Equal(t, tt.want, tk.normalize(tt.args.s))
+		})
+	}
+}
+
+func Test_sepTokenizer_tokenize(t *testing.T) {
+	type args struct {
+		s string
+	}
+	tests := []struct {
+		name string
+		args args
+		want []string
+	}{
+		{name: "", args: args{s: ""}, want: []string{}},
+		{name: "", args: args{s: "<SEP>"}, want: []string{}},
+		{name: "", args: args{s: " <SEP>	"}, want: []string{" ", "\t"}},
+		{name: "", args: args{s: "."}, want: []string{"."}},
+		{name: "", args: args{s: ".<SEP>.?"}, want: []string{".", ".?"}},
+		{name: "", args: args{s: "a<SEP>.b<SEP>"}, want: []string{"a", ".b"}},
+		{name: "", args: args{s: "a . <SEP>b"}, want: []string{"a . ", "b"}},
+		{name: "", args: args{s: " <SEP>a.<SEP> b"}, want: []string{" ", "a.", " b"}},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			tk := NewSepTokenizer()
+			assert.Equal(t, tt.want, tk.tokenize(tt.args.s))
+		})
+	}
+}
+
+func Test_sepTokenizer_normalize(t *testing.T) {
+	type args struct {
+		s string
+	}
+	tests := []struct {
+		name string
+		args args
+		want string
+	}{
+		{name: "", args: args{s: ""}, want: ""},
+		{name: "", args: args{s: "<SEP><SEP>"}, want: ""},
+		{name: "", args: args{s: " <SEP>	"}, want: " <SEP>	"},
+		{name: "", args: args{s: "."}, want: "."},
+		{name: "", args: args{s: ".<SEP>.?"}, want: ".<SEP>.?"},
+		{name: "", args: args{s: "a<SEP><SEP>.b<SEP>"}, want: "a<SEP>.b"},
+		{name: "", args: args{s: "a . <SEP>b<SEP>"}, want: "a . <SEP>b"},
+		{name: "", args: args{s: " <SEP><SEP>a.<SEP> b"}, want: " <SEP>a.<SEP> b"},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			tk := NewSepTokenizer()
+			assert.Equal(t, tt.want, tk.normalize(tt.args.s))
 		})
 	}
 }

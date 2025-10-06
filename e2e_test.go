@@ -50,7 +50,7 @@ func TestGrammarE2E(t *testing.T) {
 			s := bufio.NewScanner(file)
 			tx := ReadTexts(s)
 			for i, t := range tx {
-				t.text = WordNormalize(t.text, tk)
+				t.text = tk.normalize(t.text)
 				tx[i] = t
 			}
 			got := []string{}
@@ -66,7 +66,7 @@ func TestGrammarE2E(t *testing.T) {
 			got = slices.Compact(got)
 			tr := CollectTransitions(tx, tk)
 			for i, t := range tx {
-				tx[i].chunk = TransitionChunk(WordTokenize(t.text, tk), tr, 0.1)
+				tx[i].chunk = TransitionChunk(tk.tokenize(t.text), tr, 0.1)
 			}
 			ng := CollectChunks(tx)
 			for i, t := range tx {
@@ -79,7 +79,7 @@ func TestGrammarE2E(t *testing.T) {
 			for _, p := range permutations {
 				rules1 := rules
 				for _, pp := range p {
-					rules1 = mergers[pp](rules, LiteralEqual(NewNilLogger()))
+					rules1 = mergers[pp](rules, LiteralEqual(nilLogger))
 				}
 				rules1 = SetIDs(rules1)
 				rules1 = Factor(rules1, 5)
@@ -91,7 +91,7 @@ func TestGrammarE2E(t *testing.T) {
 				s = bufio.NewScanner(file)
 				txx := ReadTexts(s)
 				for i, t := range txx {
-					t.text = WordNormalize(t.text, tk)
+					t.text = tk.normalize(t.text)
 					txx[i] = t
 				}
 				want := []string{}
@@ -144,7 +144,7 @@ func TestGrammarMainE2E(t *testing.T) {
 			s := bufio.NewScanner(file)
 			tx := ReadTexts(s)
 			for i, t := range tx {
-				t.text = WordNormalize(t.text, tk)
+				t.text = tk.normalize(t.text)
 				tx[i] = t
 			}
 			got := []string{}
@@ -160,7 +160,7 @@ func TestGrammarMainE2E(t *testing.T) {
 			got = slices.Compact(got)
 			tr := CollectTransitions(tx, tk)
 			for i, t := range tx {
-				tx[i].chunk = TransitionChunk(WordTokenize(t.text, tk), tr, 0.1)
+				tx[i].chunk = TransitionChunk(tk.tokenize(t.text), tr, 0.1)
 			}
 			ng := CollectChunks(tx)
 			for i, t := range tx {
@@ -173,7 +173,7 @@ func TestGrammarMainE2E(t *testing.T) {
 			for _, p := range permutations {
 				rules1 := rules
 				for _, pp := range p {
-					rules1 = mergers[pp](rules, LiteralEqual(NewNilLogger()))
+					rules1 = mergers[pp](rules, LiteralEqual(nilLogger))
 				}
 				rules1 = SetIDs(rules1)
 				rules1 = Factor(rules1, 5)
@@ -185,7 +185,7 @@ func TestGrammarMainE2E(t *testing.T) {
 				s = bufio.NewScanner(file)
 				txx := ReadTexts(s)
 				for i, t := range txx {
-					t.text = WordNormalize(t.text, tk)
+					t.text = tk.normalize(t.text)
 					txx[i] = t
 				}
 				want := []string{}

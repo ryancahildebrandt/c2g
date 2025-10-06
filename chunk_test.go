@@ -11,13 +11,10 @@ import (
 	"slices"
 	"testing"
 
-	"github.com/bzick/tokenizer"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestCollectTransitions(t *testing.T) {
-	var tok *tokenizer.Tokenizer = NewWordTokenizer()
-
 	type args struct {
 		c []Text
 	}
@@ -34,6 +31,7 @@ func TestCollectTransitions(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			tok := NewWordTokenizer()
 			assert.Equalf(t, tt.want, CollectTransitions(tt.args.c, tok), "NewTransitions(%v)", tt.args.c)
 		})
 	}
@@ -130,11 +128,11 @@ func TestCollectChunks(t *testing.T) {
 			s := bufio.NewScanner(file)
 			tx := ReadTexts(s)
 			for i, t := range tx {
-				tx[i].text = WordNormalize(t.text, tk)
+				tx[i].text = tk.normalize(t.text)
 			}
 			tr := CollectTransitions(tx, tk)
 			for i, t := range tx {
-				tx[i].chunk = TransitionChunk(WordTokenize(t.text, tk), tr, 0.1)
+				tx[i].chunk = TransitionChunk(tk.tokenize(t.text), tr, 0.1)
 			}
 			ng := CollectChunks(tx)
 			slices.Sort(ng)

@@ -42,12 +42,12 @@ func TestGrammar_body(t *testing.T) {
 			s := bufio.NewScanner(file)
 			tx := ReadTexts(s)
 			for i, t := range tx {
-				t.text = WordNormalize(t.text, tk)
+				t.text = tk.normalize(t.text)
 				tx[i] = t
 			}
 			tr := CollectTransitions(tx, tk)
 			for i, t := range tx {
-				tx[i].chunk = TransitionChunk(WordTokenize(t.text, tk), tr, 0.1)
+				tx[i].chunk = TransitionChunk(tk.tokenize(t.text), tr, 0.1)
 			}
 			ng := CollectChunks(tx)
 			for i, t := range tx {
@@ -93,12 +93,12 @@ func TestGrammar_bodyMain(t *testing.T) {
 			s := bufio.NewScanner(file)
 			tx := ReadTexts(s)
 			for i, t := range tx {
-				t.text = WordNormalize(t.text, tk)
+				t.text = tk.normalize(t.text)
 				tx[i] = t
 			}
 			tr := CollectTransitions(tx, tk)
 			for i, t := range tx {
-				tx[i].chunk = TransitionChunk(WordTokenize(t.text, tk), tr, 0.1)
+				tx[i].chunk = TransitionChunk(tk.tokenize(t.text), tr, 0.1)
 			}
 			ng := CollectChunks(tx)
 			for i, t := range tx {

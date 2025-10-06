@@ -9,7 +9,6 @@ import (
 	"slices"
 	"strings"
 
-	"github.com/bzick/tokenizer"
 	"gonum.org/v1/gonum/floats"
 )
 
@@ -76,7 +75,7 @@ func CollectChunks(t []Text) []string {
 type Transitions map[string]map[string]float64
 
 // Counts bigram co-occurrences and converts to probabilities
-func CollectTransitions(t []Text, tk *tokenizer.Tokenizer) Transitions {
+func CollectTransitions(t []Text, tk Tokenizer) Transitions {
 	toBigrams := func(e []string) [][]string {
 		var b [][]string
 
@@ -124,7 +123,7 @@ func CollectTransitions(t []Text, tk *tokenizer.Tokenizer) Transitions {
 	)
 
 	for _, ss := range t {
-		bb = toBigrams(WordTokenize(ss.text, tk))
+		bb = toBigrams(tk.tokenize(ss.text))
 		if len(bb) != 0 {
 			b = append(b, bb...)
 		}

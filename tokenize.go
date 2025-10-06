@@ -17,6 +17,7 @@ import (
 const (
 	Boundary = iota + 1
 	WhiteSpace
+	Sep
 )
 
 var (
@@ -25,27 +26,32 @@ var (
 	preTokenizedSep []string = []string{"<SEP>"}
 )
 
-// Returns a whitespace and punctuation based tokenizer
-func NewWordTokenizer() *tokenizer.Tokenizer {
-	var lexer *tokenizer.Tokenizer = tokenizer.New()
-
-	lexer.SetWhiteSpaces([]byte{})
-
-	lexer.DefineTokens(WhiteSpace, whiteSpaceChars)
-	lexer.DefineTokens(Boundary, boundaryChars)
-
-	return lexer
+type Tokenizer interface {
+	tokenize(s string) []string
+	normalize(s string) string
 }
 
-func WordTokenize(e string, t *tokenizer.Tokenizer) []string {
+type wordTokenizer struct{ *tokenizer.Tokenizer }
+
+func NewWordTokenizer() wordTokenizer {
+	var tok = wordTokenizer{tokenizer.New()}
+
+	tok.SetWhiteSpaces([]byte{})
+	tok.DefineTokens(WhiteSpace, whiteSpaceChars)
+	tok.DefineTokens(Boundary, boundaryChars)
+
+	return tok
+}
+
+func (t wordTokenizer) tokenize(s string) []string {
 	var (
 		res     string
 		builder strings.Builder
 		out                       = []string{}
-		stream  *tokenizer.Stream = t.ParseString(e)
+		stream  *tokenizer.Stream = t.ParseString(s)
 	)
 
-	if e == "" {
+	if s == "" {
 		return out
 	}
 
@@ -69,8 +75,54 @@ func WordTokenize(e string, t *tokenizer.Tokenizer) []string {
 	return out
 }
 
-func WordNormalize(e string, t *tokenizer.Tokenizer) string {
-	return strings.Join(WordTokenize(e, t), " ")
+func (t wordTokenizer) normalize(s string) string {
+	return strings.Join(t.tokenize(s), " ")
+}
+
+type sepTokenizer struct{ *tokenizer.Tokenizer }
+
+func NewSepTokenizer() sepTokenizer {
+	var tok = sepTokenizer{tokenizer.New()}
+
+	tok.SetWhiteSpaces([]byte{})
+	tok.DefineTokens(Sep, preTokenizedSep)
+
+	return tok
+}
+
+func (t sepTokenizer) tokenize(s string) []string {
+	var (
+		builder strings.Builder
+		out                       = []string{}
+		stream  *tokenizer.Stream = t.ParseString(s)
+	)
+
+	if s == "" {
+		return out
+	}
+	if !strings.Contains(s, "<SEP>") {
+		return []string{s}
+	}
+
+	for stream.IsValid() {
+		switch {
+		case stream.CurrentToken().Is(Sep):
+			builder, out = flushBuilder(builder, out)
+			stream.GoNext()
+		default:
+			builder.WriteString(stream.CurrentToken().ValueUnescapedString())
+			stream.GoNext()
+		}
+	}
+	builder, out = flushBuilder(builder, out)
+
+	return out
+
+}
+
+func (t sepTokenizer) normalize(s string) string {
+	// return strings.Join(t.tokenize(s), "<SEP>")
+	return strings.Join(t.tokenize(s), " ")
 }
 
 // Helper function to get current contents of strings.Builder and reset

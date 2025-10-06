@@ -126,7 +126,7 @@ func TestCollectVocab(t *testing.T) {
 			s := bufio.NewScanner(file)
 			tx := ReadTexts(s)
 			for i, t := range tx {
-				tx[i].text = WordNormalize(t.text, tk)
+				tx[i].text = tk.normalize(t.text)
 			}
 			assert.Equal(t, tt.want, CollectVocab(tx, tk))
 		})
@@ -157,7 +157,7 @@ func TestCollectIDF(t *testing.T) {
 			s := bufio.NewScanner(file)
 			tx := ReadTexts(s)
 			for i, t := range tx {
-				tx[i].text = WordNormalize(t.text, tk)
+				tx[i].text = tk.normalize(t.text)
 			}
 			res := CollectIDF(tx, tk)
 			for k, v := range res {
