@@ -58,7 +58,6 @@ func ConstituencyTagEqual(c SyntacticTagger, l *log.Logger) EqualityFunction {
 	}
 }
 
-
 func CharacterLevenshteinThreshold(t float64, l *log.Logger) EqualityFunction {
 	return func(g1, g2 []string) bool {
 		s1 := strings.Join(g1, " ")

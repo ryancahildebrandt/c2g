@@ -210,7 +210,7 @@ func main() {
 					}
 
 					SortPRS(rules)
-					fmt.Println(tagger)
+					rules = MergeR(rules, ConstituencyTagEqual(tagger, stdoutLogger))
 
 					// rules = SetIDs(rules)
 					// rules = Factor(rules, cmd.Int("factor"))

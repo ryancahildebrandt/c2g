@@ -30,20 +30,21 @@ func (c *SyntacticTagger) POS(s string) string {
 	for _, t := range c.Tag(tokens) {
 		tags = append(tags, t.Tag)
 	}
+	tags = append(tags, "")
 
 	return strings.Join(tags, "()")
 }
 
 func (c *SyntacticTagger) Constituency(s string) string {
 	var sig = c.POS(s)
+
 	for j := range c.rules {
-		rule := c.rules[j].tag
+		tag := c.rules[j].tag
 		ss := strings.Join(c.rules[j].rule, "()")
-		if strings.Contains(sig, ss) {
-			s = strings.ReplaceAll(s, ss, rule)
-		}
+		sig = strings.ReplaceAll(sig, ss, tag)
 	}
-	return s
+
+	return sig
 }
 
 func NewSyntacticTagger(m *tag.PerceptronTagger, t Tokenizer) SyntacticTagger {
