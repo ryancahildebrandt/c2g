@@ -10,8 +10,6 @@ import (
 	"log"
 	"slices"
 	"strings"
-
-	"github.com/jdkato/prose/tag"
 )
 
 type EqualityFunction func(g1, g2 []string) bool
@@ -32,19 +30,34 @@ func LiteralEqual(l *log.Logger) EqualityFunction {
 	}
 }
 
-func POSSignatureEqual(t Tokenizer, m *tag.PerceptronTagger, l *log.Logger) EqualityFunction {
+func POSTagEqual(c SyntacticTagger, l *log.Logger) EqualityFunction {
 	return func(g1, g2 []string) bool {
 		s1 := strings.Join(g1, " ")
 		s2 := strings.Join(g2, " ")
-		sig1 := posSignature(t.tokenize(s1), m)
-		sig2 := posSignature(t.tokenize(s2), m)
+		sig1 := c.POS(s1)
+		sig2 := c.POS(s2)
 		if sig1 == sig2 {
-			l.Printf("%v and %v merged with equality function %s\n", g1, g2, "POSSignatureEqual")
+			l.Printf("%v and %v merged with equality function %s\n", g1, g2, "POSTagEqual")
 			return true
 		}
 		return false
 	}
 }
+
+func ConstituencyTagEqual(c SyntacticTagger, l *log.Logger) EqualityFunction {
+	return func(g1, g2 []string) bool {
+		s1 := strings.Join(g1, " ")
+		s2 := strings.Join(g2, " ")
+		sig1 := c.POS(s1)
+		sig2 := c.POS(s2)
+		if sig1 == sig2 {
+			l.Printf("%v and %v merged with equality function %s\n", g1, g2, "ConstituencyTagEqual")
+			return true
+		}
+		return false
+	}
+}
+
 
 func CharacterLevenshteinThreshold(t float64, l *log.Logger) EqualityFunction {
 	return func(g1, g2 []string) bool {

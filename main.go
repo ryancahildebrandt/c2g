@@ -10,10 +10,11 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"slices"
 	"time"
 
 	"github.com/urfave/cli/v3"
+	"github.com/jdkato/prose/tag"
+
 )
 
 func main() {
@@ -198,7 +199,9 @@ func main() {
 						rules []Rule
 						// g     Grammar
 						err error
-						// wordtok = NewWordTokenizer()
+						wordtok = NewWordTokenizer()
+						model   = tag.NewPerceptronTagger()
+						tagger = NewSyntacticTagger(model, wordtok)
 					)
 
 					rules, err = buildRules(cmd)
@@ -206,12 +209,9 @@ func main() {
 						return err
 					}
 
-					// model := tag.NewPerceptronTagger()
 					SortPRS(rules)
-					slices.SortStableFunc(constituencyRules, func(i, j ConstituencyRule) int { return len(i.rule) - len(j.rule) })
-					for _, r := range constituencyRules {
-						fmt.Println(r)
-					}
+					fmt.Println(tagger)
+
 					// rules = SetIDs(rules)
 					// rules = Factor(rules, cmd.Int("factor"))
 					// g = Grammar{Rules: rules}

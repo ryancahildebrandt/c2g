@@ -8,8 +8,7 @@ for f in nltk.corpus.treebank.fileids():
     productions += s.productions()
 
 grammar = nltk.grammar.induce_pcfg(nltk.Nonterminal("S"), productions)
-penn_nonterminals = ["ADJP","ADVP","CONJP","INTJ","LST","NAC","NP","NX","PP","PRN","PRT","QP","RRC","UCP","VP","WHADJP","WHAVP","WHNP","WHPP"]
-prose_terminals = ["(",")",",",":",".","''","``","#","$","CC","CD","DT","EX","FW","IN","JJ","JJR","JJS","LS","MD","NN","NNP","NNPS","NNS","PDT","POS","PRP","PRP$","RB","RBR","RBS","RP","SYM","TO","UH","VB","VBD","VBG","VBN","VBP","VBZ","WDT","WP","WP$","WRB",]
+penn_nonterminals = ["ADJP","ADVP","CONJP","NP","PP","PRN","QP","VP"]
 
 records = []
 for nt in penn_nonterminals:
@@ -22,9 +21,6 @@ for nt in penn_nonterminals:
             continue 
         for vv in v:
             if "-" in vv:
-                skip = True
-                break
-            if vv not in prose_terminals:
                 skip = True
                 break
         if skip:

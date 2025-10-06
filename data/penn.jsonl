@@ -1,13 +1,19 @@
+{"ADJP": ["NP", "JJ"]}
 {"ADJP": ["JJ", "JJ"]}
 {"ADJP": ["RB", "JJ"]}
 {"ADJP": ["RB", "VBN"]}
 {"ADJP": ["RB", "JJR"]}
+{"ADJP": ["JJ", "PP"]}
 {"ADJP": ["CD", "NN"]}
+{"ADJP": ["QP", "NN"]}
+{"ADJP": ["ADJP", "PP"]}
 {"ADJP": ["RBR", "JJ"]}
 {"ADJP": ["RBS", "JJ"]}
 {"ADJP": ["JJ", "CC", "JJ"]}
 {"ADJP": ["NNP", ",", "JJ"]}
 {"ADJP": ["CD", "CD", "NN"]}
+{"ADVP": ["RB", "PP"]}
+{"ADVP": ["RB", "NP"]}
 {"ADVP": ["RB", "RB"]}
 {"ADVP": ["IN", "JJS"]}
 {"CONJP": ["IN", "IN"]}
@@ -17,28 +23,35 @@
 {"CONJP": ["RB", "IN"]}
 {"CONJP": ["RB", "TO", "VB"]}
 {"CONJP": ["RB", "JJ"]}
-{"INTJ": ["VB", ",", "RB"]}
-{"INTJ": ["NN", ",", "NN", ",", "NN", ",", "NN", ",", "NN", ",", "NN"]}
-{"INTJ": ["RB", "JJ"]}
-{"LST": ["LS", ":"]}
-{"LST": ["LS", "."]}
 {"NP": ["NNP", "NNP"]}
 {"NP": ["CD", "NNS"]}
 {"NP": ["DT", "NN"]}
 {"NP": ["DT", "JJ", "NN"]}
+{"NP": ["NP", "PP"]}
 {"NP": ["JJ", "NN"]}
 {"NP": ["NN", "NNS"]}
 {"NP": ["DT", "NN", "NN"]}
 {"NP": ["DT", "NNS"]}
+{"NP": ["NP", "SBAR"]}
 {"NP": ["NNP", "NNP", "NNP"]}
+{"NP": ["NP", "CC", "NP"]}
 {"NP": ["JJ", "NNS"]}
+{"NP": ["NP", "VP"]}
 {"NP": ["CD", "NN"]}
-{"NX": ["NN", "NN"]}
-{"NX": ["NNP", "NNP"]}
-{"NX": ["JJ", "NNS"]}
-{"NX": ["NN", "NNS"]}
-{"NX": ["JJ", "NN", "NN"]}
-{"NX": ["JJ", "NN"]}
+{"PP": ["IN", "NP"]}
+{"PP": ["TO", "NP"]}
+{"PRN": [":", "NP"]}
+{"PRN": [",", "SINV", ","]}
+{"PRN": [":", "PP", ":"]}
+{"PRN": [",", "PP", ","]}
+{"PRN": [":", "NP", ":"]}
+{"PRN": [",", "S", ","]}
+{"PRN": ["SINV", ","]}
+{"PRN": [",", "ADVP", ","]}
+{"PRN": [",", "''", "SINV", ","]}
+{"PRN": [":", "SBAR", ":"]}
+{"PRN": [",", "''", "S", ","]}
+{"PRN": [":", "S", ":"]}
 {"QP": ["RBR", "IN", "CD"]}
 {"QP": ["CD", "CD"]}
 {"QP": ["IN", "CD"]}
@@ -52,22 +65,22 @@
 {"QP": ["JJR", "IN", "$", "CD", "CD"]}
 {"QP": ["CD", "NN", "TO", "CD", "NN"]}
 {"QP": ["#", "CD", "CD"]}
-{"UCP": ["NN", "CC", "JJ"]}
-{"UCP": ["JJ", "CC", "NN"]}
-{"UCP": ["JJ", "CC", "NNP", "NNP"]}
-{"UCP": ["JJ", ",", "NN", ",", "NN", "CC", "JJ"]}
-{"UCP": ["NN", ",", "NN", "CC", "JJ"]}
-{"UCP": ["NNP", "CC", "JJ"]}
-{"UCP": ["NN", ",", "JJ", "NN", ",", "NNS", "CC", "NN"]}
-{"UCP": ["JJ", ",", "NN", "CC", "NN"]}
-{"UCP": ["NN", "CC", "NNS"]}
-{"UCP": ["JJ", ",", "NN", "CC", "JJ"]}
-{"UCP": ["JJ", "CC", "NN", "NN"]}
-{"UCP": ["NN", ",", "JJ", "CC", "NN", "NNS"]}
-{"WHADJP": ["WRB", "JJ"]}
-{"WHNP": ["WRB", "JJ"]}
-{"WHNP": ["WDT", "NNS"]}
-{"WHNP": ["WP$", "NN", "NN"]}
-{"WHNP": ["DT", "NN"]}
-{"WHNP": ["WRB", "RB"]}
-{"WHNP": ["WP$", "NNS"]}
+{"VP": ["MD", "VP"]}
+{"VP": ["VBD", "VP"]}
+{"VP": ["TO", "VP"]}
+{"VP": ["VB", "NP"]}
+{"VP": ["VBZ", "VP"]}
+{"VP": ["VBN", "NP"]}
+{"VP": ["VBD", "SBAR"]}
+{"VP": ["VBZ", "NP"]}
+{"VP": ["VBG", "NP"]}
+{"VP": ["VBP", "VP"]}
+{"VP": ["VBD", "NP"]}
+{"VP": ["VBP", "NP"]}
+{"VP": ["VBD", "S"]}
+{"VP": ["VP", "CC", "VP"]}
+{"VP": ["VBZ", "S"]}
+{"VP": ["VBN", "NP", "PP"]}
+{"VP": ["VB", "VP"]}
+{"VP": ["VBZ", "SBAR"]}
+{"VP": ["VB", "S"]}
