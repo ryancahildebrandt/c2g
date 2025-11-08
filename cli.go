@@ -43,9 +43,6 @@ var (
 				return fmt.Errorf("in ValidateOutFile(%v):\n%+w", s, err)
 			}
 			_, err = os.Open(s)
-			if err != nil {
-				return fmt.Errorf("in ValidateOutFile(%v):\n%+w", s, err)
-			}
 			if filepath.Ext(s) != ".jsgf" {
 				return fmt.Errorf("in ValidateOutFile(%v):\n%+w", s, fmt.Errorf("file extension is not .jsgf"))
 			}
