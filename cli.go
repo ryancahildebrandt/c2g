@@ -76,7 +76,7 @@ var (
 	chunk cli.StringFlag = cli.StringFlag{
 		Name: "chunk",
 		Validator: func(s string) error {
-			switch filepath.Ext(s) {
+			switch s {
 			case "token", "posTag", "conTag":
 				return nil
 			default:
@@ -100,7 +100,7 @@ var (
 	merge cli.StringFlag = cli.StringFlag{
 		Name: "merge",
 		Validator: func(s string) error {
-			switch filepath.Ext(s) {
+			switch s {
 			case "literal", "charDistance", "tokenDistance", "tfidf", "posTag", "conTag":
 				return nil
 			default:
