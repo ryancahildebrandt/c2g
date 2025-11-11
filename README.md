@@ -135,13 +135,16 @@ c2g [clone|compress|interpolate|extrapolate] [-h]
 c2g clone -outFile=out.jsgf  example.csv
 
 # convert example.csv to a grammar, merging based on POS tags, logging to ./log, and factoring chunks occurring more than 10 times
-c2g compress -chunk=posTag -logfile=log -factor=10 example.csv
+c2g compress -chunk=posTag -logfile=log -factorN=10 example.csv
 
-# convert example.csv to a grammar, merging rules with 1 or more shared chunks, factoring based on constituency tags, and only considering texts matching the top 95% of constituency tag structures in the corpus 
-c2g interpolate -preTokenized -conFactor -filterQuantile=0.95example.csv
+# convert example.csv to a grammar, merging rules with 1 or more shared chunks, factoring based on constituency tags, and filtering out texts matching the bottom 5% of constituency tag structures in the corpus 
+c2g interpolate -preTokenized -conFactor -filter=0.05 example.csv
 
 # convert example.csv to a grammar, merging rules with 1 or more shared chunks, and expanding with synonyms from syn.json
 c2g extrapolate -synFile=syn.json example.csv
+
+# convert example.csv to a grammar, merging rules with 2 shared chunks and factoring expression groups with more than 200 occurrences
+c2g custom -merge2 -factor -factorN=200 example.csv
 ```
 
 ---

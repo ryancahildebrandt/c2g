@@ -73,6 +73,7 @@ func ToRule(t Text) Rule {
 
 // Keeps only the texts matching the most common structures found in the corpus
 // structures are determined by constituency tags, texts not matching the top q quantile of structures are removed
+// higher q will remove more texts
 func FilterTexts(t []Text, tag SyntacticTagger, q float64) []Text {
 	var (
 		counts    = make(map[string]int)

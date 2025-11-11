@@ -70,7 +70,7 @@ func main() {
 					&preTokenized,
 					&chunk,
 					&prob,
-					&factor,
+					&factorN,
 					&logging,
 					&logFile,
 				},
@@ -119,7 +119,7 @@ func main() {
 					&preTokenized,
 					&chunk,
 					&prob,
-					&factor,
+					&factorN,
 					&merge,
 					&similarity,
 					&conFactor,
@@ -184,7 +184,7 @@ func main() {
 					&preTokenized,
 					&chunk,
 					&prob,
-					&factor,
+					&factorN,
 					&merge,
 					&similarity,
 					&conFactor,
@@ -236,6 +236,91 @@ func main() {
 					rules = MergeMisc(rules, eqfunc, logger)
 					rules = SetIDs(rules)
 					rules = facfunc(rules)
+					rules = synfunc(rules)
+					g = Grammar{Rules: rules}
+					g.write(cmd)
+
+					return nil
+				},
+			},
+			{
+				Name:                  "custom",
+				Usage:                 "Create a grammar with a user-specified combination of merging, factoring, and expansion strategies. This mode may produce outputs not found in the source corpus.",
+				UsageText:             "c2g custom [OPTIONS] example.txt",
+				EnableShellCompletion: true,
+				Suggest:               true,
+				Before:                prepareContext,
+				Flags: []cli.Flag{
+					&inFile,
+					&outFile,
+					&printMain,
+					&preTokenized,
+					&chunk,
+					&prob,
+					&factorN,
+					&merge,
+					&similarity,
+					&conFactor,
+					&filterQuantile,
+					&synFile,
+					&merge1,
+					&merge2,
+					&mergemisc,
+					&factor,
+					&logging,
+					&logFile,
+				},
+				Action: func(ctx context.Context, cmd *cli.Command) error {
+					var (
+						texts   []Text
+						rules   []Rule
+						g       Grammar
+						err     error
+						logger  *log.Logger
+						eqfunc  EqualityFunction
+						facfunc FactorFunction
+						synfunc FactorFunction
+					)
+
+					logger, err = setLogger(cmd)
+					if err != nil {
+						return err
+					}
+					eqfunc, err = setMerge(cmd)
+					if err != nil {
+						return err
+					}
+					facfunc, err = setFactor(cmd)
+					if err != nil {
+						return err
+					}
+					synfunc, err = setSynonyms(cmd)
+					if err != nil {
+						return err
+					}
+					texts, err = readInfile(cmd)
+					if err != nil {
+						return err
+					}
+
+					rules = applyChunking(texts, cmd)
+					if cmd.Bool("merge2") {
+						rules = MergePR(rules, eqfunc, logger)
+						rules = MergePS(rules, eqfunc, logger)
+						rules = MergeRS(rules, eqfunc, logger)
+					}
+					if cmd.Bool("merge1") {
+						rules = MergeP(rules, eqfunc, logger)
+						rules = MergeR(rules, eqfunc, logger)
+						rules = MergeS(rules, eqfunc, logger)
+					}
+					if cmd.Bool("mergemisc") {
+						rules = MergeMisc(rules, eqfunc, logger)
+					}
+					rules = SetIDs(rules)
+					if cmd.Bool("factor") {
+						rules = facfunc(rules)
+					}
 					rules = synfunc(rules)
 					g = Grammar{Rules: rules}
 					g.write(cmd)

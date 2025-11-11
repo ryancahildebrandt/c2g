@@ -30,7 +30,7 @@ func (g *Grammar) frontMatter(c *cli.Command) string {
 	b.WriteString(fmt.Sprintf("\"command\":%v, ", c.Name))
 	b.WriteString(fmt.Sprintf("\"inFile\":%v, ", c.String("inFile")))
 
-	for _, f := range c.Root().VisibleFlags() {
+	for _, f := range c.Flags {
 		if f.Names()[0] == "help" {
 			continue
 		}
@@ -104,7 +104,7 @@ func (g *Grammar) bodyMain() string {
 	return strings.TrimSpace(b.String())
 }
 
-// Writes grammar to file
+// Writes grammar to file or stdout
 func (g *Grammar) write(c *cli.Command) error {
 	var (
 		err       error
@@ -118,9 +118,11 @@ func (g *Grammar) write(c *cli.Command) error {
 	switch {
 	case out == "" && !printMain:
 		b.WriteString(g.body())
+		fmt.Println(b.String())
 		return nil
 	case out == "" && printMain:
 		b.WriteString(g.bodyMain())
+		fmt.Println(b.String())
 		return nil
 	case !printMain:
 		b.WriteString(g.body())

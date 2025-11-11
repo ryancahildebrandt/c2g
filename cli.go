@@ -121,8 +121,8 @@ var (
 		Usage: "similarity threshold above which expression groups will be considered eqivalent",
 	}
 
-	factor cli.IntFlag = cli.IntFlag{
-		Name:  "factor",
+	factorN cli.IntFlag = cli.IntFlag{
+		Name:  "factorN",
 		Value: 1,
 		Validator: func(i int) error {
 			if i < 0 {
@@ -155,6 +155,27 @@ var (
 		Usage: "user provided json file containing synonyms. Overrides the value of expand flag if provided",
 	}
 
+	merge1 cli.BoolFlag = cli.BoolFlag{
+		Name:  "merge1",
+		Value: false,
+		Usage: "merge rules with 1 shared expression group",
+	}
+	merge2 cli.BoolFlag = cli.BoolFlag{
+		Name:  "merge2",
+		Value: false,
+		Usage: "merge rules with 2 shared expression groups",
+	}
+	mergemisc cli.BoolFlag = cli.BoolFlag{
+		Name:  "mergemisc",
+		Value: false,
+		Usage: "merge rules where prefix, root, and suffix are all len==1 or empty into one rule",
+	}
+	factor cli.BoolFlag = cli.BoolFlag{
+		Name:  "factor",
+		Value: false,
+		Usage: "apply factoring after rule merging",
+	}
+
 	logging cli.BoolFlag = cli.BoolFlag{
 		Name:  "log",
 		Value: false,
@@ -171,7 +192,6 @@ var (
 			if err != nil {
 				return fmt.Errorf("in ValidateLogFile(%v):\n%+w", s, err)
 			}
-
 			return nil
 		},
 		Usage: "log file. If -l is set and logFile is blank, logging is returned to stdout",
@@ -220,10 +240,10 @@ func readInfile(cmd *cli.Command) ([]Text, error) {
 
 	scanner = bufio.NewScanner(file)
 	texts = ReadTexts(scanner)
-	if cmd.Float64("filterQuantile") != 0.0 {
+	if cmd.Float64("filter") != 0.0 {
 		model = tag.NewPerceptronTagger()
 		tagger = NewSyntacticTagger(model, tokenizer)
-		texts = FilterTexts(texts, tagger, cmd.Float64("filterQuantile"))
+		texts = FilterTexts(texts, tagger, cmd.Float64("filter"))
 	}
 
 	for i := range texts {
@@ -344,9 +364,9 @@ func setFactor(cmd *cli.Command) (FactorFunction, error) {
 		tokenizer := setTokenizer(cmd)
 		model := tag.NewPerceptronTagger()
 		tagger := NewSyntacticTagger(model, tokenizer)
-		return ConstituencyFactor(tagger, cmd.Int("factor"), logger), nil
+		return ConstituencyFactor(tagger, cmd.Int("factorN"), logger), nil
 	}
-	return ExpressionFactor(cmd.Int("factor"), logger), nil
+	return ExpressionFactor(cmd.Int("factorN"), logger), nil
 }
 
 // Sets synonym expansion behavior based on cli flags
