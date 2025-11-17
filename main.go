@@ -278,7 +278,7 @@ func main() {
 					&synFile,
 					&merge1,
 					&merge2,
-					&mergemisc,
+					&mergeMisc,
 					&factor,
 					&logging,
 					&logFile,

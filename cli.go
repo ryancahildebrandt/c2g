@@ -164,8 +164,8 @@ var (
 		Value: false,
 		Usage: "merge rules with 2 shared expression groups",
 	}
-	mergemisc cli.BoolFlag = cli.BoolFlag{
-		Name:  "mergemisc",
+	mergeMisc cli.BoolFlag = cli.BoolFlag{
+		Name:  "mergeMisc",
 		Value: false,
 		Usage: "merge rules where prefix, root, and suffix are all len==1 or empty into one rule",
 	}

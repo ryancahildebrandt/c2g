@@ -81,10 +81,16 @@ func FilterTexts(t []Text, tag SyntacticTagger, q float64) []Text {
 		vals      = []float64{}
 		threshold float64
 	)
-	if len(t) == 0 {
+	switch {
+	case len(t) == 0:
 		return t
-
+	case q == 0.0:
+		return t
+	case q == 1.0:
+		return []Text{}
+	default:
 	}
+
 	for i := range t {
 		sig, _ := tag.Constituency(t[i].text)
 		sigs = append(sigs, strings.Join(sig, "-"))
