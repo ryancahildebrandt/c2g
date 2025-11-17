@@ -203,7 +203,7 @@ var (
 func NewFileLogger(p string) (*log.Logger, error) {
 	f, err := os.OpenFile(p, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0644)
 	if err != nil {
-		return &log.Logger{}, err
+		return &log.Logger{}, fmt.Errorf("in NewFileLogger():\n%+w", err)
 	}
 	return log.New(f, "INFO:", log.LstdFlags|log.Lmicroseconds|log.Llongfile), nil
 }
@@ -233,7 +233,7 @@ func readInfile(cmd *cli.Command) ([]Text, error) {
 
 	file, err = os.Open(cmd.String("inFile"))
 	if err != nil {
-		return texts, fmt.Errorf("in readInFile(%v):\n%+w", cmd, err)
+		return texts, fmt.Errorf("in readInFile():\n%+w", err)
 	}
 	defer file.Close()
 
@@ -283,7 +283,7 @@ func setLogger(cmd *cli.Command) (*log.Logger, error) {
 	case cmd.String("logFile") != "":
 		logger, err := NewFileLogger(cmd.String("logFile"))
 		if err != nil {
-			return nilLogger, fmt.Errorf("in setLogger(%v):\n%+w", cmd, err)
+			return nilLogger, fmt.Errorf("in setLogger():\n%+w", err)
 		}
 		return logger, nil
 	case cmd.Bool("log"):
@@ -322,7 +322,7 @@ func setChunk(cmd *cli.Command) TransitionSplitFunction {
 func setMerge(cmd *cli.Command) (EqualityFunction, error) {
 	logger, err := setLogger(cmd)
 	if err != nil {
-		return func(e1, e2 []string) bool { return false }, fmt.Errorf("in setMerge(%v):\n%+w", cmd, err)
+		return func(e1, e2 []string) bool { return false }, fmt.Errorf("in setMerge():\n%+w", err)
 	}
 	switch cmd.String("merge") {
 	case "charDistance":
@@ -333,7 +333,7 @@ func setMerge(cmd *cli.Command) (EqualityFunction, error) {
 		tokenizer := setTokenizer(cmd)
 		texts, err := readInfile(cmd)
 		if err != nil {
-			return func(e1, e2 []string) bool { return false }, fmt.Errorf("in setMerge(%v):\n%+w", cmd, err)
+			return func(e1, e2 []string) bool { return false }, fmt.Errorf("in setMerge():\n%+w", err)
 		}
 		v := CollectVocab(texts, tokenizer)
 		idf := CollectIDF(texts, tokenizer)
@@ -357,7 +357,7 @@ func setMerge(cmd *cli.Command) (EqualityFunction, error) {
 func setFactor(cmd *cli.Command) (FactorFunction, error) {
 	logger, err := setLogger(cmd)
 	if err != nil {
-		return func(r []Rule) []Rule { return r }, fmt.Errorf("in setFactor(%v):\n%+w", cmd, err)
+		return func(r []Rule) []Rule { return r }, fmt.Errorf("in setFactor():\n%+w", err)
 	}
 	if cmd.Bool("conFactor") {
 		tokenizer := setTokenizer(cmd)
@@ -372,12 +372,14 @@ func setFactor(cmd *cli.Command) (FactorFunction, error) {
 func setSynonyms(cmd *cli.Command) (FactorFunction, error) {
 	logger, err := setLogger(cmd)
 	if err != nil {
-		return func(r []Rule) []Rule { return r }, fmt.Errorf("in setSynonyms(%v):\n%+w", cmd, err)
-
+		return func(r []Rule) []Rule { return r }, fmt.Errorf("in setSynonyms():\n%+w", err)
+	}
+	if cmd.String("synFile") == "" {
+		return func(r []Rule) []Rule { return r }, nil
 	}
 	syn, err := ReadSynonyms(cmd.String("synFile"))
 	if err != nil {
-		return func(r []Rule) []Rule { return r }, fmt.Errorf("in setSynonyms(%v):\n%+w", cmd, err)
+		return func(r []Rule) []Rule { return r }, fmt.Errorf("in setSynonyms():\n%+w", err)
 	}
 	tokenizer := setTokenizer(cmd)
 

@@ -37,14 +37,16 @@ func main() {
 				},
 				Action: func(ctx context.Context, cmd *cli.Command) error {
 					var (
-						texts []Text
-						rules []Rule
-						g     Grammar
-						err   error
+						texts  []Text
+						rules  []Rule
+						g      Grammar
+						err    error
+						logger *log.Logger
 					)
 
 					texts, err = readInfile(cmd)
 					if err != nil {
+						logger.Printf("Error: %v", err)
 						return err
 					}
 
@@ -85,10 +87,12 @@ func main() {
 
 					logger, err = setLogger(cmd)
 					if err != nil {
+						logger.Printf("Error: %v", err)
 						return err
 					}
 					texts, err = readInfile(cmd)
 					if err != nil {
+						logger.Printf("Error: %v", err)
 						return err
 					}
 
@@ -139,18 +143,22 @@ func main() {
 					)
 					logger, err = setLogger(cmd)
 					if err != nil {
+						logger.Printf("Error: %v", err)
 						return err
 					}
 					eqfunc, err = setMerge(cmd)
 					if err != nil {
+						logger.Printf("Error: %v", err)
 						return err
 					}
 					facfunc, err = setFactor(cmd)
 					if err != nil {
+						logger.Printf("Error: %v", err)
 						return err
 					}
 					texts, err = readInfile(cmd)
 					if err != nil {
+						logger.Printf("Error: %v", err)
 						return err
 					}
 
@@ -207,22 +215,27 @@ func main() {
 
 					logger, err = setLogger(cmd)
 					if err != nil {
+						logger.Printf("Error: %v", err)
 						return err
 					}
 					eqfunc, err = setMerge(cmd)
 					if err != nil {
+						logger.Printf("Error: %v", err)
 						return err
 					}
 					facfunc, err = setFactor(cmd)
 					if err != nil {
+						logger.Printf("Error: %v", err)
 						return err
 					}
 					synfunc, err = setSynonyms(cmd)
 					if err != nil {
+						logger.Printf("Error: %v", err)
 						return err
 					}
 					texts, err = readInfile(cmd)
 					if err != nil {
+						logger.Printf("Error: %v", err)
 						return err
 					}
 
@@ -284,22 +297,27 @@ func main() {
 
 					logger, err = setLogger(cmd)
 					if err != nil {
+						logger.Printf("Error: %v", err)
 						return err
 					}
 					eqfunc, err = setMerge(cmd)
 					if err != nil {
+						logger.Printf("Error: %v", err)
 						return err
 					}
 					facfunc, err = setFactor(cmd)
 					if err != nil {
+						logger.Printf("Error: %v", err)
 						return err
 					}
 					synfunc, err = setSynonyms(cmd)
 					if err != nil {
+						logger.Printf("Error: %v", err)
 						return err
 					}
 					texts, err = readInfile(cmd)
 					if err != nil {
+						logger.Printf("Error: %v", err)
 						return err
 					}
 
